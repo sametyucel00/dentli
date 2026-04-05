@@ -28,19 +28,60 @@ MYAPP_UPLOAD_STORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD
 MYAPP_UPLOAD_KEY_PASSWORD=$ANDROID_KEY_PASSWORD
 EOF
 
-python3 - <<'PY'
-from pathlib import Path
+node <<'NODE'
+const fs = require('node:fs');
+const path = 'android/app/build.gradle';
+let text = fs.readFileSync(path, 'utf8');
 
-path = Path("android/app/build.gradle")
-text = path.read_text(encoding="utf-8")
+const releaseSigningBlock = `        release {
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
+`;
 
-if "signingConfig signingConfigs.release" not in text:
-    text = text.replace(
-        "signingConfig signingConfigs.debug",
-        "signingConfig signingConfigs.release"
-    )
+if (!text.includes('signingConfigs {\n')) {
+  throw new Error('Could not find signingConfigs block in android/app/build.gradle');
+}
 
-path.write_text(text, encoding="utf-8")
-PY
+if (!text.includes('signingConfigs.release')) {
+  const debugBlock = `        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+`;
+
+  if (!text.includes(debugBlock)) {
+    throw new Error('Could not find debug signing config block to extend');
+  }
+
+  text = text.replace(debugBlock, `${debugBlock}${releaseSigningBlock}`);
+}
+
+const releaseBuildDebugSigning = `        release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.debug
+`;
+
+const releaseBuildReleaseSigning = `        release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.release
+`;
+
+if (text.includes(releaseBuildDebugSigning)) {
+  text = text.replace(releaseBuildDebugSigning, releaseBuildReleaseSigning);
+} else if (!text.includes('signingConfig signingConfigs.release')) {
+  throw new Error('Could not find release buildType signing config to replace');
+}
+
+fs.writeFileSync(path, text, 'utf8');
+NODE
 
 echo "Android signing prepared successfully."
