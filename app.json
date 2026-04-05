@@ -1,8 +1,12 @@
 {
   "expo": {
     "name": "Dentli",
-    "slug": "Dentli",
+    "slug": "dentli",
     "version": "1.0.0",
+    "description": "Local-first dental care tracking for routines, symptoms, appointments, tooth history, and gentle reminders.",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "dentli",
@@ -14,15 +18,26 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dentli.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "CFBundleDisplayName": "Dentli",
+        "NSUserNotificationsUsageDescription": "Dentli uses notifications for brushing, flossing, appointment, and care reminders that you choose to enable."
+      }
     },
     "android": {
+      "package": "com.dentli.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -30,7 +45,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/adaptive-icon.png",
+          "color": "#0F7B6C"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

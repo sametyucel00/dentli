@@ -1,0 +1,71 @@
+import { CareItem, CareItemType } from '@/src/domain/models';
+import { CareItemMutationInput } from '@/src/services/care-service.types';
+
+export type CareItemDraft = {
+  title: string;
+  description: string;
+  itemType: CareItemType;
+  replacementCycleDays: string;
+  lastReplacedAt: string;
+};
+
+export type CareCountdown = {
+  daysLeft: number | null;
+  dueNow: boolean;
+};
+
+export function createInitialCareItemDraft(): CareItemDraft {
+  return {
+    title: '',
+    description: '',
+    itemType: 'toothbrush',
+    replacementCycleDays: '',
+    lastReplacedAt: new Date().toISOString(),
+  };
+}
+
+export function mapCareItemToDraft(item: CareItem): CareItemDraft {
+  return {
+    title: item.title,
+    description: item.description ?? '',
+    itemType: item.itemType,
+    replacementCycleDays: item.replacementCycleDays?.toString() ?? '',
+    lastReplacedAt: item.lastReplacedAt ?? new Date().toISOString(),
+  };
+}
+
+export function getCareCountdown(item: CareItem): CareCountdown {
+  if (!item.trackingEnabled || !item.lastReplacedAt || !item.replacementCycleDays) {
+    return { daysLeft: null, dueNow: false };
+  }
+
+  const nextReplacementAt = new Date(item.lastReplacedAt);
+  nextReplacementAt.setDate(
+    nextReplacementAt.getDate() + item.replacementCycleDays,
+  );
+
+  const daysLeft = Math.ceil(
+    (nextReplacementAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
+
+  return {
+    daysLeft,
+    dueNow: daysLeft <= 0,
+  };
+}
+
+export function mapDraftToCareItemInput(
+  profileId: string,
+  draft: CareItemDraft,
+): CareItemMutationInput {
+  return {
+    profileId,
+    title: draft.title.trim(),
+    description: draft.description.trim() || null,
+    itemType: draft.itemType,
+    replacementCycleDays: draft.replacementCycleDays
+      ? Number(draft.replacementCycleDays)
+      : null,
+    lastReplacedAt: draft.lastReplacedAt.trim() || null,
+  };
+}

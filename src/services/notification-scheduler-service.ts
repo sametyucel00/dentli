@@ -1,0 +1,381 @@
+import { Appointment, DailyActionKey, HygieneEvent, RoutineSettings } from '@/src/domain/models';
+import i18n from '@/src/i18n';
+import { appointmentsRepository, hygieneEventsRepository, routineSettingsRepository } from '@/src/repositories';
+import { notificationService, NotificationRequest } from '@/src/services/notification-service';
+
+const QUIET_HOURS = {
+  startHour: 22,
+  endHour: 8,
+} as const;
+
+const DEFAULT_ROUTINE_MINUTES = {
+  morning_brush: 8 * 60 + 30,
+  night_brush: 21 * 60,
+  floss: 21 * 60 + 15,
+  mouthwash: 21 * 60 + 30,
+} satisfies Record<DailyActionKey, number>;
+
+const ACTION_TIME_WINDOWS = {
+  morning_brush: { min: 6 * 60, max: 11 * 60 },
+  night_brush: { min: 19 * 60, max: 22 * 60 },
+  floss: { min: 19 * 60 + 30, max: 22 * 60 },
+  mouthwash: { min: 20 * 60, max: 22 * 60 },
+} satisfies Record<DailyActionKey, { min: number; max: number }>;
+
+function createRoutineNotificationId(profileId: string, actionKey: DailyActionKey) {
+  return `routine_${profileId}_${actionKey}`;
+}
+
+function createToothbrushNotificationId(profileId: string) {
+  return `care_${profileId}_toothbrush`;
+}
+
+function createDentalCheckNotificationId(profileId: string) {
+  return `dental_${profileId}_check`;
+}
+
+function parseTimeToMinutes(value: string | null) {
+  if (!value) return null;
+  const [hour, minute] = value.split(':').map(Number);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return hour * 60 + minute;
+}
+
+function addLocalDays(date: Date, days: number) {
+  const value = new Date(date);
+  value.setDate(value.getDate() + days);
+  return value;
+}
+
+function setMinutesOnDate(date: Date, minutes: number) {
+  const value = new Date(date);
+  value.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return value;
+}
+
+function startOfDay(date: Date) {
+  const value = new Date(date);
+  value.setHours(0, 0, 0, 0);
+  return value;
+}
+
+function endOfDay(date: Date) {
+  const value = startOfDay(date);
+  value.setDate(value.getDate() + 1);
+  return value;
+}
+
+function isWithinQuietHours(date: Date) {
+  const hour = date.getHours();
+  return hour >= QUIET_HOURS.startHour || hour < QUIET_HOURS.endHour;
+}
+
+function nextAllowedDate(date: Date) {
+  const value = new Date(date);
+
+  if (!isWithinQuietHours(value)) {
+    return value;
+  }
+
+  if (value.getHours() >= QUIET_HOURS.startHour) {
+    value.setDate(value.getDate() + 1);
+  }
+
+  value.setHours(QUIET_HOURS.endHour, 0, 0, 0);
+  return value;
+}
+
+function previousAllowedDate(date: Date) {
+  const value = new Date(date);
+
+  if (!isWithinQuietHours(value)) {
+    return value;
+  }
+
+  if (value.getHours() < QUIET_HOURS.endHour) {
+    value.setDate(value.getDate() - 1);
+  }
+
+  value.setHours(QUIET_HOURS.startHour - 1, 30, 0, 0);
+  return value;
+}
+
+function clampMinutes(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function averageCompletionMinutes(events: HygieneEvent[], fallbackMinutes: number, actionKey: DailyActionKey) {
+  if (events.length === 0) {
+    return fallbackMinutes;
+  }
+
+  const total = events.reduce((sum, event) => {
+    const date = new Date(event.occurredAt);
+    return sum + date.getHours() * 60 + date.getMinutes();
+  }, 0);
+
+  const average = Math.round(total / events.length);
+  const window = ACTION_TIME_WINDOWS[actionKey];
+  return clampMinutes(average, window.min, window.max);
+}
+
+function hasActionToday(todayEvents: HygieneEvent[], actionKey: DailyActionKey) {
+  return todayEvents.some((event) => event.actionKey === actionKey);
+}
+
+function buildRoutineNotificationCopy(actionKey: DailyActionKey) {
+  return {
+    title: i18n.t(`notifications.routines.${actionKey}.title`),
+    body: i18n.t(`notifications.routines.${actionKey}.body`),
+  };
+}
+
+function buildRoutineScheduleDate(input: {
+  actionKey: DailyActionKey;
+  adaptiveMinutes: number;
+  preferredMinutes: number;
+  todayEvents: HygieneEvent[];
+  now: Date;
+}) {
+  const baseMinutes = input.adaptiveMinutes || input.preferredMinutes;
+  const scheduleToday = setMinutesOnDate(input.now, baseMinutes);
+  const alreadyDone = hasActionToday(input.todayEvents, input.actionKey);
+  const hasPassed = scheduleToday.getTime() <= input.now.getTime() + 90 * 60 * 1000;
+
+  if (alreadyDone || hasPassed) {
+    return nextAllowedDate(setMinutesOnDate(addLocalDays(input.now, 1), baseMinutes));
+  }
+
+  return nextAllowedDate(scheduleToday);
+}
+
+function buildAppointmentReminderSchedule(appointment: Appointment, now: Date) {
+  if (!appointment.reminderEnabled || appointment.reminderMinutesBefore === null) {
+    return null;
+  }
+
+  const rawDate = new Date(
+    new Date(appointment.startsAt).getTime() - appointment.reminderMinutesBefore * 60 * 1000,
+  );
+
+  if (rawDate.getTime() <= now.getTime()) {
+    return null;
+  }
+
+  const allowedDate = previousAllowedDate(rawDate);
+  if (allowedDate.getTime() <= now.getTime()) {
+    return null;
+  }
+
+  if (allowedDate.getTime() >= new Date(appointment.startsAt).getTime()) {
+    return null;
+  }
+
+  return allowedDate;
+}
+
+class NotificationSchedulerService {
+  async syncForProfile(profileId: string) {
+    await notificationService.cancelByPrefix(`routine_${profileId}_`);
+    await notificationService.cancelByPrefix(`care_${profileId}_`);
+    await notificationService.cancelByPrefix(`dental_${profileId}_`);
+
+    const [routineSettings, appointments] = await Promise.all([
+      routineSettingsRepository.getByProfileId(profileId),
+      appointmentsRepository.listByProfileId(profileId),
+    ]);
+
+    if (!routineSettings?.remindersEnabled) {
+      await this.syncAppointmentRemindersForProfile(profileId, appointments);
+      return;
+    }
+
+    const now = new Date();
+    const [todayEvents, recentMorningBrushes, recentNightBrushes, recentFlosses, recentMouthwashes] =
+      await Promise.all([
+        hygieneEventsRepository.listByDateRange(profileId, startOfDay(now).toISOString(), endOfDay(now).toISOString()),
+        hygieneEventsRepository.listByActionKey(profileId, 'morning_brush'),
+        hygieneEventsRepository.listByActionKey(profileId, 'night_brush'),
+        hygieneEventsRepository.listByActionKey(profileId, 'floss'),
+        hygieneEventsRepository.listByActionKey(profileId, 'mouthwash'),
+      ]);
+
+    const reminderBaseMinutes = parseTimeToMinutes(routineSettings.reminderTime) ?? DEFAULT_ROUTINE_MINUTES.night_brush;
+    const adaptiveMinutesByAction: Record<DailyActionKey, number> = {
+      morning_brush: averageCompletionMinutes(recentMorningBrushes, DEFAULT_ROUTINE_MINUTES.morning_brush, 'morning_brush'),
+      night_brush: averageCompletionMinutes(recentNightBrushes, reminderBaseMinutes, 'night_brush'),
+      floss: averageCompletionMinutes(recentFlosses, reminderBaseMinutes + 15, 'floss'),
+      mouthwash: averageCompletionMinutes(recentMouthwashes, reminderBaseMinutes + 30, 'mouthwash'),
+    };
+
+    await this.scheduleRoutineReminder(profileId, 'morning_brush', todayEvents, now, adaptiveMinutesByAction.morning_brush, DEFAULT_ROUTINE_MINUTES.morning_brush);
+    await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, reminderBaseMinutes);
+
+    if (routineSettings.flossingEnabled) {
+      await this.scheduleRoutineReminder(profileId, 'floss', todayEvents, now, adaptiveMinutesByAction.floss, reminderBaseMinutes + 15);
+    }
+
+    if (routineSettings.mouthwashEnabled) {
+      await this.scheduleRoutineReminder(profileId, 'mouthwash', todayEvents, now, adaptiveMinutesByAction.mouthwash, reminderBaseMinutes + 30);
+    }
+
+    await this.scheduleToothbrushReminder(profileId, routineSettings, now);
+    await this.scheduleDentalCheckReminder(profileId, appointments, now);
+    await this.syncAppointmentRemindersForProfile(profileId, appointments);
+  }
+
+  async syncAppointmentReminder(appointment: Appointment) {
+    const request = this.buildAppointmentReminderRequest(appointment, new Date());
+
+    if (!request) {
+      if (appointment.reminderNotificationId) {
+        await notificationService.cancel(appointment.reminderNotificationId);
+      }
+      return;
+    }
+
+    await notificationService.schedule(request);
+  }
+
+  async syncAppointmentRemindersForProfile(profileId: string, appointments?: Appointment[]) {
+    const appointmentList = appointments ?? (await appointmentsRepository.listByProfileId(profileId));
+    const activeReminderIds = new Set(
+      appointmentList
+        .map((appointment) =>
+          appointment.reminderEnabled ? appointment.reminderNotificationId : null,
+        )
+        .filter((value): value is string => Boolean(value)),
+    );
+    const scheduledNotifications = await notificationService.listScheduled();
+
+    for (const scheduledNotification of scheduledNotifications) {
+      if (
+        scheduledNotification.intent === 'appointment_reminder' &&
+        scheduledNotification.profileId === profileId &&
+        !activeReminderIds.has(scheduledNotification.id)
+      ) {
+        await notificationService.cancel(scheduledNotification.id);
+      }
+    }
+
+    for (const appointment of appointmentList) {
+      await this.syncAppointmentReminder(appointment);
+    }
+  }
+
+  private async scheduleRoutineReminder(
+    profileId: string,
+    actionKey: DailyActionKey,
+    todayEvents: HygieneEvent[],
+    now: Date,
+    adaptiveMinutes: number,
+    preferredMinutes: number,
+  ) {
+    const scheduledFor = buildRoutineScheduleDate({
+      actionKey,
+      adaptiveMinutes,
+      preferredMinutes,
+      todayEvents,
+      now,
+    });
+
+    const copy = buildRoutineNotificationCopy(actionKey);
+    await notificationService.schedule({
+      id: createRoutineNotificationId(profileId, actionKey),
+      profileId,
+      intent: 'routine_reminder',
+      title: copy.title,
+      body: copy.body,
+      scheduledFor: scheduledFor.toISOString(),
+    });
+  }
+
+  private async scheduleToothbrushReminder(
+    profileId: string,
+    routineSettings: RoutineSettings,
+    now: Date,
+  ) {
+    if (!routineSettings.toothbrushLastReplacedAt) {
+      return;
+    }
+
+    const dueDate = new Date(routineSettings.toothbrushLastReplacedAt);
+    dueDate.setDate(dueDate.getDate() + routineSettings.toothbrushReplacementIntervalDays);
+    dueDate.setHours(10, 0, 0, 0);
+
+    const scheduledFor = dueDate.getTime() <= now.getTime()
+      ? nextAllowedDate(new Date(now.getTime() + 60 * 60 * 1000))
+      : nextAllowedDate(dueDate);
+
+    await notificationService.schedule({
+      id: createToothbrushNotificationId(profileId),
+      profileId,
+      intent: 'care_item_due',
+      title: i18n.t('notifications.toothbrush.title'),
+      body: i18n.t('notifications.toothbrush.body'),
+      scheduledFor: scheduledFor.toISOString(),
+    });
+  }
+
+  private async scheduleDentalCheckReminder(
+    profileId: string,
+    appointments: Appointment[],
+    now: Date,
+  ) {
+    const futureScheduledAppointment = appointments.find(
+      (appointment) =>
+        appointment.status === 'scheduled' &&
+        new Date(appointment.startsAt).getTime() > now.getTime(),
+    );
+
+    if (futureScheduledAppointment) {
+      return;
+    }
+
+    const latestAppointment = [...appointments]
+      .filter((appointment) => appointment.status !== 'cancelled')
+      .sort((left, right) => new Date(right.startsAt).getTime() - new Date(left.startsAt).getTime())[0] ?? null;
+
+    const dueDate = latestAppointment
+      ? new Date(latestAppointment.startsAt)
+      : new Date(now);
+
+    dueDate.setDate(dueDate.getDate() + (latestAppointment ? 180 : 30));
+    dueDate.setHours(10, 0, 0, 0);
+
+    const scheduledFor = dueDate.getTime() <= now.getTime()
+      ? nextAllowedDate(new Date(now.getTime() + 2 * 60 * 60 * 1000))
+      : nextAllowedDate(dueDate);
+
+    await notificationService.schedule({
+      id: createDentalCheckNotificationId(profileId),
+      profileId,
+      intent: 'dental_check_reminder',
+      title: i18n.t('notifications.dentalCheck.title'),
+      body: i18n.t('notifications.dentalCheck.body'),
+      scheduledFor: scheduledFor.toISOString(),
+    });
+  }
+
+  private buildAppointmentReminderRequest(
+    appointment: Appointment,
+    now: Date,
+  ): NotificationRequest | null {
+    const scheduledFor = buildAppointmentReminderSchedule(appointment, now);
+    if (!scheduledFor || !appointment.reminderNotificationId) {
+      return null;
+    }
+
+    return {
+      id: appointment.reminderNotificationId,
+      profileId: appointment.profileId,
+      intent: 'appointment_reminder',
+      title: appointment.title,
+      body: appointment.providerName ?? i18n.t('notifications.appointment.body'),
+      scheduledFor: scheduledFor.toISOString(),
+    };
+  }
+}
+
+export const notificationSchedulerService = new NotificationSchedulerService();

@@ -1,40 +1,26 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
-import { Text, View } from '@/components/Themed';
+import { Button } from '@/src/ui/base/Button';
+import { Screen } from '@/src/ui/base/Screen';
+import { Text } from '@/src/ui/base/Text';
 
 export default function NotFoundScreen() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
+  const { t } = useTranslation();
 
-        <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
-        </Link>
-      </View>
-    </>
+  return (
+    <Screen contentContainerStyle={{ justifyContent: 'center' }}>
+      <Text variant="display" weight="bold">
+        {t('common.notFoundTitle')}
+      </Text>
+      <Text color="muted" style={{ marginTop: 12 }}>
+        {t('common.notFoundBody')}
+      </Text>
+      <Button
+        title={t('common.goToToday')}
+        onPress={() => router.replace('/(tabs)/today')}
+        style={{ marginTop: 24 }}
+      />
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
-});

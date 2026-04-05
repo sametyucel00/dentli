@@ -1,0 +1,8 @@
+export { appEntitlementsRepository } from '@/src/repositories/app-entitlements-repository';
+export { appointmentsRepository } from '@/src/repositories/appointments-repository';
+export { careItemsRepository } from '@/src/repositories/care-items-repository';
+export { hygieneEventsRepository } from '@/src/repositories/hygiene-events-repository';
+export { profileRepository } from '@/src/repositories/profile-repository';
+export { routineSettingsRepository } from '@/src/repositories/routine-settings-repository';
+export { symptomEventsRepository } from '@/src/repositories/symptom-events-repository';
+export { toothStatusRepository } from '@/src/repositories/tooth-status-repository';
