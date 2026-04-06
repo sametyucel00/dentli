@@ -123,8 +123,9 @@ export function MapScreen() {
               flexWrap: 'wrap',
               gap: theme.spacing.lg,
               marginTop: theme.spacing.lg,
+              width: '100%',
             }}>
-            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined }}>
+            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined, width: '100%' }}>
               <ToothJawSection
                 isInteractive
                 onSelectTooth={map.openTooth}
@@ -134,7 +135,7 @@ export function MapScreen() {
                 title={t('toothMap.jaws.upper')}
               />
             </View>
-            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined }}>
+            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined, width: '100%' }}>
               <ToothJawSection
                 isInteractive
                 onSelectTooth={map.openTooth}

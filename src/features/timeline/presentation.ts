@@ -31,9 +31,14 @@ export function getTimelineItemIcon(kind: TimelineItem['kind']) {
 
 export function getTimelineItemCopy(item: TimelineItem, t: TFunction) {
   if (item.kind === 'hygiene') {
+    const isInternalNote =
+      item.event.notes === 'timer_completion' || item.event.notes === 'extra_same_day_log';
+
     return {
       title: getHygieneActionLabel(item.event.actionKey, item.event.eventType, t),
-      subtitle: item.event.notes ?? t('timeline.common.noNote'),
+      subtitle: isInternalNote
+        ? t('timeline.common.noNote')
+        : item.event.notes ?? t('timeline.common.noNote'),
     };
   }
 
@@ -48,15 +53,10 @@ export function getTimelineItemCopy(item: TimelineItem, t: TFunction) {
   }
 
   if (item.kind === 'appointment') {
-    const detailParts = [
-      item.event.clinicName,
-      item.event.doctorName,
-    ].filter(Boolean);
+    const detailParts = [item.event.clinicName, item.event.doctorName].filter(Boolean);
     return {
       title: item.event.title,
-      subtitle:
-        detailParts.join(' • ') ||
-        t(`appointments.types.${item.event.appointmentType}`),
+      subtitle: detailParts.join(' • ') || t(`appointments.types.${item.event.appointmentType}`),
     };
   }
 

@@ -30,6 +30,7 @@ export function MonthlyCompletionCard({
         flexWrap: 'wrap',
         gap: theme.spacing.md,
         marginTop: theme.spacing.lg,
+        width: '100%',
       }}>
       {metrics.map((metric) => (
         <View
@@ -40,6 +41,7 @@ export function MonthlyCompletionCard({
             flexBasis: isExpanded ? '48.5%' : '100%',
             gap: theme.spacing.xs,
             padding: theme.spacing.md,
+            width: isExpanded ? undefined : '100%',
           }}>
           {(() => {
             const isTracked = metric.expectedCount > 0 && Number.isFinite(metric.completionRate);

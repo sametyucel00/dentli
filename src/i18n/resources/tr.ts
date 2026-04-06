@@ -519,6 +519,10 @@ export const tr = {
     },
     loading: 'Randevular yükleniyor...',
     noProvider: 'Sağlayıcı yok',
+    empty: {
+      title: 'Henüz randevu yok',
+      body: 'Hatırlatıcı ve detay takibi için ilk ziyaretini oluştur.',
+    },
   },
   dentistMode: {
     ...en.dentistMode,

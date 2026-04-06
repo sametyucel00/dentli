@@ -41,13 +41,11 @@ export function WeeklyHeatmap({
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
-  const { isTablet } = useResponsiveLayout();
+  useResponsiveLayout();
   const isCompactWidth = width < 390;
-  const cellMinWidth = isCompactWidth ? 42 : isTablet ? 76 : 0;
-
   return (
     <View style={{ marginTop: theme.spacing.lg }}>
-      <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
+      <View style={{ flexDirection: 'row' }}>
         {cells.map((cell) => (
           <View
             key={cell.id}
@@ -55,7 +53,8 @@ export function WeeklyHeatmap({
               alignItems: 'center',
               flex: 1,
               gap: theme.spacing.xs,
-              minWidth: cellMinWidth,
+              marginHorizontal: theme.spacing.xxs / 2,
+              minWidth: 0,
             }}>
             <View
               style={{
@@ -65,7 +64,7 @@ export function WeeklyHeatmap({
                 borderRadius: theme.radii.sm,
                 borderWidth: theme.mode === 'dark' && cell.intensity === 0 ? 1 : 0,
                 justifyContent: 'center',
-                minHeight: isCompactWidth ? 62 : 72,
+                minHeight: isCompactWidth ? 58 : 72,
                 paddingHorizontal: theme.spacing.xxs,
                 paddingVertical: theme.spacing.xs,
                 width: '100%',
@@ -74,7 +73,7 @@ export function WeeklyHeatmap({
                 numberOfLines={1}
                 style={{
                   color: cell.intensity >= 3 ? theme.colors.textInverse : theme.colors.text,
-                  fontSize: isCompactWidth ? 10 : 11,
+                  fontSize: isCompactWidth ? 9 : 11,
                   textAlign: 'center',
                 }}
                 variant="caption"
@@ -86,12 +85,14 @@ export function WeeklyHeatmap({
                 style={{
                   color:
                     cell.intensity >= 3 ? theme.colors.textInverse : theme.colors.textMuted,
-                  fontSize: isCompactWidth ? 9 : 10,
+                  fontSize: isCompactWidth ? 8 : 10,
                   marginTop: theme.spacing.xxs,
                   textAlign: 'center',
                 }}
                 variant="caption">
-                {formatCountLabel(cell)}
+                {isCompactWidth
+                  ? `${cell.completedCount}/${cell.expectedCount || 0}`
+                  : formatCountLabel(cell)}
               </Text>
             </View>
             <Text numberOfLines={1} variant="caption" color="muted">

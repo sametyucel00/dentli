@@ -83,8 +83,9 @@ export function BottomSheetModal({
               />
             </View>
             <ScrollView
+              automaticallyAdjustKeyboardInsets
               bounces={false}
-              contentContainerStyle={{ paddingBottom: theme.spacing.sm }}
+              contentContainerStyle={{ paddingBottom: bottomPadding + theme.spacing.xl }}
               contentInsetAdjustmentBehavior="automatic"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               keyboardShouldPersistTaps="handled"

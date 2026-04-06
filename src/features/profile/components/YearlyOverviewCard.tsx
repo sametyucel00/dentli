@@ -30,20 +30,23 @@ export function YearlyOverviewCard({
           <View
             key={month.id}
             style={{
-              alignItems: 'center',
+              alignItems: 'flex-start',
               backgroundColor: theme.colors.surfaceMuted,
               borderRadius: theme.radii.md,
               flexBasis: isTablet ? '23.5%' : isCompactWidth ? '23%' : '23.5%',
-              gap: theme.spacing.sm,
+              gap: theme.spacing.xs,
               minWidth: 0,
-              paddingHorizontal: theme.spacing.xs,
-              paddingVertical: theme.spacing.md,
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: theme.spacing.sm,
             }}>
+            <Text numberOfLines={1} variant="caption" color="muted">
+              {month.monthLabel}
+            </Text>
             <View
               style={{
                 backgroundColor: theme.colors.background,
                 borderRadius: theme.radii.pill,
-                height: 56,
+                height: 36,
                 justifyContent: 'flex-end',
                 overflow: 'hidden',
                 width: '100%',
@@ -59,8 +62,10 @@ export function YearlyOverviewCard({
                 }}
               />
             </View>
-            <Text numberOfLines={2} style={{ textAlign: 'center' }} variant="caption" color="muted">
-              {month.monthLabel}
+            <Text variant="caption" weight="semibold">
+              {month.completionRate === null
+                ? '--'
+                : `${Math.round(month.completionRate * 100)}%`}
             </Text>
           </View>
         ))}
