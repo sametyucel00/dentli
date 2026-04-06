@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 
 import { SymptomType, ToothStatus } from '@/src/domain/models';
 import { TOOTH_STATUS_OPTIONS } from '@/src/domain/teeth';
-import { createTomorrowAtNine } from '@/src/features/today/formatters';
 import {
   BrushCompletionChoice,
   SYMPTOM_TYPE_OPTIONS,
@@ -12,7 +11,7 @@ import {
 import { TodayBrushTimer } from '@/src/features/today/components/TodayBrushTimer';
 import { TodaySheetAction } from '@/src/features/today/components/TodaySheetAction';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, OptionPills, Text, TextField } from '@/src/ui/base';
+import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
 type TodayViewModel = {
   sheetMode: TodaySheetMode;
@@ -149,16 +148,24 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           onChangeText={today.setAppointmentProvider}
           placeholder={t('today.sheet.providerName')}
         />
-        <TextField
-          value={today.appointmentStartsAt}
-          onChangeText={today.setAppointmentStartsAt}
-          placeholder={t('today.sheet.startsAt')}
-        />
-        <Button
-          title={t('today.sheet.useTomorrowMorning')}
-          variant="ghost"
-          onPress={() => today.setAppointmentStartsAt(createTomorrowAtNine())}
-        />
+        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('today.sheet.startDate')}
+              mode="date"
+              onChange={today.setAppointmentStartsAt}
+              value={today.appointmentStartsAt}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('today.sheet.startTime')}
+              mode="time"
+              onChange={today.setAppointmentStartsAt}
+              value={today.appointmentStartsAt}
+            />
+          </View>
+        </View>
         <Button
           disabled={!today.appointmentStartsAt.trim()}
           title={t('today.sheet.save')}

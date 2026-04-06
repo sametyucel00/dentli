@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Modal, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
 
@@ -17,6 +18,7 @@ export function BottomSheetModal({
 }: BottomSheetModalProps) {
   const { theme } = useAppTheme();
   const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal animationType="slide" transparent visible={visible}>
@@ -37,7 +39,7 @@ export function BottomSheetModal({
             maxHeight: height * 0.84,
             paddingHorizontal: theme.spacing.xl,
             paddingTop: theme.spacing.md,
-            paddingBottom: theme.spacing.xl,
+            paddingBottom: theme.spacing.xl + insets.bottom,
           }}>
           <View
             style={{

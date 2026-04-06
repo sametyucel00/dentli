@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   TimelineEditorSheet,
@@ -17,6 +18,7 @@ export function TimelineScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const isFocused = useIsFocused();
+  const insets = useSafeAreaInsets();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const timeline = useTimelineScreen(selectedProfileId, isFocused);
 
@@ -72,7 +74,7 @@ export function TimelineScreen() {
           alignItems: 'center',
           backgroundColor: theme.colors.primary,
           borderRadius: theme.radii.pill,
-          bottom: theme.spacing.xxxl,
+          bottom: 80 + insets.bottom,
           flexDirection: 'row',
           gap: theme.spacing.sm,
           paddingHorizontal: theme.spacing.lg,

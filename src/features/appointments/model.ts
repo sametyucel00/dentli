@@ -19,11 +19,30 @@ export type AppointmentDraft = {
   reminderMinutesBefore: number | null;
 };
 
+function roundToNextHalfHour(date: Date) {
+  const value = new Date(date);
+  value.setSeconds(0, 0);
+  const currentMinutes = value.getMinutes();
+  const roundedMinutes = currentMinutes === 0 ? 0 : currentMinutes <= 30 ? 30 : 60;
+  if (roundedMinutes === 60) {
+    value.setHours(value.getHours() + 1, 0, 0, 0);
+  } else {
+    value.setMinutes(roundedMinutes, 0, 0);
+  }
+  return value;
+}
+
+export function createDefaultAppointmentDateTime() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 30);
+  return roundToNextHalfHour(now).toISOString();
+}
+
 export function createInitialAppointmentDraft(): AppointmentDraft {
   return {
     title: '',
     providerName: '',
-    startsAt: new Date().toISOString(),
+    startsAt: createDefaultAppointmentDateTime(),
     endsAt: '',
     location: '',
     notes: '',

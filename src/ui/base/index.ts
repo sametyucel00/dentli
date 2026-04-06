@@ -2,6 +2,7 @@ export * from '@/src/ui/base/ActionBanner';
 export * from '@/src/ui/base/BottomSheetModal';
 export * from '@/src/ui/base/Button';
 export * from '@/src/ui/base/Card';
+export * from '@/src/ui/base/DateTimeField';
 export * from '@/src/ui/base/FloatingActionButton';
 export * from '@/src/ui/base/OptionPills';
 export * from '@/src/ui/base/Screen';

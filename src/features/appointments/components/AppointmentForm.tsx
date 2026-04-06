@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { AppointmentDraft, APPOINTMENT_REMINDER_OPTIONS } from '@/src/features/appointments/model';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, OptionPills, Text, TextField } from '@/src/ui/base';
+import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
 const APPOINTMENT_STATUSES: AppointmentDraft['status'][] = [
   'scheduled',
@@ -44,16 +44,50 @@ export function AppointmentForm({
         placeholder={t('appointments.form.provider')}
         value={draft.providerName}
       />
-      <TextField
-        onChangeText={(value) => onChange({ startsAt: value })}
-        placeholder={t('appointments.form.startsAt')}
-        value={draft.startsAt}
-      />
-      <TextField
-        onChangeText={(value) => onChange({ endsAt: value })}
-        placeholder={t('appointments.form.endsAt')}
-        value={draft.endsAt}
-      />
+      <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('appointments.form.startDate')}
+            mode="date"
+            onChange={(value) => onChange({ startsAt: value })}
+            value={draft.startsAt}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('appointments.form.startTime')}
+            mode="time"
+            onChange={(value) => onChange({ startsAt: value })}
+            value={draft.startsAt}
+          />
+        </View>
+      </View>
+      {draft.endsAt ? (
+        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('appointments.form.endDate')}
+              mode="date"
+              onChange={(value) => onChange({ endsAt: value })}
+              value={draft.endsAt}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('appointments.form.endTime')}
+              mode="time"
+              onChange={(value) => onChange({ endsAt: value })}
+              value={draft.endsAt}
+            />
+          </View>
+        </View>
+      ) : (
+        <Button
+          onPress={() => onChange({ endsAt: draft.startsAt })}
+          title={t('appointments.form.addEndTime')}
+          variant="ghost"
+        />
+      )}
       <TextField
         onChangeText={(value) => onChange({ location: value })}
         placeholder={t('appointments.form.location')}

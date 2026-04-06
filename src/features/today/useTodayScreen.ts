@@ -12,7 +12,7 @@ import {
   TodayQuickStatus,
   TodaySheetMode,
 } from '@/src/features/today/model';
-import { createTomorrowAtNine } from '@/src/features/today/formatters';
+import { createDefaultAppointmentDateTime } from '@/src/features/appointments/model';
 import { useBrushTimer } from '@/src/features/today/hooks/useBrushTimer';
 import { todayService } from '@/src/features/today/today-service';
 
@@ -53,7 +53,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   const [symptomNote, setSymptomNote] = useState('');
   const [appointmentTitle, setAppointmentTitle] = useState('');
   const [appointmentProvider, setAppointmentProvider] = useState('');
-  const [appointmentStartsAt, setAppointmentStartsAt] = useState(createTomorrowAtNine());
+  const [appointmentStartsAt, setAppointmentStartsAt] = useState(createDefaultAppointmentDateTime());
   const [toothNumber, setToothNumber] = useState('');
   const [toothStatus, setToothStatus] = useState<ToothStatus>('healthy');
   const [toothNote, setToothNote] = useState('');
@@ -202,7 +202,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
       onSuccess: () => {
         setAppointmentTitle('');
         setAppointmentProvider('');
-        setAppointmentStartsAt(createTomorrowAtNine());
+        setAppointmentStartsAt(createDefaultAppointmentDateTime());
         closeSheet();
       },
     });

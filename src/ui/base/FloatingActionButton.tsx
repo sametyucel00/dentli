@@ -1,18 +1,24 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
+import { Text } from '@/src/ui/base/Text';
 
 export function FloatingActionButton({
   icon = 'add',
+  label,
   onPress,
   accessibilityLabel,
 }: {
   icon?: keyof typeof Ionicons.glyphMap;
+  label?: string;
   onPress: () => void;
   accessibilityLabel?: string;
 }) {
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const bottomOffset = 80 + insets.bottom;
 
   return (
     <Pressable
@@ -24,15 +30,24 @@ export function FloatingActionButton({
         alignItems: 'center',
         backgroundColor: theme.colors.primary,
         borderRadius: 999,
-        bottom: theme.spacing.xxxl,
+        bottom: bottomOffset,
+        flexDirection: 'row',
+        gap: label ? theme.spacing.sm : 0,
         height: 56,
         justifyContent: 'center',
+        minWidth: label ? 132 : 56,
+        paddingHorizontal: label ? theme.spacing.lg : 0,
         position: 'absolute',
         right: theme.spacing.xl,
-        width: 56,
+        width: label ? undefined : 56,
         ...theme.shadows.floating,
       }}>
       <Ionicons color={theme.colors.textInverse} name={icon} size={24} />
+      {label ? (
+        <Text style={{ color: theme.colors.textInverse }} weight="semibold">
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }

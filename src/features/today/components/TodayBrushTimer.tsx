@@ -103,7 +103,7 @@ export function TodayBrushTimer({
                     : theme.colors.border,
                   borderRadius: theme.radii.pill,
                   borderWidth: 1,
-                  maxWidth: 96,
+                  minWidth: 92,
                   paddingHorizontal: theme.spacing.sm,
                   paddingVertical: theme.spacing.xs,
                   position: 'absolute',
