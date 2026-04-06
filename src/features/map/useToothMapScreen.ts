@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ToothCurrentStatus, ToothStatus, ToothStatusHistory } from '@/src/domain/models';
@@ -71,7 +70,6 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     const tooth = teeth.find((item) => item.toothNumber === toothNumber);
     if (!tooth) return;
 
-    await Haptics.selectionAsync();
     setEditorError(null);
     setSelectedToothNumber(toothNumber);
     setDraftStatus(tooth.status);
@@ -109,11 +107,9 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
 
       setTeeth(data.teeth);
       setHistory(data.history);
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       closeEditor();
     } catch (error) {
       setEditorError(error instanceof Error ? error.message : 'Unable to save this tooth.');
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setEditorBusy(false);
     }

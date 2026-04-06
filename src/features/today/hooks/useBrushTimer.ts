@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -26,7 +25,6 @@ export function useBrushTimer({ onComplete }: UseBrushTimerOptions) {
         const nextValue = current - 1;
 
         if (current <= 1) {
-          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           setIsRunning(false);
           setCompletedDurationSeconds(TIMER_DURATION_SECONDS);
           setCompletionPromptVisible(true);
@@ -41,7 +39,6 @@ export function useBrushTimer({ onComplete }: UseBrushTimerOptions) {
 
         if (nextQuadrantIndex !== previousQuadrantIndexRef.current) {
           previousQuadrantIndexRef.current = nextQuadrantIndex;
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
 
         return nextValue;
@@ -93,7 +90,6 @@ export function useBrushTimer({ onComplete }: UseBrushTimerOptions) {
       reset();
     }
 
-    void Haptics.selectionAsync();
     setIsRunning((current) => !current);
   }
 
@@ -101,7 +97,6 @@ export function useBrushTimer({ onComplete }: UseBrushTimerOptions) {
     if (!completedDurationSeconds) return;
 
     await onComplete(completionChoice, completedDurationSeconds);
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     reset();
   }
 

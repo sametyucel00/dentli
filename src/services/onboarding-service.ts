@@ -10,7 +10,7 @@ type CreateInitialProfileInput = {
   firstName: string;
   lastName: string;
   preferredLanguage: SupportedLanguage;
-  brushingFrequencyPerDay: 1 | 2 | 3;
+  brushingFrequencyPerDay: 1 | 2;
   flossingEnabled: boolean;
   flossSessionsPerWeek: number;
   mouthwashEnabled: boolean;

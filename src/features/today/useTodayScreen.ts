@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DailyActionKey, SymptomType, ToothStatus } from '@/src/domain/models';
@@ -46,7 +45,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   const [insights, setInsights] = useState<TodayInsight[]>([]);
   const [actionState, setActionState] = useState<TodayActionState>(TODAY_INITIAL_ACTION_STATE);
   const [mouthwashEnabled, setMouthwashEnabled] = useState(false);
-  const [brushingFrequencyPerDay, setBrushingFrequencyPerDay] = useState<1 | 2 | 3>(2);
+  const [brushingFrequencyPerDay, setBrushingFrequencyPerDay] = useState<1 | 2>(2);
   const [sheetMode, setSheetMode] = useState<TodaySheetMode>(null);
   const [symptomType, setSymptomType] = useState<SymptomType>('sensitivity');
   const [symptomSeverity, setSymptomSeverity] = useState<number | null>(null);
@@ -80,7 +79,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
       setInsights(data.insights);
       setMouthwashEnabled(Boolean(data.snapshot.routineSettings?.mouthwashEnabled));
       setBrushingFrequencyPerDay(
-        (data.snapshot.routineSettings?.brushingFrequencyPerDay as 1 | 2 | 3 | undefined) ?? 2,
+        (data.snapshot.routineSettings?.brushingFrequencyPerDay as 1 | 2 | undefined) ?? 2,
       );
       setActionState(createTodayActionState(data.actionState));
     } catch (error) {
@@ -127,7 +126,6 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
 
   async function runMutation(task: () => Promise<void>, options?: { onSuccess?: () => void }) {
     await task();
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     options?.onSuccess?.();
     await reload();
   }
@@ -137,7 +135,6 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
 
     const completed = await todayService.toggleAction(profileId, actionKey);
 
-    await Haptics.selectionAsync();
     setActionState((current) => ({
       ...current,
       [actionKey]: {
@@ -148,22 +145,17 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     setActionFeedback({ actionKey, completed });
     await reload();
 
-    if (completed) {
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
   }
 
   async function undoLastAction() {
     if (!profileId || !actionFeedback) return;
 
     await todayService.toggleAction(profileId, actionFeedback.actionKey);
-    await Haptics.selectionAsync();
     setActionFeedback(null);
     await reload();
   }
 
   function openSheet(nextMode: TodaySheetMode) {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSheetMode(nextMode);
   }
 

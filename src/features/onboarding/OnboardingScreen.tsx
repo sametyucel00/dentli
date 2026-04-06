@@ -9,13 +9,13 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, Card, OptionPills, Screen, Text, TextField } from '@/src/ui/base';
 
 const ONBOARDING_LANGUAGES: SupportedLanguage[] = ['en', 'tr'];
-const BRUSHING_FREQUENCY_OPTIONS = [1, 2, 3] as const;
-const FLOSS_FREQUENCY_OPTIONS = [1, 3, 7] as const;
-const MOUTHWASH_FREQUENCY_OPTIONS = [1, 3, 7] as const;
-const TIME_OPTIONS_MORNING = ['07:00', '08:00', '08:30', '09:00'] as const;
-const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '21:30', '22:00'] as const;
-const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
-const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
+const BRUSHING_FREQUENCY_OPTIONS = [1, 2] as const;
+const FLOSS_FREQUENCY_OPTIONS = [1, 7] as const;
+const MOUTHWASH_FREQUENCY_OPTIONS = [1, 7] as const;
+const TIME_OPTIONS_MORNING = ['07:00', '08:00', '08:30'] as const;
+const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '21:30'] as const;
+const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30'] as const;
+const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
 type OnboardingStep = 0 | 1 | 2 | 3 | 4 | 5;
@@ -28,17 +28,17 @@ export function OnboardingScreen() {
   const [step, setStep] = useState<OnboardingStep>(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [brushingFrequencyPerDay, setBrushingFrequencyPerDay] = useState<1 | 2 | 3>(2);
+  const [brushingFrequencyPerDay, setBrushingFrequencyPerDay] = useState<1 | 2>(2);
   const [flossingEnabled, setFlossingEnabled] = useState(true);
-  const [flossSessionsPerWeek, setFlossSessionsPerWeek] = useState<number>(3);
+  const [flossSessionsPerWeek, setFlossSessionsPerWeek] = useState<number>(1);
   const [mouthwashEnabled, setMouthwashEnabled] = useState(true);
-  const [mouthwashSessionsPerWeek, setMouthwashSessionsPerWeek] = useState<number>(3);
+  const [mouthwashSessionsPerWeek, setMouthwashSessionsPerWeek] = useState<number>(1);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [requestNotificationPermission, setRequestNotificationPermission] = useState(true);
-  const [morningReminderTime, setMorningReminderTime] = useState<string>('08:30');
+  const [morningReminderTime, setMorningReminderTime] = useState<string>('08:00');
   const [nightReminderTime, setNightReminderTime] = useState<string>('21:00');
   const [quietHoursStart, setQuietHoursStart] = useState<string>('22:30');
-  const [quietHoursEnd, setQuietHoursEnd] = useState<string>('07:30');
+  const [quietHoursEnd, setQuietHoursEnd] = useState<string>('08:00');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -370,7 +370,6 @@ export function OnboardingScreen() {
         <View
           style={{
             flexDirection: 'row',
-            flexWrap: 'wrap',
             gap: theme.spacing.md,
             marginTop: theme.spacing.xl,
             justifyContent: 'center',
@@ -382,11 +381,13 @@ export function OnboardingScreen() {
               title={t('onboarding.back')}
               variant="secondary"
             />
-          ) : null}
+          ) : (
+            <View style={{ flexBasis: '48%', minWidth: 0 }} />
+          )}
           <Button
             disabled={submitting || !canContinue}
             onPress={() => void (step === totalSteps - 1 ? handleFinish() : goNext())}
-            style={step > 0 ? { flexBasis: '48%', minWidth: 0 } : { minWidth: 220, width: '72%' }}
+            style={{ flexBasis: '48%', minWidth: 0 }}
             title={
               step === totalSteps - 1
                 ? submitting

@@ -34,7 +34,13 @@ export function MonthlyCompletionCard({
       {metrics.map((metric) => (
         <View
           key={metric.id}
-          style={{ flexBasis: isExpanded ? '48.5%' : '100%', gap: theme.spacing.xs }}>
+          style={{
+            backgroundColor: theme.colors.surfaceMuted,
+            borderRadius: theme.radii.md,
+            flexBasis: isExpanded ? '48.5%' : '100%',
+            gap: theme.spacing.xs,
+            padding: theme.spacing.md,
+          }}>
           {(() => {
             const isTracked = metric.expectedCount > 0 && Number.isFinite(metric.completionRate);
             const percent = formatPercent(metric.completionRate);

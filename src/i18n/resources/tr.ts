@@ -34,20 +34,18 @@ export const tr = {
     quietEnd: 'Sessiz saat bitişi',
     localFirst: {
       title: 'Varsayılan olarak gizli',
-      body: 'Dentli ağız bakım geçmişini, daha sonra özellikle farklı bir seçim yapmadıkça bu cihazda tutar.',
+      body: 'Dentli ağız bakım geçmişini bu cihazda yerel olarak tutar.',
     },
     permissionCard: {
       title: 'Sade ve isteğe bağlı',
-      body: 'Bildirimler yalnızca senin açtığın hatırlatmalar için kullanılır. Dentli çalışmak için hesap istemez.',
+      body: 'Bildirimler yalnızca seçtiğin hatırlatmalar için kullanılır. Dentli çalışmak için hesap istemez.',
     },
     brushingFrequency: {
       1: 'Günde 1 kez',
       2: 'Günde 2 kez',
-      3: 'Günde 3 kez',
     },
     flossFrequencyOptions: {
-      1: 'Haftada yaklaşık 1 kez',
-      3: 'Haftada birkaç kez',
+      1: 'Haftada bir kez',
       7: 'Her gün',
     },
     steps: {
@@ -131,7 +129,6 @@ export const tr = {
       nightBrush: 'Gece fırçası',
       floss: 'Diş ipi / arayüz temizliği',
       mouthwash: 'Ağız gargarası',
-      thirdBrushHint: 'Üçüncü fırçalama hedefi analitiklere ve hatırlatıcılara yansır. Timer ile eklenen fazladan fırçalamalar da sayılır.',
       optional: 'Opsiyonel',
       tapHint: 'Tamamlamak için bir kez dokun',
       undoHint: 'Geri almak için tekrar dokun',
@@ -231,6 +228,7 @@ export const tr = {
       noProfile: 'Şu anda seçili bir profil yok.',
     },
     profiles: {
+      ...en.profile.profiles,
       title: 'Profiller',
       body: 'Ayrı geçmişler veya bakım takibi gerektiğinde profiller arasında geçiş yap.',
       addTitle: 'Profil ekle',
@@ -316,7 +314,7 @@ export const tr = {
       },
       metricDetail: '{{completed}} / {{expected}} tamamlandı',
       proTitle: 'Gelişmiş analitikler Pro ile açılır',
-      proBody: 'Aylık tamamlama, yıllık eğilimler ve daha derin analitikler tek seferlik Pro kilidiyle kullanılabilir.',
+      proBody: 'Aylık tamamlama, yıllık eğilimler ve daha derin analitikler tek seferlik Pro kilidiyle kullanılır.',
     },
     insights: {
       title: 'Nazik içgörüler',
@@ -344,48 +342,6 @@ export const tr = {
         price: 'Tek seferlik satın alım - Ömür boyu erişim',
       },
     },
-    features: {
-      tooth_map_full: 'Tam 32 diş haritası erişimi',
-      dentist_mode: 'Diş Hekimi Modu özeti',
-      pdf_export: 'PDF dışa aktarma',
-      analytics_advanced: 'Gelişmiş analitikler',
-      multi_profile: 'Çoklu profil geçişi',
-      timeline_full: 'Sınırsız zaman akışı',
-      care_full_inventory: 'Tam bakım envanteri',
-      biometric_lock: 'Biyometrik kilit',
-    },
-    paywall: {
-      title: 'Dentli Pro kilidini aç',
-      body: 'Tek seferlik satın alım, Dentli’nin daha derin ve daha güçlü taraflarını tam kişisel ağız bakım sistemi olarak açar.',
-      includesTitle: 'Dentli Pro ile açılanlar',
-      trustLine: 'Tek seferlik açılım. Reklam yok. Abonelik yok.',
-    },
-    gates: {
-      toothMapFull: {
-        title: 'Tam diş haritası Pro ile açılır',
-        body: 'Ücretsiz sürüm küçük bir önizleme sunar. Pro, tam 32 diş haritasını ve tüm harita düzenlemelerini açar.',
-      },
-      dentistMode: {
-        title: 'Diş Hekimi Modu Pro ile açılır',
-        body: 'Pro, profesyonel özet ekranını ve diş hekimine uygun dışa aktarma akışlarını açar.',
-      },
-      pdfExport: {
-        title: 'PDF dışa aktarma Pro ile açılır',
-        body: 'Klinik özeti PDF olarak dışa aktarmak Dentli Pro’ya dahildir.',
-      },
-      timelineFull: {
-        title: 'Tam zaman akışı Pro ile açılır',
-        body: 'Ücretsiz sürüm son 7 günü gösterir. Pro tüm ağız bakım geçmişini açar.',
-      },
-      careInventory: {
-        title: 'Tam bakım envanteri Pro ile açılır',
-        body: 'Ücretsiz sürüm temel ürünleri içerir. Pro gelişmiş bakım ürünlerini de açar.',
-      },
-      biometricLock: {
-        title: 'Biyometrik kilit Pro ile açılır',
-        body: 'Ek gizlilik koruması tek seferlik Pro kilidiyle kullanılabilir.',
-      },
-    },
   },
   notifications: {
     followUp: {
@@ -405,10 +361,6 @@ export const tr = {
         title: 'Diş ipi hatırlatması',
         body: 'Kısa bir diş ipi uygulaması rutini tamamlamaya yardımcı olur.',
       },
-      third_brush: {
-        title: 'Ek fırçalama hatırlatması',
-        body: 'Günün uygunsa, bir kısa fırçalama daha mevcut hedefine destek olur.',
-      },
       mouthwash: {
         title: 'Ağız gargarası hatırlatması',
         body: 'Akşamına uyarsa, kısa bir gargara rutini nazikçe tamamlayabilir.',
@@ -427,11 +379,13 @@ export const tr = {
     },
   },
   legal: {
+    ...en.legal,
     back: 'Geri',
     productionNoticeTitle: 'Yayın notu',
     productionNoticeBody:
       'Mağaza gönderiminden önce bu özetleri hukuk onaylı nihai gizlilik politikası, kullanım koşulları, destek e-postası ve mağaza metinleriyle değiştir.',
     privacy: {
+      ...en.legal.privacy,
       title: 'Gizlilik',
       summaryTitle: 'Gizlilik özeti',
       summaryBody:
@@ -447,6 +401,7 @@ export const tr = {
         'Bu sürümde uygulama içi satın alım durumu yerel olarak saklanır. Mağaza çıkışından önce üretim faturalandırma entegrasyonu ve nihai geri yükleme doğrulaması tamamlanmalıdır.',
     },
     terms: {
+      ...en.legal.terms,
       title: 'Koşullar',
       useTitle: 'Uygulama kullanımı',
       useBody:
@@ -459,6 +414,7 @@ export const tr = {
         'Dentli Pro tek seferlik bir kilit açmadır. Satın alma geri yükleme, ücretli özelliklerin sunulduğu her yerde kullanılabilir kalmalıdır.',
     },
     permissions: {
+      ...en.legal.permissions,
       title: 'İzinler',
       notificationsTitle: 'Bildirim izni',
       notificationsBody:
@@ -493,13 +449,6 @@ export const tr = {
       pointOne: 'Herhangi bir dişe dokunarak durumunu, notunu ve tarihini kaydedebilirsin.',
       pointTwo: 'Ek dikkat gerektiren dişleri problem bölgesi olarak işaretleyebilirsin.',
       pointThree: 'Geçmiş her dişe ayrı bağlı kalır; sonraki değişimleri takip etmek kolaylaşır.',
-    },
-    locked: {
-      title: 'Tam diş haritası Dentli Pro\'nun parçasıdır',
-      body: 'Etkileşimli 32 diş haritası, ücretsiz deneyim sade kalsın diye Pro içinde sunulur.',
-      pointOne: 'Tüm 32 diş için detaylı durum takibi yap.',
-      pointTwo: 'Problem bölgeleri işaretle ve diş başına tarihçeyi tut.',
-      pointThree: 'Tam haritayı Diş Hekimi Modu ve dışa aktarmalarda kullan.',
     },
     common: {
       notRecorded: 'Henüz kayıt yok',
@@ -545,65 +494,6 @@ export const tr = {
       title: 'Henüz olay yok',
       body: 'Bakım, semptom, ziyaret ve diş değişiklikleri kaydedildikçe burada görünecek.',
     },
-    common: {
-      save: 'Değişiklikleri kaydet',
-      saving: 'Kaydediliyor...',
-      delete: 'Sil',
-      noNote: 'Not yok',
-      noProvider: 'Sağlayıcı yok',
-      date: 'Tarih',
-      time: 'Saat',
-      datePlaceholder: 'Tarih/saat (ISO)',
-    },
-    errors: {
-      load: 'Dentli şu anda zaman akışına ulaşamadı.',
-      save: 'Dentli bu değişikliği şu anda kaydedemedi.',
-      appointmentTitleRequired: 'Önce randevu başlığı ekle.',
-    },
-    symptoms: {
-      pain: 'Ağrı',
-      bleeding: 'Kanama',
-      sensitivity: 'Hassasiyet',
-      swelling: 'Şişlik',
-      bad_breath: 'Ağız kokusu',
-    },
-    hygiene: {
-      brush: 'Fırçalama',
-      floss: 'Diş ipi',
-      mouthwash: 'Ağız gargarası',
-      rinse: 'Çalkalama',
-    },
-    appointmentStatus: {
-      scheduled: 'Planlandı',
-      completed: 'Tamamlandı',
-      cancelled: 'İptal edildi',
-    },
-    newSymptom: {
-      cta: 'Semptom kaydet',
-      title: 'Yeni semptom',
-      noSeverity: 'Seviye yok',
-      toothPlaceholder: 'Diş numarası (opsiyonel)',
-      notePlaceholder: 'Kısa not',
-      save: 'Semptomu kaydet',
-    },
-    editSymptom: {
-      title: 'Semptomu düzenle',
-    },
-    editAppointment: {
-      title: 'Randevuyu düzenle',
-      titlePlaceholder: 'Randevu başlığı',
-      clinicPlaceholder: 'Klinik adı',
-      doctorPlaceholder: 'Doktor adı',
-    },
-    editHygiene: {
-      title: 'Bakım olayını düzenle',
-    },
-    editTooth: {
-      title: 'Diş {{toothNumber}} düzenle',
-    },
-    symptomToothLink: 'Diş {{toothNumber}} ile bağlantılı',
-    toothUpdateLink: 'Diş {{toothNumber}} güncellemesi',
-    severityLabel: 'Seviye {{value}}',
   },
   appointments: {
     ...en.appointments,
@@ -612,69 +502,19 @@ export const tr = {
       title: 'Randevular',
       description: 'Yaklaşan ziyaretleri takip et, hatırlatıcı kur ve detayları hazır tut.',
     },
+    labels: {
+      type: 'Tür',
+      clinic: 'Klinik',
+      doctor: 'Doktor',
+    },
     summary: {
       title: 'Genel bakış',
       body: '{{count}} planlı randevu yaklaşıyor.',
       dentistMode: 'Diş Hekimi Modu',
       add: 'Randevu ekle',
     },
-    labels: {
-      type: 'Tür',
-      clinic: 'Klinik',
-      doctor: 'Doktor',
-    },
     loading: 'Randevular yükleniyor...',
     noProvider: 'Sağlayıcı yok',
-    empty: {
-      title: 'Henüz randevu yok',
-      body: 'Hatırlatıcı ve detay takibi için ilk ziyaretini oluştur.',
-    },
-    form: {
-      newTitle: 'Yeni randevu',
-      title: 'Randevu başlığı',
-      clinic: 'Klinik adı',
-      doctor: 'Doktor adı',
-      startDate: 'Başlangıç tarihi',
-      startTime: 'Başlangıç saati',
-      endDate: 'Bitiş tarihi',
-      endTime: 'Bitiş saati',
-      addEndTime: 'Bitiş saati ekle',
-      notes: 'Notlar',
-      reminderTitle: 'Hatırlatıcı',
-      create: 'Randevu oluştur',
-      save: 'Değişiklikleri kaydet',
-      delete: 'Randevuyu sil',
-    },
-    types: {
-      checkup: 'Kontrol',
-      cleaning: 'Temizlik',
-      consultation: 'Görüşme',
-      treatment: 'Tedavi',
-      other: 'Diğer',
-    },
-    reminders: {
-      none: 'Hatırlatıcı yok',
-      threeHours: '3 saat önce',
-      oneDay: '1 gün önce',
-      oneWeek: '1 hafta önce',
-    },
-    reminderSet: '{{count}} dk hatırlatıcı',
-    status: {
-      scheduled: 'Planlandı',
-      completed: 'Tamamlandı',
-      cancelled: 'İptal edildi',
-    },
-    detail: {
-      back: 'Geri',
-      title: 'Randevu detayı',
-      saved: 'Randevu güncellendi',
-      saving: 'Kaydediliyor...',
-      loadError: 'Dentli şu anda bu randevuyu yükleyemedi.',
-      saveError: 'Dentli şu anda bu randevuyu kaydedemedi.',
-      deleteError: 'Dentli şu anda bu randevuyu silemedi.',
-      notFoundTitle: 'Randevu bulunamadı',
-      notFoundBody: 'Bu randevu silinmiş olabilir.',
-    },
   },
   dentistMode: {
     ...en.dentistMode,
@@ -753,7 +593,7 @@ export const tr = {
   tabs: {
     today: 'Bugün',
     map: 'Harita',
-    timeline: 'Zaman Akışı',
+    timeline: 'Zaman akışı',
     care: 'Bakım',
     appointments: 'Randevular',
     profile: 'Profil',

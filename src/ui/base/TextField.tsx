@@ -9,12 +9,16 @@ export function TextField({
   placeholder,
   keyboardType,
   accessibilityLabel,
+  multiline = false,
+  numberOfLines = 1,
 }: {
   value: string;
   onChangeText: (value: string) => void;
   placeholder: string;
   keyboardType?: 'default' | 'number-pad';
   accessibilityLabel?: string;
+  multiline?: boolean;
+  numberOfLines?: number;
 }) {
   const { colorScheme, theme } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
@@ -25,6 +29,8 @@ export function TextField({
     <TextInput
       accessibilityLabel={accessibilityLabel ?? placeholder}
       keyboardType={keyboardType}
+      multiline={multiline}
+      numberOfLines={numberOfLines}
       onBlur={() => setIsFocused(false)}
       onChangeText={onChangeText}
       onFocus={() => setIsFocused(true)}
@@ -38,6 +44,8 @@ export function TextField({
         color: theme.colors.text,
         paddingHorizontal: theme.spacing.lg,
         paddingVertical: theme.spacing.md,
+        minHeight: multiline ? Math.max(112, numberOfLines * 24) : undefined,
+        textAlignVertical: multiline ? 'top' : 'center',
       }}
       value={value}
     />

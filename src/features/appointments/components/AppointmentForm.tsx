@@ -119,6 +119,8 @@ export function AppointmentForm({
         />
       )}
       <TextField
+        multiline
+        numberOfLines={4}
         onChangeText={(value) => onChange({ notes: value })}
         placeholder={t('appointments.form.notes')}
         value={draft.notes}

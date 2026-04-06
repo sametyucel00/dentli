@@ -108,6 +108,8 @@ export function TimelineEditorSheet({
               value={symptomDraft.toothNumber}
             />
             <TextField
+              multiline
+              numberOfLines={4}
               onChangeText={(value) => onChangeSymptomDraft({ notes: value })}
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={symptomDraft.notes}
@@ -284,6 +286,8 @@ export function TimelineEditorSheet({
               />
             </View>
             <TextField
+              multiline
+              numberOfLines={4}
               onChangeText={(value) => onChangeHygieneDraft({ notes: value })}
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={hygieneDraft.notes}
@@ -318,6 +322,8 @@ export function TimelineEditorSheet({
               selectedValue={toothDraft.status}
             />
             <TextField
+              multiline
+              numberOfLines={4}
               onChangeText={(value) => onChangeToothDraft({ note: value })}
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={toothDraft.note}

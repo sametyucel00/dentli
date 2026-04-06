@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -91,7 +90,6 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
   }
 
   async function openItem(item: TimelineItem) {
-    await Haptics.selectionAsync();
     setEditorError(null);
     setSelectedItem(item);
     setCreatingSymptom(false);
@@ -134,7 +132,6 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
   }
 
   async function openNewSymptom() {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setEditorError(null);
     setCreatingSymptom(true);
     setSelectedItem(null);
@@ -150,12 +147,10 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
 
     try {
       await task();
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       closeEditor();
       await reload();
     } catch (error) {
       setEditorError(error instanceof Error ? error.message : t('timeline.errors.save'));
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setEditorBusy(false);
     }

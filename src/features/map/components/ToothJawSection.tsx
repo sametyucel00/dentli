@@ -40,7 +40,7 @@ export function ToothJawSection({
 
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: 'column',
           gap: isExpanded ? theme.spacing.lg : isCompactWidth ? theme.spacing.sm : theme.spacing.md,
           marginTop: theme.spacing.lg,
         }}>
@@ -48,8 +48,9 @@ export function ToothJawSection({
           <View
             key={segmentIndex}
             style={{
-              flex: 1,
+              flexDirection: 'row',
               gap: isExpanded ? theme.spacing.md : isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
+              justifyContent: 'space-between',
               minWidth: isTablet ? 0 : undefined,
             }}>
             {segment.map((toothNumber) => {
@@ -57,14 +58,15 @@ export function ToothJawSection({
               if (!tooth) return null;
 
               return (
-                <ToothCell
-                  key={toothNumber}
-                  disabled={!isInteractive}
-                  isProblemZone={tooth.isProblemZone}
-                  onPress={() => onSelectTooth(toothNumber)}
-                  status={tooth.status}
-                  toothNumber={toothNumber}
-                />
+                <View key={toothNumber} style={{ flex: 1, minWidth: 0 }}>
+                  <ToothCell
+                    disabled={!isInteractive}
+                    isProblemZone={tooth.isProblemZone}
+                    onPress={() => onSelectTooth(toothNumber)}
+                    status={tooth.status}
+                    toothNumber={toothNumber}
+                  />
+                </View>
               );
             })}
           </View>

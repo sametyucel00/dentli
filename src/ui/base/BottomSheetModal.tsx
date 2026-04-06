@@ -49,7 +49,7 @@ export function BottomSheetModal({
           paddingHorizontal: isTablet ? theme.spacing.xl : 0,
         }}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
           style={{ justifyContent: modalJustifyContent }}>
           <Pressable

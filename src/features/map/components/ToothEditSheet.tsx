@@ -73,6 +73,8 @@ export function ToothEditSheet({
             />
 
             <TextField
+              multiline
+              numberOfLines={4}
               onChangeText={onChangeNote}
               placeholder={t('toothMap.editor.notePlaceholder')}
               value={note}

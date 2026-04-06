@@ -64,6 +64,7 @@ function StatTile({
         backgroundColor: theme.colors.surfaceMuted,
         borderRadius: theme.radii.md,
         flexBasis: '48%',
+        flexGrow: 1,
         minWidth: 0,
         padding: theme.spacing.lg,
       }}>
@@ -207,6 +208,7 @@ export function DentistModeScreen() {
                 flexDirection: 'row',
                 flexWrap: 'wrap',
                 gap: theme.spacing.md,
+                justifyContent: 'space-between',
                 marginTop: theme.spacing.lg,
               }}>
               <StatTile

@@ -39,11 +39,9 @@ export const en = {
     brushingFrequency: {
       1: 'Once a day',
       2: 'Twice a day',
-      3: 'Three times a day',
     },
     flossFrequencyOptions: {
-      1: 'About weekly',
-      3: 'A few times a week',
+      1: 'Once a week',
       7: 'Daily',
     },
     steps: {
@@ -125,7 +123,6 @@ export const en = {
       nightBrush: 'Night brush',
       floss: 'Floss / interdental',
       mouthwash: 'Mouthwash',
-      thirdBrushHint: 'A third brush goal stays in your analytics and reminders. Extra brush logs from the timer still count.',
       optional: 'Optional',
       tapHint: 'Tap once to complete',
       undoHint: 'Tap again to undo',
@@ -424,10 +421,6 @@ export const en = {
       floss: {
         title: 'Floss reminder',
         body: 'A quick floss helps keep the routine complete.',
-      },
-      third_brush: {
-        title: 'Extra brush reminder',
-        body: 'If your day allows it, one more quick brush will support your current goal.',
       },
       mouthwash: {
         title: 'Mouthwash reminder',

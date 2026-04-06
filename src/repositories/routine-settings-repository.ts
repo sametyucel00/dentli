@@ -23,21 +23,49 @@ type RoutineSettingsRow = {
   updated_at: string;
 };
 
+function normalizeBrushingFrequency(value: number) {
+  return value >= 2 ? 2 : 1;
+}
+
+function normalizeWeeklySessions(value: number) {
+  return value >= 7 ? 7 : 1;
+}
+
+function normalizeTimeValue(value: string | null, allowedValues: readonly string[], fallback: string) {
+  if (!value) {
+    return fallback;
+  }
+
+  return allowedValues.includes(value) ? value : fallback;
+}
+
 function mapRoutineSettings(row: RoutineSettingsRow): RoutineSettings {
   return {
     id: row.id,
     profileId: row.profile_id,
-    brushingFrequencyPerDay: row.brushing_frequency_per_day,
+    brushingFrequencyPerDay: normalizeBrushingFrequency(row.brushing_frequency_per_day),
     flossingEnabled: toBoolean(row.flossing_enabled),
-    flossSessionsPerWeek: row.floss_sessions_per_week,
+    flossSessionsPerWeek: normalizeWeeklySessions(row.floss_sessions_per_week),
     mouthwashEnabled: toBoolean(row.mouthwash_enabled),
-    mouthwashSessionsPerWeek: row.mouthwash_sessions_per_week,
+    mouthwashSessionsPerWeek: normalizeWeeklySessions(row.mouthwash_sessions_per_week),
     remindersEnabled: toBoolean(row.reminders_enabled),
-    reminderTime: row.reminder_time,
-    morningReminderTime: row.morning_reminder_time,
-    nightReminderTime: row.night_reminder_time,
-    quietHoursStart: row.quiet_hours_start,
-    quietHoursEnd: row.quiet_hours_end,
+    reminderTime: normalizeTimeValue(row.reminder_time, ['20:30', '21:00', '21:30'], '21:00'),
+    morningReminderTime: normalizeTimeValue(
+      row.morning_reminder_time,
+      ['07:00', '08:00', '08:30'],
+      '08:00',
+    ),
+    nightReminderTime: normalizeTimeValue(
+      row.night_reminder_time,
+      ['20:30', '21:00', '21:30'],
+      '21:00',
+    ),
+    quietHoursStart: normalizeTimeValue(
+      row.quiet_hours_start,
+      ['21:30', '22:00', '22:30'],
+      '22:30',
+    ),
+    quietHoursEnd: normalizeTimeValue(row.quiet_hours_end, ['07:00', '07:30', '08:00'], '08:00'),
     toothbrushReplacementIntervalDays: row.toothbrush_replacement_interval_days,
     toothbrushLastReplacedAt: row.toothbrush_last_replaced_at,
     createdAt: row.created_at,
@@ -81,11 +109,11 @@ export class RoutineSettingsRepository extends BaseRepository {
       [
         settings.id,
         settings.profileId,
-        settings.brushingFrequencyPerDay,
+        normalizeBrushingFrequency(settings.brushingFrequencyPerDay),
         toSqliteBoolean(settings.flossingEnabled),
-        settings.flossSessionsPerWeek,
+        normalizeWeeklySessions(settings.flossSessionsPerWeek),
         toSqliteBoolean(settings.mouthwashEnabled),
-        settings.mouthwashSessionsPerWeek,
+        normalizeWeeklySessions(settings.mouthwashSessionsPerWeek),
         toSqliteBoolean(settings.remindersEnabled),
         settings.reminderTime,
         settings.morningReminderTime,

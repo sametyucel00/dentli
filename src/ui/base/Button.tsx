@@ -4,6 +4,7 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base/Text';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonTextVariant = 'body' | 'caption';
 
 type Props = {
   title: string;
@@ -12,6 +13,8 @@ type Props = {
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   accessibilityLabel?: string;
+  compact?: boolean;
+  titleVariant?: ButtonTextVariant;
 };
 
 export function Button({
@@ -21,6 +24,8 @@ export function Button({
   style,
   disabled = false,
   accessibilityLabel,
+  compact = false,
+  titleVariant = 'body',
 }: Props) {
   const { theme } = useAppTheme();
 
@@ -54,12 +59,13 @@ export function Button({
           justifyContent: 'center',
           opacity: disabled ? 0.45 : pressed ? 0.9 : 1,
           transform: [{ scale: pressed ? 0.99 : 1 }],
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.md,
+          paddingHorizontal: compact ? theme.spacing.md : theme.spacing.lg,
+          paddingVertical: compact ? theme.spacing.sm + 2 : theme.spacing.md,
         },
         style,
       ]}>
       <Text
+        variant={titleVariant}
         style={{ color: textColor, textAlign: 'center' }}
         weight="semibold">
         {title}

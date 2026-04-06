@@ -27,8 +27,10 @@ export function AppProviders({ children }: PropsWithChildren) {
   const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const { colorScheme, theme } = useAppTheme();
   const splashHiddenRef = useRef(false);
+  const launchReadyRef = useRef(false);
   const [isLocked, setIsLocked] = useState(false);
   const [lockError, setLockError] = useState<string | null>(null);
+  const [launchScreenReady, setLaunchScreenReady] = useState(false);
   const authInFlightRef = useRef(false);
   const launchLanguage =
     bootstrapStatus === 'ready'
@@ -37,9 +39,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         ? 'tr'
         : 'en';
   const launchSlogan =
-    launchLanguage === 'tr'
-      ? 'Kişisel ağız bakım sistemi'
-      : 'Personal oral care system';
+    launchLanguage === 'tr' ? 'Kişisel ağız bakım sistemi' : 'Personal oral care system';
 
   const authenticate = useCallback(async () => {
     if (
@@ -102,17 +102,19 @@ export function AppProviders({ children }: PropsWithChildren) {
   }, [colorScheme]);
 
   useEffect(() => {
-    if (splashHiddenRef.current) {
+    if (launchReadyRef.current) {
       return;
     }
 
     const timeoutId = setTimeout(() => {
+      launchReadyRef.current = true;
+      setLaunchScreenReady(true);
       void SplashScreen.hideAsync()
         .then(() => {
           splashHiddenRef.current = true;
         })
         .catch(() => undefined);
-    }, 850);
+    }, 2200);
 
     return () => clearTimeout(timeoutId);
   }, []);
@@ -147,13 +149,14 @@ export function AppProviders({ children }: PropsWithChildren) {
     bootstrapStatus === 'ready' &&
     profiles.length === 0 &&
     !appPreferences.onboardingCompleted;
+  const shouldShowLaunchScreen = bootstrapStatus !== 'ready' || !launchScreenReady;
 
   return (
     <I18nextProvider i18n={i18n}>
       <SafeAreaProvider>
         <ThemeProvider value={createNavigationTheme(theme)}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          {bootstrapStatus === 'ready' ? (
+          {!shouldShowLaunchScreen ? (
             <>
               {shouldShowOnboarding ? <OnboardingScreen /> : children}
               {isLocked ? (
@@ -217,33 +220,31 @@ export function AppProviders({ children }: PropsWithChildren) {
                   {launchSlogan}
                 </Text>
               </View>
-              <Text variant="title" weight="semibold">
-                {bootstrapStatus === 'error'
-                  ? i18n.t('bootstrap.errorTitle')
-                  : i18n.t('bootstrap.loadingTitle')}
-              </Text>
-              <Text
-                color="muted"
-                style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
-                {bootstrapStatus === 'error'
-                  ? bootstrapError ?? i18n.t('bootstrap.errorBody')
-                  : i18n.t('bootstrap.loadingBody')}
-              </Text>
               {bootstrapStatus === 'error' ? (
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => void appBootstrapService.initialize()}
-                  style={{
-                    backgroundColor: theme.colors.primary,
-                    borderRadius: theme.radii.pill,
-                    marginTop: theme.spacing.xl,
-                    paddingHorizontal: theme.spacing.xl,
-                    paddingVertical: theme.spacing.md,
-                  }}>
-                  <Text style={{ color: theme.colors.textInverse }} weight="semibold">
-                    {i18n.t('common.retry')}
+                <>
+                  <Text variant="title" weight="semibold">
+                    {i18n.t('bootstrap.errorTitle')}
                   </Text>
-                </Pressable>
+                  <Text
+                    color="muted"
+                    style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
+                    {bootstrapError ?? i18n.t('bootstrap.errorBody')}
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => void appBootstrapService.initialize()}
+                    style={{
+                      backgroundColor: theme.colors.primary,
+                      borderRadius: theme.radii.pill,
+                      marginTop: theme.spacing.xl,
+                      paddingHorizontal: theme.spacing.xl,
+                      paddingVertical: theme.spacing.md,
+                    }}>
+                    <Text style={{ color: theme.colors.textInverse }} weight="semibold">
+                      {i18n.t('common.retry')}
+                    </Text>
+                  </Pressable>
+                </>
               ) : null}
             </View>
           )}

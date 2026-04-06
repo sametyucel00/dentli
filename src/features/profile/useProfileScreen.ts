@@ -1,5 +1,5 @@
 import { useIsFocused } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { profileContextService, profileManagementService, settingsService } from '@/src/services';
@@ -118,6 +118,7 @@ export function useProfileScreen() {
       busyKey,
       async () => {
         await settingsService.updateRoutineSettings(selectedProfileId, patch);
+        await reload();
       },
       t('profile.settings.saved'),
     );
@@ -191,23 +192,6 @@ export function useProfileScreen() {
   }
 
   useFocusedAsyncEffect(isFocused, reload);
-
-  useEffect(() => {
-    if (!isFocused || !selectedProfileId) {
-      return;
-    }
-
-    void reload();
-  }, [
-    isFocused,
-    reload,
-    selectedProfileId,
-    routineSettings?.brushingFrequencyPerDay,
-    routineSettings?.flossingEnabled,
-    routineSettings?.flossSessionsPerWeek,
-    routineSettings?.mouthwashEnabled,
-    routineSettings?.mouthwashSessionsPerWeek,
-  ]);
 
   return {
     loading,

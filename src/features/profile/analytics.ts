@@ -62,7 +62,7 @@ function toDayKey(date: Date) {
 }
 
 function getExpectedBrushCount(routineSettings: RoutineSettings | null) {
-  return Math.max(1, Math.min(routineSettings?.brushingFrequencyPerDay ?? 2, 3));
+  return Math.max(1, Math.min(routineSettings?.brushingFrequencyPerDay ?? 2, 2));
 }
 
 function getWeeklyCadenceDays(sessionsPerWeek: number) {
@@ -89,12 +89,12 @@ function getDailyTargets(routineSettings: RoutineSettings | null, date: Date): D
   const brushing = getExpectedBrushCount(routineSettings);
   const floss =
     routineSettings?.flossingEnabled &&
-    isCadenceScheduledForDate(date, routineSettings.flossSessionsPerWeek ?? 3)
+    isCadenceScheduledForDate(date, routineSettings.flossSessionsPerWeek ?? 1)
       ? 1
       : 0;
   const mouthwash =
     routineSettings?.mouthwashEnabled &&
-    isCadenceScheduledForDate(date, routineSettings.mouthwashSessionsPerWeek ?? 3)
+    isCadenceScheduledForDate(date, routineSettings.mouthwashSessionsPerWeek ?? 1)
       ? 1
       : 0;
 
@@ -130,8 +130,8 @@ function countExpectedCadenceOccurrences(
     actionKey === 'floss' ? routineSettings?.flossingEnabled : routineSettings?.mouthwashEnabled;
   const sessionsPerWeek =
     actionKey === 'floss'
-      ? routineSettings?.flossSessionsPerWeek ?? 3
-      : routineSettings?.mouthwashSessionsPerWeek ?? 3;
+      ? routineSettings?.flossSessionsPerWeek ?? 1
+      : routineSettings?.mouthwashSessionsPerWeek ?? 1;
 
   if (!enabled) {
     return 0;

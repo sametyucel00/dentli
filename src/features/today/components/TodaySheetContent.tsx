@@ -131,6 +131,8 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           keyboardType="number-pad"
         />
         <TextField
+          multiline
+          numberOfLines={4}
           value={today.symptomNote}
           onChangeText={today.setSymptomNote}
           placeholder={t('today.sheet.note')}
@@ -209,6 +211,8 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           labelMap={(value) => t(`today.toothStatus.${value}`)}
         />
         <TextField
+          multiline
+          numberOfLines={4}
           value={today.toothNote}
           onChangeText={today.setToothNote}
           placeholder={t('today.sheet.note')}

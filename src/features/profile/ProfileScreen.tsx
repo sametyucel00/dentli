@@ -20,16 +20,16 @@ import {
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, Card, OptionPills, Screen, StateMessageCard, Text, TextField } from '@/src/ui/base';
 
-const BRUSHING_OPTIONS = [1, 2, 3] as const;
-const FLOSS_FREQUENCY_OPTIONS = [1, 3, 7] as const;
-const MOUTHWASH_FREQUENCY_OPTIONS = [1, 3, 7] as const;
+const BRUSHING_OPTIONS = [1, 2] as const;
+const FLOSS_FREQUENCY_OPTIONS = [1, 7] as const;
+const MOUTHWASH_FREQUENCY_OPTIONS = [1, 7] as const;
 const BOOLEAN_OPTIONS = [true, false] as const;
 const LANGUAGE_OPTIONS = ['en', 'tr'] as const;
 const THEME_OPTIONS = ['system', 'light', 'dark'] as const;
-const MORNING_TIME_OPTIONS = ['07:00', '08:00', '08:30', '09:00'] as const;
-const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '21:30', '22:00'] as const;
-const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
-const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
+const MORNING_TIME_OPTIONS = ['07:00', '08:00', '08:30'] as const;
+const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '21:30'] as const;
+const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30'] as const;
+const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
 export function ProfileScreen() {
@@ -58,7 +58,7 @@ export function ProfileScreen() {
 
   return (
     <Screen
-      contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 3 }}
+      contentContainerStyle={{ paddingBottom: isPro ? theme.spacing.xxxxl * 1.5 : theme.spacing.xxxxl * 2 }}
       contentMaxWidth={contentMaxWidth}>
       <Text color="primary" variant="caption" weight="semibold">
         {t('profile.header.kicker')}
@@ -287,7 +287,7 @@ export function ProfileScreen() {
                     )
                   }
                   options={BRUSHING_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.brushingFrequencyPerDay as 1 | 2 | 3}
+                  selectedValue={profileScreen.routineSettings.brushingFrequencyPerDay as 1 | 2}
                 />
               </View>
 
@@ -390,7 +390,7 @@ export function ProfileScreen() {
                     )
                   }
                   options={MORNING_TIME_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.morningReminderTime ?? '08:30'}
+                  selectedValue={profileScreen.routineSettings.morningReminderTime ?? '08:00'}
                 />
               </View>
 
@@ -438,7 +438,7 @@ export function ProfileScreen() {
                     void profileScreen.updateRoutineSettings({ quietHoursEnd: value }, 'quietEnd')
                   }
                   options={QUIET_END_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.quietHoursEnd ?? '07:30'}
+                  selectedValue={profileScreen.routineSettings.quietHoursEnd ?? '08:00'}
                 />
               </View>
               </View>
@@ -453,17 +453,21 @@ export function ProfileScreen() {
               justifyContent: 'center',
             }}>
             <Button
+              compact
               disabled={profileScreen.settingsBusyKey === 'notifications'}
               onPress={() => void profileScreen.requestNotificationPermission()}
               style={profileButtonStyle}
               title={t('profile.settings.notificationsButton')}
+              titleVariant="caption"
               variant="secondary"
             />
             <Button
+              compact
               disabled={profileScreen.settingsBusyKey === 'clearData'}
               onPress={() => void profileScreen.clearAllData()}
               style={profileButtonStyle}
               title={t('profile.settings.clearData')}
+              titleVariant="caption"
               variant="secondary"
             />
           </View>
@@ -486,6 +490,7 @@ export function ProfileScreen() {
               marginTop: theme.spacing.lg,
             }}>
             <Button
+              compact
               disabled={profileScreen.settingsBusyKey === 'biometric'}
               onPress={() =>
                 void profileScreen.updateBiometricLock(
@@ -493,6 +498,7 @@ export function ProfileScreen() {
                 )
               }
               style={{ minWidth: 240 }}
+              titleVariant="caption"
               title={
                 profileScreen.appPreferences.biometricLockEnabled
                   ? t('profile.settings.biometricDisable')
@@ -520,21 +526,27 @@ export function ProfileScreen() {
             marginTop: theme.spacing.lg,
           }}>
           <Button
+            compact
             onPress={() => router.push('/privacy')}
             style={actionButtonStyle}
             title={t('profile.release.privacy')}
+            titleVariant="caption"
             variant="secondary"
           />
           <Button
+            compact
             onPress={() => router.push('/legal')}
             style={actionButtonStyle}
             title={t('profile.release.terms')}
+            titleVariant="caption"
             variant="secondary"
           />
           <Button
+            compact
             onPress={() => router.push('/permissions')}
             style={actionButtonStyle}
             title={t('profile.release.permissions')}
+            titleVariant="caption"
             variant="secondary"
           />
         </View>

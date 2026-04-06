@@ -54,6 +54,8 @@ export function CareItemForm({
         selectedValue={draft.itemType}
       />
       <TextField
+        multiline
+        numberOfLines={4}
         onChangeText={(value) => onChange({ description: value })}
         placeholder={t('careTracking.form.description')}
         value={draft.description}

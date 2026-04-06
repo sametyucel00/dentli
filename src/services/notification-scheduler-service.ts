@@ -21,10 +21,6 @@ function createRoutineNotificationId(profileId: string, actionKey: DailyActionKe
   return `routine_${profileId}_${actionKey}`;
 }
 
-function createThirdBrushNotificationId(profileId: string) {
-  return `routine_${profileId}_third_brush`;
-}
-
 function createRoutineFollowUpNotificationId(profileId: string) {
   return `routine_${profileId}_follow_up`;
 }
@@ -154,21 +150,10 @@ function hasActionToday(todayEvents: HygieneEvent[], actionKey: DailyActionKey) 
   return todayEvents.some((event) => event.actionKey === actionKey);
 }
 
-function getBrushCountToday(todayEvents: HygieneEvent[]) {
-  return todayEvents.filter((event) => event.eventType === 'brush').length;
-}
-
 function buildRoutineNotificationCopy(actionKey: DailyActionKey) {
   return {
     title: i18n.t(`notifications.routines.${actionKey}.title`),
     body: i18n.t(`notifications.routines.${actionKey}.body`),
-  };
-}
-
-function buildThirdBrushCopy() {
-  return {
-    title: i18n.t('notifications.routines.third_brush.title'),
-    body: i18n.t('notifications.routines.third_brush.body'),
   };
 }
 
@@ -387,11 +372,7 @@ class NotificationSchedulerService {
       await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, nightBaseMinutes, quietHours);
     }
 
-    if (routineSettings.brushingFrequencyPerDay >= 3) {
-      await this.scheduleThirdBrushReminder(profileId, todayEvents, now, quietHours);
-    } else {
-      await notificationService.cancel(createThirdBrushNotificationId(profileId));
-    }
+    await notificationService.cancel(`routine_${profileId}_third_brush`);
 
     if (routineSettings.flossingEnabled) {
       await this.scheduleFlossReminder(
@@ -443,9 +424,9 @@ class NotificationSchedulerService {
         profileId: appointment.profileId,
         brushingFrequencyPerDay: 2,
         flossingEnabled: true,
-        flossSessionsPerWeek: 3,
+        flossSessionsPerWeek: 1,
         mouthwashEnabled: false,
-        mouthwashSessionsPerWeek: 3,
+        mouthwashSessionsPerWeek: 1,
         remindersEnabled: true,
         reminderTime: null,
         morningReminderTime: null,
@@ -484,9 +465,9 @@ class NotificationSchedulerService {
           profileId,
           brushingFrequencyPerDay: 2,
           flossingEnabled: true,
-          flossSessionsPerWeek: 3,
+          flossSessionsPerWeek: 1,
           mouthwashEnabled: false,
-          mouthwashSessionsPerWeek: 3,
+          mouthwashSessionsPerWeek: 1,
           remindersEnabled: true,
           reminderTime: null,
           morningReminderTime: null,
@@ -613,31 +594,6 @@ class NotificationSchedulerService {
 
     await notificationService.schedule({
       id: createRoutineNotificationId(profileId, 'mouthwash'),
-      profileId,
-      intent: 'routine_reminder',
-      title: copy.title,
-      body: copy.body,
-      scheduledFor: scheduledFor.toISOString(),
-    });
-  }
-
-  private async scheduleThirdBrushReminder(
-    profileId: string,
-    todayEvents: HygieneEvent[],
-    now: Date,
-    quietHours: { startMinutes: number; endMinutes: number },
-  ) {
-    const preferredMinutes = 15 * 60;
-    const scheduleToday = setMinutesOnDate(now, preferredMinutes);
-    const alreadyDone = getBrushCountToday(todayEvents) >= 3;
-    const hasPassed = scheduleToday.getTime() <= now.getTime() + 90 * 60 * 1000;
-    const scheduledFor = alreadyDone || hasPassed
-      ? nextAllowedDate(setMinutesOnDate(addLocalDays(now, 1), preferredMinutes), quietHours)
-      : nextAllowedDate(scheduleToday, quietHours);
-    const copy = buildThirdBrushCopy();
-
-    await notificationService.schedule({
-      id: createThirdBrushNotificationId(profileId),
       profileId,
       intent: 'routine_reminder',
       title: copy.title,
