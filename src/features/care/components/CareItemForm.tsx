@@ -27,6 +27,7 @@ export function CareItemForm({
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
   const isVeryNarrow = width < 350;
+  const isWideLayout = width >= 700;
   const splitButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
   const singleButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '72%', maxWidth: 340, minWidth: 0 } as const;
   const availableTypes = allowAdvancedTypes
@@ -57,25 +58,34 @@ export function CareItemForm({
         placeholder={t('careTracking.form.description')}
         value={draft.description}
       />
-      <TextField
-        keyboardType="number-pad"
-        onChangeText={(value) => onChange({ replacementCycleDays: value })}
-        placeholder={t('careTracking.form.replacementDaysPlaceholder')}
-        value={draft.replacementCycleDays}
-      />
-      <View style={{ gap: theme.spacing.md }}>
-        <DateTimeField
-          label={t('careTracking.form.lastReplacedDate')}
-          mode="date"
-          onChange={(value) => onChange({ lastReplacedAt: value })}
-          value={draft.lastReplacedAt}
-        />
-        <DateTimeField
-          label={t('careTracking.form.lastReplacedTime')}
-          mode="time"
-          onChange={(value) => onChange({ lastReplacedAt: value })}
-          value={draft.lastReplacedAt}
-        />
+      <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <TextField
+            keyboardType="number-pad"
+            onChangeText={(value) => onChange({ replacementCycleDays: value })}
+            placeholder={t('careTracking.form.replacementDaysPlaceholder')}
+            value={draft.replacementCycleDays}
+          />
+        </View>
+        {isWideLayout ? <View style={{ flex: 1 }} /> : null}
+      </View>
+      <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('careTracking.form.lastReplacedDate')}
+            mode="date"
+            onChange={(value) => onChange({ lastReplacedAt: value })}
+            value={draft.lastReplacedAt}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('careTracking.form.lastReplacedTime')}
+            mode="time"
+            onChange={(value) => onChange({ lastReplacedAt: value })}
+            value={draft.lastReplacedAt}
+          />
+        </View>
       </View>
       <View
         style={{

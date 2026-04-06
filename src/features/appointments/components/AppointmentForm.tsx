@@ -37,6 +37,7 @@ export function AppointmentForm({
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
   const isVeryNarrow = width < 350;
+  const isWideLayout = width >= 700;
   const splitButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
   const singleButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '72%', maxWidth: 340, minWidth: 0 } as const;
 
@@ -57,44 +58,58 @@ export function AppointmentForm({
         options={APPOINTMENT_TYPES}
         selectedValue={draft.appointmentType}
       />
-      <TextField
-        onChangeText={(value) => onChange({ clinicName: value })}
-        placeholder={t('appointments.form.clinic')}
-        value={draft.clinicName}
-      />
-      <TextField
-        onChangeText={(value) => onChange({ doctorName: value })}
-        placeholder={t('appointments.form.doctor')}
-        value={draft.doctorName}
-      />
-      <View style={{ gap: theme.spacing.md }}>
-        <DateTimeField
-          label={t('appointments.form.startDate')}
-          mode="date"
-          onChange={(value) => onChange({ startsAt: value })}
-          value={draft.startsAt}
-        />
-        <DateTimeField
-          label={t('appointments.form.startTime')}
-          mode="time"
-          onChange={(value) => onChange({ startsAt: value })}
-          value={draft.startsAt}
-        />
+      <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <TextField
+            onChangeText={(value) => onChange({ clinicName: value })}
+            placeholder={t('appointments.form.clinic')}
+            value={draft.clinicName}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextField
+            onChangeText={(value) => onChange({ doctorName: value })}
+            placeholder={t('appointments.form.doctor')}
+            value={draft.doctorName}
+          />
+        </View>
+      </View>
+      <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('appointments.form.startDate')}
+            mode="date"
+            onChange={(value) => onChange({ startsAt: value })}
+            value={draft.startsAt}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('appointments.form.startTime')}
+            mode="time"
+            onChange={(value) => onChange({ startsAt: value })}
+            value={draft.startsAt}
+          />
+        </View>
       </View>
       {draft.endsAt ? (
-        <View style={{ gap: theme.spacing.md }}>
-          <DateTimeField
-            label={t('appointments.form.endDate')}
-            mode="date"
-            onChange={(value) => onChange({ endsAt: value })}
-            value={draft.endsAt}
-          />
-          <DateTimeField
-            label={t('appointments.form.endTime')}
-            mode="time"
-            onChange={(value) => onChange({ endsAt: value })}
-            value={draft.endsAt}
-          />
+        <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('appointments.form.endDate')}
+              mode="date"
+              onChange={(value) => onChange({ endsAt: value })}
+              value={draft.endsAt}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('appointments.form.endTime')}
+              mode="time"
+              onChange={(value) => onChange({ endsAt: value })}
+              value={draft.endsAt}
+            />
+          </View>
         </View>
       ) : (
         <Button

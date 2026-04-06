@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { AppointmentCard } from '@/src/features/appointments/components/AppointmentCard';
 import { AppointmentForm } from '@/src/features/appointments/components/AppointmentForm';
 import { useAppointmentsScreen } from '@/src/features/appointments/useAppointmentsScreen';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import {
   BottomSheetModal,
@@ -18,11 +19,14 @@ import {
 export function AppointmentsScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
   const appointmentsScreen = useAppointmentsScreen();
 
   return (
     <>
-      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}>
+      <Screen
+        contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}
+        contentMaxWidth={contentMaxWidth}>
         <Text color="primary" variant="caption" weight="semibold">
           {t('appointments.header.kicker')}
         </Text>
@@ -72,13 +76,20 @@ export function AppointmentsScreen() {
             title={t('appointments.empty.title')}
           />
         ) : (
-          <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+          <View
+            style={{
+              flexDirection: isTablet ? 'row' : 'column',
+              flexWrap: 'wrap',
+              gap: theme.spacing.md,
+              marginTop: theme.spacing.lg,
+            }}>
             {appointmentsScreen.appointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onPress={() => router.push(`/appointments/${appointment.id}`)}
-              />
+              <View key={appointment.id} style={{ flexBasis: isTablet ? '48.5%' : '100%' }}>
+                <AppointmentCard
+                  appointment={appointment}
+                  onPress={() => router.push(`/appointments/${appointment.id}`)}
+                />
+              </View>
             ))}
           </View>
         )}
@@ -93,13 +104,15 @@ export function AppointmentsScreen() {
         minHeight={460}
         onClose={appointmentsScreen.closeCreateSheet}
         visible={appointmentsScreen.isCreateSheetVisible}>
-        <AppointmentForm
-          draft={appointmentsScreen.appointmentDraft}
-          onChange={appointmentsScreen.patchAppointmentDraft}
-          onSubmit={() => void appointmentsScreen.createAppointment()}
-          submitLabel={t('appointments.form.create')}
-          title={t('appointments.form.newTitle')}
-        />
+        <View style={{ alignSelf: 'center', maxWidth: formMaxWidth, width: '100%' }}>
+          <AppointmentForm
+            draft={appointmentsScreen.appointmentDraft}
+            onChange={appointmentsScreen.patchAppointmentDraft}
+            onSubmit={() => void appointmentsScreen.createAppointment()}
+            submitLabel={t('appointments.form.create')}
+            title={t('appointments.form.newTitle')}
+          />
+        </View>
       </BottomSheetModal>
     </>
   );

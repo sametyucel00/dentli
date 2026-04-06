@@ -5,38 +5,38 @@ import {
   ScrollView,
   StyleProp,
   StyleSheet,
-  useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 
 type Props = PropsWithChildren<{
   scroll?: boolean;
   contentContainerStyle?: StyleProp<ViewStyle>;
+  contentMaxWidth?: number;
 }>;
 
 export function Screen({
   children,
   scroll = true,
   contentContainerStyle,
+  contentMaxWidth,
 }: Props) {
   const { theme } = useAppTheme();
   const isFocused = useIsFocused();
   const scrollRef = useRef<ScrollView | null>(null);
-  const { width } = useWindowDimensions();
-  const isCompactWidth = width < 390;
-  const isWidePhone = width >= 430;
+  const { isCompactPhone, contentMaxWidth: responsiveContentMaxWidth } = useResponsiveLayout();
 
   const sharedStyle: ViewStyle = {
     alignSelf: 'center',
     flexGrow: 1,
-    maxWidth: isWidePhone ? 560 : undefined,
-    paddingHorizontal: isCompactWidth ? theme.spacing.lg : theme.spacing.xl,
-    paddingVertical: isCompactWidth ? theme.spacing.xl : theme.spacing.xxl,
+    maxWidth: contentMaxWidth ?? responsiveContentMaxWidth,
+    paddingHorizontal: isCompactPhone ? theme.spacing.lg : theme.spacing.xl,
+    paddingVertical: isCompactPhone ? theme.spacing.xl : theme.spacing.xxl,
     backgroundColor: theme.colors.background,
     width: '100%',
   };

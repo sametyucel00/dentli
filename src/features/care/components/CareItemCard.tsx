@@ -28,6 +28,7 @@ export function CareItemCard({
       <Card
         style={{
           backgroundColor: countdown.dueNow ? theme.colors.surfaceAccent : theme.colors.surface,
+          height: '100%',
           paddingVertical: theme.spacing.lg,
         }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md }}>

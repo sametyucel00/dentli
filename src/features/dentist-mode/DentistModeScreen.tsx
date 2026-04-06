@@ -7,6 +7,7 @@ import { DentistModeSummary } from '@/src/features/dentist-mode/model';
 import { dentistModeService } from '@/src/features/dentist-mode/dentist-mode-service';
 import { dentistModePdfExportService } from '@/src/features/dentist-mode/pdf-export-service';
 import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
@@ -115,6 +116,7 @@ function RateBar({
 export function DentistModeScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isTablet, isExpanded, contentMaxWidth } = useResponsiveLayout();
   const locale = useAppLocale();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const [summary, setSummary] = useState<DentistModeSummary | null>(null);
@@ -162,7 +164,7 @@ export function DentistModeScreen() {
   }, [locale, summary]);
 
   return (
-    <Screen>
+    <Screen contentMaxWidth={contentMaxWidth}>
       <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Button onPress={() => router.back()} title={t('dentistMode.back')} variant="ghost" />
         <Text variant="title" weight="semibold">
@@ -187,7 +189,8 @@ export function DentistModeScreen() {
         <StateMessageCard title={t('dentistMode.loading')} />
       ) : (
         <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.xl }}>
-          <Card>
+          <View style={{ flexDirection: isExpanded ? 'row' : 'column', gap: theme.spacing.lg }}>
+          <Card style={{ flex: isExpanded ? 1.1 : undefined }}>
             <Text color="primary" variant="caption" weight="semibold">
               {t('dentistMode.statsTitle')}
             </Text>
@@ -225,7 +228,7 @@ export function DentistModeScreen() {
             </View>
           </Card>
 
-          <Card>
+          <Card style={{ flex: isExpanded ? 1 : undefined }}>
             <Text variant="title" weight="semibold">
               {t('dentistMode.hygieneRates')}
             </Text>
@@ -244,8 +247,10 @@ export function DentistModeScreen() {
               />
             </View>
           </Card>
+          </View>
 
-          <Card>
+          <View style={{ flexDirection: isExpanded ? 'row' : 'column', gap: theme.spacing.lg }}>
+          <Card style={{ flex: isExpanded ? 0.95 : undefined }}>
             <Text variant="title" weight="semibold">
               {t('dentistMode.problemTeeth')}
             </Text>
@@ -274,7 +279,7 @@ export function DentistModeScreen() {
             </View>
           </Card>
 
-          <Card>
+          <Card style={{ flex: isExpanded ? 1.05 : undefined }}>
             <Text variant="title" weight="semibold">
               {t('dentistMode.recentEvents')}
             </Text>
@@ -305,9 +310,15 @@ export function DentistModeScreen() {
               ))}
             </View>
           </Card>
+          </View>
 
           {hasPdfExportAccess ? (
-            <Card style={{ alignItems: 'center' }}>
+            <Card
+              style={{
+                alignItems: 'center',
+                alignSelf: isTablet ? 'center' : undefined,
+                width: isTablet ? '100%' : undefined,
+              }}>
               <Button
                 onPress={() => void exportPdf()}
                 style={{ minWidth: 240 }}

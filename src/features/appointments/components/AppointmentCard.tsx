@@ -26,7 +26,7 @@ export function AppointmentCard({
         opacity: pressed ? 0.84 : 1,
         transform: [{ scale: pressed ? 0.995 : 1 }],
       })}>
-      <Card style={{ paddingVertical: theme.spacing.lg }}>
+      <Card style={{ height: '100%', paddingVertical: theme.spacing.lg }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
             <Text weight="semibold">{appointment.title}</Text>

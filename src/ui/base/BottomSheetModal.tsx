@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 
 type BottomSheetModalProps = PropsWithChildren<{
@@ -27,12 +28,12 @@ export function BottomSheetModal({
   const { theme } = useAppTheme();
   const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const isCompactWidth = width < 390;
-  const isShortScreen = height < 760;
-  const horizontalPadding = isCompactWidth ? theme.spacing.lg : theme.spacing.xl;
+  const { isCompactPhone, isShortScreen, isTablet, modalMaxWidth } = useResponsiveLayout();
+  const horizontalPadding = isCompactPhone ? theme.spacing.lg : theme.spacing.xl;
   const bottomPadding = Math.max(theme.spacing.lg, insets.bottom + theme.spacing.md);
-  const maxSheetHeight = height * (isShortScreen ? 0.9 : 0.84);
-  const sheetWidth = Math.min(width, 560);
+  const maxSheetHeight = height * (isShortScreen ? 0.9 : isTablet ? 0.82 : 0.84);
+  const sheetWidth = isTablet ? Math.min(width - theme.spacing.xxxxl * 2, modalMaxWidth ?? 680) : width;
+  const modalJustifyContent = isTablet ? 'center' : 'flex-end';
 
   return (
     <Modal animationType="slide" statusBarTranslucent transparent visible={visible}>
@@ -41,19 +42,25 @@ export function BottomSheetModal({
         accessibilityRole="button"
         accessible={false}
         onPress={onClose}
-        style={{ backgroundColor: 'rgba(0,0,0,0.25)', flex: 1, justifyContent: 'flex-end' }}>
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.25)',
+          flex: 1,
+          justifyContent: modalJustifyContent,
+          paddingHorizontal: isTablet ? theme.spacing.xl : 0,
+        }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
-          style={{ justifyContent: 'flex-end' }}>
+          style={{ justifyContent: modalJustifyContent }}>
           <Pressable
             accessibilityViewIsModal
             onPress={() => undefined}
             style={{
               alignSelf: 'center',
               backgroundColor: theme.colors.surface,
-              borderTopLeftRadius: theme.radii.lg,
-              borderTopRightRadius: theme.radii.lg,
+              borderRadius: isTablet ? theme.radii.xl : 0,
+              borderTopLeftRadius: isTablet ? theme.radii.xl : theme.radii.lg,
+              borderTopRightRadius: isTablet ? theme.radii.xl : theme.radii.lg,
               minHeight,
               maxHeight: maxSheetHeight,
               paddingHorizontal: horizontalPadding,

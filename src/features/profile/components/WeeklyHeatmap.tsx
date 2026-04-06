@@ -2,6 +2,7 @@ import { ScrollView, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { AnalyticsHeatmapCell } from '@/src/features/profile/model';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
 
@@ -40,6 +41,7 @@ export function WeeklyHeatmap({
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
+  const { isTablet } = useResponsiveLayout();
   const isCompactWidth = width < 390;
 
   return (
@@ -49,7 +51,12 @@ export function WeeklyHeatmap({
         bounces={false}
         contentContainerStyle={{ gap: theme.spacing.xs }}
         showsHorizontalScrollIndicator={false}>
-        <View style={{ flexDirection: 'row', gap: theme.spacing.xs, minWidth: isCompactWidth ? 7 * 48 : undefined }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: theme.spacing.xs,
+            minWidth: isCompactWidth ? 7 * 48 : isTablet ? 7 * 78 : undefined,
+          }}>
           {cells.map((cell) => (
             <View
               key={cell.id}

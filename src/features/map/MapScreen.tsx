@@ -10,6 +10,7 @@ import {
 import { useFeatureAccess } from '@/src/features/monetization';
 import { ToothEditSheet, ToothJawSection } from '@/src/features/map/components';
 import { useToothMapScreen } from '@/src/features/map/useToothMapScreen';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Card, Screen, StateMessageCard, Text } from '@/src/ui/base';
@@ -17,6 +18,7 @@ import { Card, Screen, StateMessageCard, Text } from '@/src/ui/base';
 export function MapScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isExpanded, isTablet, contentMaxWidth } = useResponsiveLayout();
   const isFocused = useIsFocused();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const map = useToothMapScreen(selectedProfileId, isFocused);
@@ -25,7 +27,7 @@ export function MapScreen() {
 
   return (
     <>
-      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl }}>
+      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl }} contentMaxWidth={contentMaxWidth}>
         <Text color="primary" variant="caption" weight="semibold">
           {t('toothMap.header.kicker')}
         </Text>
@@ -36,37 +38,60 @@ export function MapScreen() {
           {t('toothMap.header.description')}
         </Text>
 
-        <Card style={{ marginTop: theme.spacing.xl }}>
-          <Text variant="title" weight="semibold">
-            {t('toothMap.summary.title')}
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              gap: theme.spacing.xl,
-              marginTop: theme.spacing.lg,
-            }}>
-            <View style={{ flex: 1 }}>
-              <Text color="muted" variant="caption">
-                {t('toothMap.summary.problemZones')}
-              </Text>
-              <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
-                {hasFullMapAccess ? map.problemZoneCount : '-'}
-              </Text>
+        <View
+          style={{
+            flexDirection: isExpanded ? 'row' : 'column',
+            gap: theme.spacing.lg,
+            marginTop: theme.spacing.xl,
+          }}>
+          <Card style={{ flex: isExpanded ? 1 : undefined }}>
+            <Text variant="title" weight="semibold">
+              {t('toothMap.summary.title')}
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: theme.spacing.xl,
+                marginTop: theme.spacing.lg,
+              }}>
+              <View style={{ flex: 1 }}>
+                <Text color="muted" variant="caption">
+                  {t('toothMap.summary.problemZones')}
+                </Text>
+                <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
+                  {hasFullMapAccess ? map.problemZoneCount : '-'}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text color="muted" variant="caption">
+                  {t('toothMap.summary.totalTeeth')}
+                </Text>
+                <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
+                  {TOTAL_TEETH_COUNT}
+                </Text>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text color="muted" variant="caption">
-                {t('toothMap.summary.totalTeeth')}
+            <Text color="muted" style={{ marginTop: theme.spacing.lg }}>
+              {t('toothMap.summary.helper')}
+            </Text>
+          </Card>
+
+          {hasFullMapAccess ? (
+            <Card style={{ flex: isExpanded ? 1 : undefined }}>
+              <Text variant="title" weight="semibold">
+                {t('toothMap.guide.title')}
               </Text>
-              <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
-                {TOTAL_TEETH_COUNT}
+              <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+                {t('toothMap.guide.body')}
               </Text>
-            </View>
-          </View>
-          <Text color="muted" style={{ marginTop: theme.spacing.lg }}>
-            {t('toothMap.summary.helper')}
-          </Text>
-        </Card>
+              <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
+                <Text color="muted">{t('toothMap.guide.pointOne')}</Text>
+                <Text color="muted">{t('toothMap.guide.pointTwo')}</Text>
+                <Text color="muted">{t('toothMap.guide.pointThree')}</Text>
+              </View>
+            </Card>
+          ) : null}
+        </View>
 
         {map.error ? (
           <StateMessageCard
@@ -92,36 +117,33 @@ export function MapScreen() {
             </View>
           </Card>
         ) : (
-          <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.lg }}>
-            <Card>
-              <Text variant="title" weight="semibold">
-                {t('toothMap.guide.title')}
-              </Text>
-              <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-                {t('toothMap.guide.body')}
-              </Text>
-              <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
-                <Text color="muted">{t('toothMap.guide.pointOne')}</Text>
-                <Text color="muted">{t('toothMap.guide.pointTwo')}</Text>
-                <Text color="muted">{t('toothMap.guide.pointThree')}</Text>
-              </View>
-            </Card>
-            <ToothJawSection
-              isInteractive
-              onSelectTooth={map.openTooth}
-              segments={UPPER_JAW_SEGMENTS}
-              subtitle={t('toothMap.jaws.upperSubtitle')}
-              teeth={visibleTeeth}
-              title={t('toothMap.jaws.upper')}
-            />
-            <ToothJawSection
-              isInteractive
-              onSelectTooth={map.openTooth}
-              segments={LOWER_JAW_SEGMENTS}
-              subtitle={t('toothMap.jaws.lowerSubtitle')}
-              teeth={visibleTeeth}
-              title={t('toothMap.jaws.lower')}
-            />
+          <View
+            style={{
+              flexDirection: isTablet ? 'row' : 'column',
+              flexWrap: 'wrap',
+              gap: theme.spacing.lg,
+              marginTop: theme.spacing.lg,
+            }}>
+            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined }}>
+              <ToothJawSection
+                isInteractive
+                onSelectTooth={map.openTooth}
+                segments={UPPER_JAW_SEGMENTS}
+                subtitle={t('toothMap.jaws.upperSubtitle')}
+                teeth={visibleTeeth}
+                title={t('toothMap.jaws.upper')}
+              />
+            </View>
+            <View style={{ flex: 1, minWidth: isTablet ? 320 : undefined }}>
+              <ToothJawSection
+                isInteractive
+                onSelectTooth={map.openTooth}
+                segments={LOWER_JAW_SEGMENTS}
+                subtitle={t('toothMap.jaws.lowerSubtitle')}
+                teeth={visibleTeeth}
+                title={t('toothMap.jaws.lower')}
+              />
+            </View>
           </View>
         )}
       </Screen>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View, useWindowDimensions } from 'react-native';
 
 import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import {
   MonthlyCompletionCard,
   ProfileSectionCard,
@@ -35,6 +36,7 @@ export function ProfileScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
+  const { isExpanded, contentMaxWidth } = useResponsiveLayout();
   const isCompactWidth = width < 390;
   const isVeryNarrow = width < 350;
   const profileScreen = useProfileScreen();
@@ -55,7 +57,9 @@ export function ProfileScreen() {
   } as const;
 
   return (
-    <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 3 }}>
+    <Screen
+      contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 3 }}
+      contentMaxWidth={contentMaxWidth}>
       <Text color="primary" variant="caption" weight="semibold">
         {t('profile.header.kicker')}
       </Text>
@@ -72,34 +76,38 @@ export function ProfileScreen() {
         title={t('profile.preferences.title')}
       />
 
-      <ProfileSectionCard
-        description={t('profile.analytics.weeklyBody')}
-        loading={profileScreen.loading && !profileScreen.error}
-        loadingLabel={t('profile.loading')}
-        title={t('profile.analytics.weeklyTitle')}>
-        {profileScreen.error ? (
-          <StateMessageCard
-            actionLabel={t('common.retry')}
-            body={profileScreen.error}
-            onActionPress={() => void profileScreen.reload()}
-            title={t('common.errorTitle')}
-          />
-        ) : (
-          <WeeklyHeatmap cells={profileScreen.analytics.weeklyHeatmap} />
-        )}
-      </ProfileSectionCard>
+      <View style={{ flexDirection: isExpanded ? 'row' : 'column', gap: theme.spacing.lg }}>
+        <View style={{ flex: isExpanded ? 1.1 : undefined }}>
+          <ProfileSectionCard
+            description={t('profile.analytics.weeklyBody')}
+            loading={profileScreen.loading && !profileScreen.error}
+            loadingLabel={t('profile.loading')}
+            title={t('profile.analytics.weeklyTitle')}>
+            {profileScreen.error ? (
+              <StateMessageCard
+                actionLabel={t('common.retry')}
+                body={profileScreen.error}
+                onActionPress={() => void profileScreen.reload()}
+                title={t('common.errorTitle')}
+              />
+            ) : (
+              <WeeklyHeatmap cells={profileScreen.analytics.weeklyHeatmap} />
+            )}
+          </ProfileSectionCard>
+        </View>
 
-      <Card style={{ marginTop: theme.spacing.lg }}>
-        <Text variant="title" weight="semibold">
-          {t('profile.plan.title')}
-        </Text>
-        <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-          {isPro ? t('profile.plan.proBody') : t('profile.plan.freeBody')}
-        </Text>
-        <Text color="primary" style={{ marginTop: theme.spacing.md }} weight="semibold">
-          {isPro ? t('profile.plan.proLabel') : t('profile.plan.freeLabel')}
-        </Text>
-      </Card>
+        <Card style={{ flex: isExpanded ? 0.9 : undefined, marginTop: theme.spacing.lg }}>
+          <Text variant="title" weight="semibold">
+            {t('profile.plan.title')}
+          </Text>
+          <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+            {isPro ? t('profile.plan.proBody') : t('profile.plan.freeBody')}
+          </Text>
+          <Text color="primary" style={{ marginTop: theme.spacing.md }} weight="semibold">
+            {isPro ? t('profile.plan.proLabel') : t('profile.plan.freeLabel')}
+          </Text>
+        </Card>
+      </View>
 
       {!isPro ? (
         <ProAccessCard
@@ -534,39 +542,45 @@ export function ProfileScreen() {
 
       {hasAdvancedAnalyticsAccess ? (
         <>
-          <ProfileSectionCard
-            description={t('profile.analytics.monthlyBody')}
-            loading={profileScreen.loading && !profileScreen.error}
-            loadingLabel={t('profile.loading')}
-            title={t('profile.analytics.monthlyTitle')}>
-            {profileScreen.error ? (
-              <StateMessageCard
-                actionLabel={t('common.retry')}
-                body={profileScreen.error}
-                onActionPress={() => void profileScreen.reload()}
-                title={t('common.errorTitle')}
-              />
-            ) : (
-              <MonthlyCompletionCard metrics={profileScreen.analytics.monthlyCompletion} />
-            )}
-          </ProfileSectionCard>
+          <View style={{ flexDirection: isExpanded ? 'row' : 'column', gap: theme.spacing.lg }}>
+            <View style={{ flex: isExpanded ? 1 : undefined }}>
+              <ProfileSectionCard
+                description={t('profile.analytics.monthlyBody')}
+                loading={profileScreen.loading && !profileScreen.error}
+                loadingLabel={t('profile.loading')}
+                title={t('profile.analytics.monthlyTitle')}>
+                {profileScreen.error ? (
+                  <StateMessageCard
+                    actionLabel={t('common.retry')}
+                    body={profileScreen.error}
+                    onActionPress={() => void profileScreen.reload()}
+                    title={t('common.errorTitle')}
+                  />
+                ) : (
+                  <MonthlyCompletionCard metrics={profileScreen.analytics.monthlyCompletion} />
+                )}
+              </ProfileSectionCard>
+            </View>
 
-          <ProfileSectionCard
-            description={t('profile.analytics.yearlyBody')}
-            loading={profileScreen.loading && !profileScreen.error}
-            loadingLabel={t('profile.loading')}
-            title={t('profile.analytics.yearlyTitle')}>
-            {profileScreen.error ? (
-              <StateMessageCard
-                actionLabel={t('common.retry')}
-                body={profileScreen.error}
-                onActionPress={() => void profileScreen.reload()}
-                title={t('common.errorTitle')}
-              />
-            ) : (
-              <YearlyOverviewCard months={profileScreen.analytics.yearlyCompletion} />
-            )}
-          </ProfileSectionCard>
+            <View style={{ flex: isExpanded ? 1 : undefined }}>
+              <ProfileSectionCard
+                description={t('profile.analytics.yearlyBody')}
+                loading={profileScreen.loading && !profileScreen.error}
+                loadingLabel={t('profile.loading')}
+                title={t('profile.analytics.yearlyTitle')}>
+                {profileScreen.error ? (
+                  <StateMessageCard
+                    actionLabel={t('common.retry')}
+                    body={profileScreen.error}
+                    onActionPress={() => void profileScreen.reload()}
+                    title={t('common.errorTitle')}
+                  />
+                ) : (
+                  <YearlyOverviewCard months={profileScreen.analytics.yearlyCompletion} />
+                )}
+              </ProfileSectionCard>
+            </View>
+          </View>
         </>
       ) : null}
     </Screen>

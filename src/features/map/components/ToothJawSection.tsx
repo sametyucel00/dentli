@@ -1,6 +1,7 @@
 import { View, useWindowDimensions } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { Card, Text } from '@/src/ui/base';
 
 import { ToothMapItem } from '@/src/features/map/map-model';
@@ -25,6 +26,7 @@ export function ToothJawSection({
 }: ToothJawSectionProps) {
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
+  const { isTablet, isExpanded } = useResponsiveLayout();
   const isCompactWidth = width < 390;
 
   return (
@@ -39,7 +41,7 @@ export function ToothJawSection({
       <View
         style={{
           flexDirection: 'row',
-          gap: isCompactWidth ? theme.spacing.sm : theme.spacing.md,
+          gap: isExpanded ? theme.spacing.lg : isCompactWidth ? theme.spacing.sm : theme.spacing.md,
           marginTop: theme.spacing.lg,
         }}>
         {segments.map((segment, segmentIndex) => (
@@ -47,7 +49,8 @@ export function ToothJawSection({
             key={segmentIndex}
             style={{
               flex: 1,
-              gap: isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
+              gap: isExpanded ? theme.spacing.md : isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
+              minWidth: isTablet ? 0 : undefined,
             }}>
             {segment.map((toothNumber) => {
               const tooth = teeth.find((item) => item.toothNumber === toothNumber);

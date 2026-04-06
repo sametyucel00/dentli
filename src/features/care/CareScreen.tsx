@@ -5,6 +5,7 @@ import { CareItemCard } from '@/src/features/care/components/CareItemCard';
 import { CareItemForm } from '@/src/features/care/components/CareItemForm';
 import { useFeatureAccess } from '@/src/features/monetization';
 import { useCareScreen } from '@/src/features/care/useCareScreen';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import {
   BottomSheetModal,
@@ -18,12 +19,15 @@ import {
 export function CareScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
   const careScreen = useCareScreen();
   const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
 
   return (
     <>
-      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}>
+      <Screen
+        contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}
+        contentMaxWidth={contentMaxWidth}>
         <Text color="primary" variant="caption" weight="semibold">
           {t('careTracking.header.kicker')}
         </Text>
@@ -66,13 +70,20 @@ export function CareScreen() {
             title={t('careTracking.empty.title')}
           />
         ) : (
-          <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+          <View
+            style={{
+              flexDirection: isTablet ? 'row' : 'column',
+              flexWrap: 'wrap',
+              gap: theme.spacing.md,
+              marginTop: theme.spacing.lg,
+            }}>
             {careScreen.careItems.map((item) => (
-              <CareItemCard
-                key={item.id}
-                item={item}
-                onPress={() => careScreen.openEditEditor(item)}
-              />
+              <View key={item.id} style={{ flexBasis: isTablet ? '48.5%' : '100%' }}>
+                <CareItemCard
+                  item={item}
+                  onPress={() => careScreen.openEditEditor(item)}
+                />
+              </View>
             ))}
           </View>
         )}
@@ -87,29 +98,31 @@ export function CareScreen() {
         minHeight={440}
         onClose={careScreen.closeEditor}
         visible={careScreen.isEditorVisible}>
-        <CareItemForm
-          allowAdvancedTypes={
-            hasFullCareInventoryAccess ||
-            !!careScreen.editingItem?.itemType &&
-              ['interdental_brush', 'water_flosser', 'other'].includes(
-                careScreen.editingItem.itemType,
-              )
-          }
-          draft={careScreen.careItemDraft}
-          onChange={careScreen.patchCareItemDraft}
-          onDelete={careScreen.editingItem ? () => void careScreen.deleteCareItem() : undefined}
-          onSubmit={() => void careScreen.saveCareItem()}
-          submitLabel={
-            careScreen.editingItem
-              ? t('careTracking.form.save')
-              : t('careTracking.form.create')
-          }
-          title={
-            careScreen.editingItem
-              ? careScreen.editingItem.title
-              : t('careTracking.form.newTitle')
-          }
-        />
+        <View style={{ alignSelf: 'center', maxWidth: formMaxWidth, width: '100%' }}>
+          <CareItemForm
+            allowAdvancedTypes={
+              hasFullCareInventoryAccess ||
+              !!careScreen.editingItem?.itemType &&
+                ['interdental_brush', 'water_flosser', 'other'].includes(
+                  careScreen.editingItem.itemType,
+                )
+            }
+            draft={careScreen.careItemDraft}
+            onChange={careScreen.patchCareItemDraft}
+            onDelete={careScreen.editingItem ? () => void careScreen.deleteCareItem() : undefined}
+            onSubmit={() => void careScreen.saveCareItem()}
+            submitLabel={
+              careScreen.editingItem
+                ? t('careTracking.form.save')
+                : t('careTracking.form.create')
+            }
+            title={
+              careScreen.editingItem
+                ? careScreen.editingItem.title
+                : t('careTracking.form.newTitle')
+            }
+          />
+        </View>
       </BottomSheetModal>
     </>
   );

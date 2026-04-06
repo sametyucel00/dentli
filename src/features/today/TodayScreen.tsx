@@ -12,6 +12,7 @@ import {
   TodaySheetContent,
   TodayStatusRow,
 } from '@/src/features/today/components';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useTodayScreen } from '@/src/features/today/useTodayScreen';
 import { useAppStore } from '@/src/state/useAppStore';
@@ -29,6 +30,7 @@ import {
 export function TodayScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isExpanded, isTablet, readingMaxWidth } = useResponsiveLayout();
   const isFocused = useIsFocused();
   const locale = useAppLocale();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
@@ -48,7 +50,9 @@ export function TodayScreen() {
 
   return (
     <>
-      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}>
+      <Screen
+        contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}
+        contentMaxWidth={readingMaxWidth}>
         <Text color="primary" variant="caption" weight="semibold">
           {t('today.header.kicker')}
         </Text>
@@ -72,107 +76,127 @@ export function TodayScreen() {
           />
         ) : null}
 
-        <Card style={{ marginTop: theme.spacing.xl, paddingVertical: theme.spacing.md }}>
-          <Text
-            color="muted"
-            style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.sm }}
-            variant="caption">
-            {t('today.actions.sectionTitle')}
-          </Text>
-          {today.brushingFrequencyPerDay === 3 ? (
-            <Text
-              color="muted"
-              style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.xs }}>
-              {t('today.actions.thirdBrushHint')}
-            </Text>
-          ) : null}
-          {today.error ? (
-            <View style={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.md }}>
-              <Text weight="semibold">{t('common.errorTitle')}</Text>
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {today.error}
+        <View
+          style={{
+            flexDirection: isExpanded ? 'row' : 'column',
+            gap: theme.spacing.lg,
+            marginTop: theme.spacing.xl,
+          }}>
+          <View style={{ flex: isExpanded ? 1.45 : undefined }}>
+            <Card style={{ paddingVertical: theme.spacing.md }}>
+              <Text
+                color="muted"
+                style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.sm }}
+                variant="caption">
+                {t('today.actions.sectionTitle')}
               </Text>
-            </View>
-          ) : today.loading ? (
-            <View style={{ paddingVertical: theme.spacing.xl }}>
-              <Text color="muted">{t('today.loading')}</Text>
-            </View>
-          ) : (
-            today.visibleActions.map((action, index) => (
-              <TodayActionRow
-                key={action.key}
-                action={action}
-                completed={today.actionState[action.key].completed}
-                helperLabel={t(
-                  today.actionState[action.key].completed
-                    ? 'today.actions.undoHint'
-                    : 'today.actions.tapHint',
-                )}
-                isLast={index === today.visibleActions.length - 1}
-                label={t(action.titleKey)}
-                onPress={() => void today.toggleAction(action.key)}
-                optionalLabel={t('today.actions.optional')}
-              />
-            ))
-          )}
-        </Card>
-
-        <Card style={{ marginTop: theme.spacing.lg }}>
-          <Text variant="title" weight="semibold">
-            {t('today.status.title')}
-          </Text>
-          <View style={{ marginTop: theme.spacing.lg, gap: theme.spacing.md }}>
-            <TodayStatusRow
-              label={t('today.status.lastBrush')}
-              value={formatTime(today.quickStatus.lastBrushAt, locale, t('today.status.notYet'))}
-            />
-            <TodayStatusRow
-              label={t('today.status.lastFloss')}
-              value={formatTime(today.quickStatus.lastFlossAt, locale, t('today.status.notYet'))}
-            />
-            <TodayStatusRow
-              accent={today.quickStatus.toothbrushDaysLeft !== null && today.quickStatus.toothbrushDaysLeft <= 7}
-              label={t('today.status.toothbrush')}
-              value={toothbrushCountdownLabel}
-            />
-            <TodayStatusRow
-              accent={today.quickStatus.nextDentalCheckAt === null}
-              label={t('today.status.nextCheck')}
-              value={formatDateTime(
-                today.quickStatus.nextDentalCheckAt,
-                locale,
-                t('today.status.notScheduled'),
+              {today.brushingFrequencyPerDay === 3 ? (
+                <Text
+                  color="muted"
+                  style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.xs }}>
+                  {t('today.actions.thirdBrushHint')}
+                </Text>
+              ) : null}
+              {today.error ? (
+                <View style={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.md }}>
+                  <Text weight="semibold">{t('common.errorTitle')}</Text>
+                  <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                    {today.error}
+                  </Text>
+                </View>
+              ) : today.loading ? (
+                <View style={{ paddingVertical: theme.spacing.xl }}>
+                  <Text color="muted">{t('today.loading')}</Text>
+                </View>
+              ) : (
+                today.visibleActions.map((action, index) => (
+                  <TodayActionRow
+                    key={action.key}
+                    action={action}
+                    completed={today.actionState[action.key].completed}
+                    helperLabel={t(
+                      today.actionState[action.key].completed
+                        ? 'today.actions.undoHint'
+                        : 'today.actions.tapHint',
+                    )}
+                    isLast={index === today.visibleActions.length - 1}
+                    label={t(action.titleKey)}
+                    onPress={() => void today.toggleAction(action.key)}
+                    optionalLabel={t('today.actions.optional')}
+                  />
+                ))
               )}
-            />
+            </Card>
           </View>
-        </Card>
 
-        {today.error ? (
-          <StateMessageCard
-            actionLabel={t('common.retry')}
-            body={today.error}
-            onActionPress={() => void today.reload()}
-            title={t('common.errorTitle')}
-          />
-        ) : today.insights.length > 0 ? (
-          <View style={{ marginTop: theme.spacing.lg, gap: theme.spacing.md }}>
-            {today.insights.map((insight) => (
-              <Card
-                key={insight.id}
-                style={{
-                  backgroundColor:
-                    insight.tone === 'warning'
-                      ? theme.colors.surfaceAccent
-                      : theme.colors.surface,
-                }}>
-                <Text weight="semibold">{t(insight.titleKey)}</Text>
-                <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                  {t(insight.bodyKey, insight.bodyValues)}
+          <View style={{ flex: isExpanded ? 1 : undefined, gap: theme.spacing.lg }}>
+            <Card>
+              <Text variant="title" weight="semibold">
+                {t('today.status.title')}
+              </Text>
+              <View style={{ marginTop: theme.spacing.lg, gap: theme.spacing.md }}>
+                <TodayStatusRow
+                  label={t('today.status.lastBrush')}
+                  value={formatTime(today.quickStatus.lastBrushAt, locale, t('today.status.notYet'))}
+                />
+                <TodayStatusRow
+                  label={t('today.status.lastFloss')}
+                  value={formatTime(today.quickStatus.lastFlossAt, locale, t('today.status.notYet'))}
+                />
+                <TodayStatusRow
+                  accent={today.quickStatus.toothbrushDaysLeft !== null && today.quickStatus.toothbrushDaysLeft <= 7}
+                  label={t('today.status.toothbrush')}
+                  value={toothbrushCountdownLabel}
+                />
+                <TodayStatusRow
+                  accent={today.quickStatus.nextDentalCheckAt === null}
+                  label={t('today.status.nextCheck')}
+                  value={formatDateTime(
+                    today.quickStatus.nextDentalCheckAt,
+                    locale,
+                    t('today.status.notScheduled'),
+                  )}
+                />
+              </View>
+            </Card>
+
+            {today.error ? (
+              <StateMessageCard
+                actionLabel={t('common.retry')}
+                body={today.error}
+                onActionPress={() => void today.reload()}
+                title={t('common.errorTitle')}
+              />
+            ) : today.insights.length > 0 ? (
+              <View style={{ gap: theme.spacing.md }}>
+                {today.insights.map((insight) => (
+                  <Card
+                    key={insight.id}
+                    style={{
+                      backgroundColor:
+                        insight.tone === 'warning'
+                          ? theme.colors.surfaceAccent
+                          : theme.colors.surface,
+                    }}>
+                    <Text weight="semibold">{t(insight.titleKey)}</Text>
+                    <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                      {t(insight.bodyKey, insight.bodyValues)}
+                    </Text>
+                  </Card>
+                ))}
+              </View>
+            ) : !isTablet ? null : (
+              <Card>
+                <Text variant="title" weight="semibold">
+                  {t('today.status.title')}
+                </Text>
+                <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+                  {t('today.header.subtitle')}
                 </Text>
               </Card>
-            ))}
+            )}
           </View>
-        ) : null}
+        </View>
       </Screen>
 
       <FloatingActionButton
