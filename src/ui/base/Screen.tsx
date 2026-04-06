@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleProp,
   StyleSheet,
+  useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
@@ -26,12 +27,18 @@ export function Screen({
   const { theme } = useAppTheme();
   const isFocused = useIsFocused();
   const scrollRef = useRef<ScrollView | null>(null);
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
+  const isWidePhone = width >= 430;
 
   const sharedStyle: ViewStyle = {
+    alignSelf: 'center',
     flexGrow: 1,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.xxl,
+    maxWidth: isWidePhone ? 560 : undefined,
+    paddingHorizontal: isCompactWidth ? theme.spacing.lg : theme.spacing.xl,
+    paddingVertical: isCompactWidth ? theme.spacing.xl : theme.spacing.xxl,
     backgroundColor: theme.colors.background,
+    width: '100%',
   };
 
   useEffect(() => {
