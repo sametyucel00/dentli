@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useFeatureAccess } from '@/src/features/monetization';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import {
   TimelineEditorSheet,
   TimelineFilterBar,
@@ -12,11 +13,12 @@ import {
 import { useTimelineScreen } from '@/src/features/timeline/useTimelineScreen';
 import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { FloatingActionButton, Screen, StateMessageCard, Text } from '@/src/ui/base';
+import { Card, FloatingActionButton, Screen, StateMessageCard, Text } from '@/src/ui/base';
 
 export function TimelineScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isExpanded, readingMaxWidth } = useResponsiveLayout();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
@@ -31,7 +33,9 @@ export function TimelineScreen() {
 
   return (
     <>
-      <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}>
+      <Screen
+        contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 2 }}
+        contentMaxWidth={readingMaxWidth}>
         <Text color="primary" variant="caption" weight="semibold">
           {t('timeline.header.kicker')}
         </Text>
@@ -42,35 +46,60 @@ export function TimelineScreen() {
           {t('timeline.header.description')}
         </Text>
 
-        <View style={{ marginTop: theme.spacing.xl }}>
-          <TimelineFilterBar
-            labelMap={(value) => t(`timeline.filters.${value}`)}
-            onChange={timeline.setFilter}
-            value={timeline.filter}
-          />
-        </View>
+        <View
+          style={{
+            flexDirection: isExpanded ? 'row' : 'column',
+            gap: theme.spacing.lg,
+            marginTop: theme.spacing.xl,
+          }}>
+          <Card
+            style={{
+              alignSelf: 'flex-start',
+              flex: isExpanded ? 0.38 : undefined,
+            }}>
+            <Text variant="title" weight="semibold">
+              {t('timeline.header.title')}
+            </Text>
+            <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+              {t('timeline.header.description')}
+            </Text>
+            <View style={{ marginTop: theme.spacing.lg }}>
+              <TimelineFilterBar
+                labelMap={(value) => t(`timeline.filters.${value}`)}
+                onChange={timeline.setFilter}
+                value={timeline.filter}
+              />
+            </View>
+          </Card>
 
-        {timeline.error ? (
-          <StateMessageCard
-            actionLabel={t('common.retry')}
-            body={timeline.error}
-            onActionPress={() => void timeline.reload()}
-            title={t('common.errorTitle')}
-          />
-        ) : timeline.loading ? (
-          <StateMessageCard title={t('timeline.loading')} />
-        ) : visibleItems.length === 0 ? (
-          <StateMessageCard
-            body={t('timeline.empty.body')}
-            title={t('timeline.empty.title')}
-          />
-        ) : (
-          <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
-            {visibleItems.map((item) => (
-              <TimelineListItem key={`${item.kind}_${item.id}`} item={item} onPress={() => void timeline.openItem(item)} />
-            ))}
+          <View style={{ flex: isExpanded ? 1 : undefined }}>
+            {timeline.error ? (
+              <StateMessageCard
+                actionLabel={t('common.retry')}
+                body={timeline.error}
+                onActionPress={() => void timeline.reload()}
+                title={t('common.errorTitle')}
+              />
+            ) : timeline.loading ? (
+              <StateMessageCard title={t('timeline.loading')} />
+            ) : visibleItems.length === 0 ? (
+              <StateMessageCard
+                body={t('timeline.empty.body')}
+                title={t('timeline.empty.title')}
+              />
+            ) : (
+              <View style={{ gap: theme.spacing.md }}>
+                {visibleItems.map((item) => (
+                  <TimelineListItem
+                    key={`${item.kind}_${item.id}`}
+                    item={item}
+                    onPress={() => void timeline.openItem(item)}
+                  />
+                ))}
+              </View>
+            )}
           </View>
-        )}
+        </View>
       </Screen>
 
       <FloatingActionButton

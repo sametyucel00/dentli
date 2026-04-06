@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '@/src/features/today/formatters';
 import { TimelineItem } from '@/src/features/timeline/model';
 import { getTimelineItemCopy, getTimelineItemIcon } from '@/src/features/timeline/presentation';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Card, Text } from '@/src/ui/base';
@@ -19,6 +20,7 @@ export function TimelineListItem({
   const { t } = useTranslation();
   const locale = useAppLocale();
   const { theme } = useAppTheme();
+  const { isExpanded } = useResponsiveLayout();
   const copy = getTimelineItemCopy(item, t);
 
   return (
@@ -48,7 +50,7 @@ export function TimelineListItem({
               {copy.subtitle}
             </Text>
           </View>
-          <View style={{ alignItems: 'flex-end', maxWidth: 96 }}>
+          <View style={{ alignItems: 'flex-end', maxWidth: isExpanded ? 148 : 96 }}>
             <Text color="muted" variant="caption" style={{ textAlign: 'right' }}>
               {formatDateTime(item.occurredAt, locale, '')}
             </Text>

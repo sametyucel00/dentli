@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ToothStatus, ToothStatusHistory } from '@/src/domain/models';
 import { TOOTH_STATUS_OPTIONS } from '@/src/domain/teeth';
 import { formatDateTime } from '@/src/features/today/formatters';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { BottomSheetModal, Button, OptionPills, Text, TextField } from '@/src/ui/base';
@@ -39,6 +40,7 @@ export function ToothEditSheet({
 }: ToothEditSheetProps) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isExpanded } = useResponsiveLayout();
   const locale = useAppLocale();
 
   return (
@@ -56,52 +58,60 @@ export function ToothEditSheet({
             : t('toothMap.common.notRecorded')}
         </Text>
 
-        <OptionPills
-          containerStyle={{ justifyContent: 'center' }}
-          labelMap={(value) => t(`toothMap.status.${value}`)}
-          onSelect={(value) => onChangeStatus(value)}
-          options={TOOTH_STATUS_OPTIONS}
-          selectedValue={status}
-        />
+        <View
+          style={{
+            flexDirection: isExpanded ? 'row' : 'column',
+            gap: theme.spacing.lg,
+          }}>
+          <View style={{ flex: isExpanded ? 1 : undefined, gap: theme.spacing.md }}>
+            <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
+              labelMap={(value) => t(`toothMap.status.${value}`)}
+              onSelect={(value) => onChangeStatus(value)}
+              options={TOOTH_STATUS_OPTIONS}
+              selectedValue={status}
+            />
 
-        <TextField
-          onChangeText={onChangeNote}
-          placeholder={t('toothMap.editor.notePlaceholder')}
-          value={note}
-        />
+            <TextField
+              onChangeText={onChangeNote}
+              placeholder={t('toothMap.editor.notePlaceholder')}
+              value={note}
+            />
 
-        <Button
-          disabled={busy}
-          onPress={onSave}
-          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
-          title={busy ? t('toothMap.editor.saving') : t('toothMap.editor.save')}
-        />
+            <Button
+              disabled={busy}
+              onPress={onSave}
+              style={{ alignSelf: 'center', minWidth: 220, width: isExpanded ? '82%' : '72%' }}
+              title={busy ? t('toothMap.editor.saving') : t('toothMap.editor.save')}
+            />
+          </View>
 
-        <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
-          <Text weight="semibold">{t('toothMap.editor.historyTitle')}</Text>
-          {history.length === 0 ? (
-            <Text color="muted">{t('toothMap.editor.emptyHistory')}</Text>
-          ) : (
-            history.map((entry) => (
-              <View
-                key={entry.id}
-                style={{
-                  borderBottomColor: theme.colors.border,
-                  borderBottomWidth: 1,
-                  paddingBottom: theme.spacing.sm,
-                }}>
-                <Text weight="semibold">{t(`toothMap.status.${entry.status}`)}</Text>
-                <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                  {formatDateTime(entry.recordedAt, locale, t('toothMap.common.notRecorded'))}
-                </Text>
-                {entry.note ? (
+          <View style={{ flex: isExpanded ? 1 : undefined, gap: theme.spacing.sm }}>
+            <Text weight="semibold">{t('toothMap.editor.historyTitle')}</Text>
+            {history.length === 0 ? (
+              <Text color="muted">{t('toothMap.editor.emptyHistory')}</Text>
+            ) : (
+              history.map((entry) => (
+                <View
+                  key={entry.id}
+                  style={{
+                    borderBottomColor: theme.colors.border,
+                    borderBottomWidth: 1,
+                    paddingBottom: theme.spacing.sm,
+                  }}>
+                  <Text weight="semibold">{t(`toothMap.status.${entry.status}`)}</Text>
                   <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                    {entry.note}
+                    {formatDateTime(entry.recordedAt, locale, t('toothMap.common.notRecorded'))}
                   </Text>
-                ) : null}
-              </View>
-            ))
-          )}
+                  {entry.note ? (
+                    <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                      {entry.note}
+                    </Text>
+                  ) : null}
+                </View>
+              ))
+            )}
+          </View>
         </View>
       </View>
     </BottomSheetModal>

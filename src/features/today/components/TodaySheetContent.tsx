@@ -10,6 +10,7 @@ import {
 } from '@/src/features/today/model';
 import { TodayBrushTimer } from '@/src/features/today/components/TodayBrushTimer';
 import { TodaySheetAction } from '@/src/features/today/components/TodaySheetAction';
+import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
@@ -54,6 +55,7 @@ type TodayViewModel = {
 export function TodaySheetContent({ today }: { today: TodayViewModel }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { isTablet } = useResponsiveLayout();
 
   const localizedTimerQuadrants = today.timerQuadrants.map((quadrant) => ({
     id: quadrant.id,
@@ -67,7 +69,12 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           {t('today.sheet.title')}
         </Text>
         <View
-          style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.spacing.sm,
+            justifyContent: 'center',
+          }}>
           <TodaySheetAction
             description={t('today.sheet.addSymptomHint')}
             icon="pulse-outline"
@@ -154,19 +161,23 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           onChangeText={today.setAppointmentProvider}
           placeholder={t('today.sheet.providerName')}
         />
-        <View style={{ gap: theme.spacing.md }}>
-          <DateTimeField
-            label={t('today.sheet.startDate')}
-            mode="date"
-            onChange={today.setAppointmentStartsAt}
-            value={today.appointmentStartsAt}
-          />
-          <DateTimeField
-            label={t('today.sheet.startTime')}
-            mode="time"
-            onChange={today.setAppointmentStartsAt}
-            value={today.appointmentStartsAt}
-          />
+        <View style={{ flexDirection: isTablet ? 'row' : 'column', gap: theme.spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('today.sheet.startDate')}
+              mode="date"
+              onChange={today.setAppointmentStartsAt}
+              value={today.appointmentStartsAt}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('today.sheet.startTime')}
+              mode="time"
+              onChange={today.setAppointmentStartsAt}
+              value={today.appointmentStartsAt}
+            />
+          </View>
         </View>
         <Button
           disabled={!today.appointmentStartsAt.trim()}
