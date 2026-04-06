@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 
 import { ToothStatus } from '@/src/domain/models';
 import { useAppTheme } from '@/src/theme/useAppTheme';
@@ -44,6 +44,8 @@ export function ToothCell({
   onPress,
 }: ToothCellProps) {
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
   const colors = getStatusColors(status, isProblemZone, theme.colors);
 
   return (
@@ -59,10 +61,10 @@ export function ToothCell({
           borderRadius: theme.radii.md,
           borderWidth: 1,
           justifyContent: 'center',
-          minHeight: 52,
+          minHeight: isCompactWidth ? 46 : 52,
           minWidth: 0,
           opacity: disabled ? 0.65 : pressed ? 0.9 : 1,
-          paddingVertical: theme.spacing.sm,
+          paddingVertical: isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
           position: 'relative',
           width: '100%',
         },

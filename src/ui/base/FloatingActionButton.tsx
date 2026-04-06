@@ -20,7 +20,7 @@ export function FloatingActionButton({
 }) {
   const { colorScheme, theme } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const resolvedBottomOffset = bottomOffset ?? 40 + insets.bottom;
+  const resolvedBottomOffset = bottomOffset ?? 24 + insets.bottom;
 
   return (
     <Pressable
@@ -35,13 +35,13 @@ export function FloatingActionButton({
         bottom: resolvedBottomOffset,
         flexDirection: 'row',
         gap: label ? theme.spacing.sm : 0,
-        height: 56,
+        height: 58,
         justifyContent: 'center',
         minWidth: label ? 132 : 56,
         paddingHorizontal: label ? theme.spacing.lg : 0,
         position: 'absolute',
         right: theme.spacing.xl,
-        width: label ? undefined : 56,
+        width: label ? undefined : 58,
         ...(colorScheme === 'dark' ? theme.shadows.floating : null),
       }}>
       <Ionicons color={theme.colors.textInverse} name={icon} size={24} />

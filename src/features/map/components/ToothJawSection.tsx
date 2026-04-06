@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Card, Text } from '@/src/ui/base';
@@ -24,6 +24,8 @@ export function ToothJawSection({
   onSelectTooth,
 }: ToothJawSectionProps) {
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
 
   return (
     <Card>
@@ -34,13 +36,18 @@ export function ToothJawSection({
         {subtitle}
       </Text>
 
-      <View style={{ flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: isCompactWidth ? theme.spacing.sm : theme.spacing.md,
+          marginTop: theme.spacing.lg,
+        }}>
         {segments.map((segment, segmentIndex) => (
           <View
             key={segmentIndex}
             style={{
               flex: 1,
-              gap: theme.spacing.sm,
+              gap: isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
             }}>
             {segment.map((toothNumber) => {
               const tooth = teeth.find((item) => item.toothNumber === toothNumber);

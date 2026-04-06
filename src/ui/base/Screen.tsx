@@ -1,5 +1,7 @@
 import { PropsWithChildren, useEffect, useRef } from 'react';
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -40,17 +42,23 @@ export function Screen({
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-      {scroll ? (
-        <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={[sharedStyle, contentContainerStyle]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[sharedStyle, contentContainerStyle]}>{children}</View>
-      )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.safeArea}>
+        {scroll ? (
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={[sharedStyle, contentContainerStyle]}
+            contentInsetAdjustmentBehavior="automatic"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}>
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[sharedStyle, contentContainerStyle]}>{children}</View>
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

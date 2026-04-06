@@ -1,4 +1,4 @@
-import { Pressable, StyleProp, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base/Text';
@@ -17,6 +17,8 @@ export function OptionPills<T extends string | number | boolean | null>({
   containerStyle?: StyleProp<ViewStyle>;
 }) {
   const { colorScheme, theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
 
   return (
     <View style={[{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }, containerStyle]}>
@@ -33,8 +35,9 @@ export function OptionPills<T extends string | number | boolean | null>({
               borderColor: selected ? theme.colors.primary : theme.colors.border,
               borderRadius: theme.radii.pill,
               borderWidth: colorScheme === 'dark' ? 1 : 0,
+              minHeight: 40,
               paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.sm,
+              paddingVertical: isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
             }}>
             <Text
               style={{ color: selected ? theme.colors.textInverse : theme.colors.text }}
