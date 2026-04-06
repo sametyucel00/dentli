@@ -16,6 +16,7 @@ const TIME_OPTIONS_MORNING = ['07:00', '08:00', '08:30', '09:00'] as const;
 const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '21:30', '22:00'] as const;
 const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
 const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
+const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
 type OnboardingStep = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -127,6 +128,7 @@ export function OnboardingScreen() {
             </Text>
             <Text color="muted">{t('onboarding.steps.language.body')}</Text>
             <OptionPills
+              containerStyle={CENTERED_PILL_STYLE}
               labelMap={(value) => t(`onboarding.languages.${value}`)}
               onSelect={(value) => setLanguage(value)}
               options={ONBOARDING_LANGUAGES}
@@ -142,6 +144,7 @@ export function OnboardingScreen() {
             </Text>
             <Text color="muted">{t('onboarding.steps.brushing.body')}</Text>
             <OptionPills
+              containerStyle={CENTERED_PILL_STYLE}
               labelMap={(value) => t(`onboarding.brushingFrequency.${value}`)}
               onSelect={(value) => setBrushingFrequencyPerDay(value)}
               options={BRUSHING_FREQUENCY_OPTIONS}
@@ -161,6 +164,7 @@ export function OnboardingScreen() {
                 {t('onboarding.flossingLabel')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                 onSelect={(value) => {
                   setFlossingEnabled(value);
@@ -178,6 +182,7 @@ export function OnboardingScreen() {
                   {t('onboarding.flossFrequency')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
                   onSelect={setFlossSessionsPerWeek}
                   options={FLOSS_FREQUENCY_OPTIONS}
@@ -190,6 +195,7 @@ export function OnboardingScreen() {
                 {t('onboarding.mouthwashLabel')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                 onSelect={(value) => {
                   setMouthwashEnabled(value);
@@ -207,6 +213,7 @@ export function OnboardingScreen() {
                   {t('onboarding.mouthwashFrequency')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
                   onSelect={setMouthwashSessionsPerWeek}
                   options={MOUTHWASH_FREQUENCY_OPTIONS}
@@ -228,6 +235,7 @@ export function OnboardingScreen() {
                 {t('onboarding.morningReminder')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => value}
                 onSelect={setMorningReminderTime}
                 options={TIME_OPTIONS_MORNING}
@@ -239,6 +247,7 @@ export function OnboardingScreen() {
                 {t('onboarding.nightReminder')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => value}
                 onSelect={setNightReminderTime}
                 options={TIME_OPTIONS_NIGHT}
@@ -250,6 +259,7 @@ export function OnboardingScreen() {
                 {t('onboarding.quietStart')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => value}
                 onSelect={setQuietHoursStart}
                 options={QUIET_START_OPTIONS}
@@ -261,6 +271,7 @@ export function OnboardingScreen() {
                 {t('onboarding.quietEnd')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => value}
                 onSelect={setQuietHoursEnd}
                 options={QUIET_END_OPTIONS}
@@ -288,6 +299,7 @@ export function OnboardingScreen() {
                 {t('onboarding.remindersLabel')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                 onSelect={setRemindersEnabled}
                 options={[true, false]}
@@ -299,6 +311,7 @@ export function OnboardingScreen() {
                 {t('onboarding.notificationPermissionLabel')}
               </Text>
               <OptionPills
+                containerStyle={CENTERED_PILL_STYLE}
                 labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                 onSelect={setRequestNotificationPermission}
                 options={[true, false]}
@@ -311,7 +324,7 @@ export function OnboardingScreen() {
   }
 
   return (
-    <Screen scroll={false} contentContainerStyle={{ justifyContent: 'center' }}>
+    <Screen contentContainerStyle={{ justifyContent: 'center' }}>
       <Text color="primary" variant="caption" weight="semibold">
         {t('onboarding.kicker')}
       </Text>
@@ -357,13 +370,15 @@ export function OnboardingScreen() {
         <View
           style={{
             flexDirection: 'row',
+            flexWrap: 'wrap',
             gap: theme.spacing.md,
             marginTop: theme.spacing.xl,
+            justifyContent: 'center',
           }}>
           {step > 0 ? (
             <Button
               onPress={goBack}
-              style={{ flex: 1 }}
+              style={{ flexBasis: '48%', minWidth: 0 }}
               title={t('onboarding.back')}
               variant="secondary"
             />
@@ -371,7 +386,7 @@ export function OnboardingScreen() {
           <Button
             disabled={submitting || !canContinue}
             onPress={() => void (step === totalSteps - 1 ? handleFinish() : goNext())}
-            style={{ flex: 1 }}
+            style={step > 0 ? { flexBasis: '48%', minWidth: 0 } : { minWidth: 220, width: '72%' }}
             title={
               step === totalSteps - 1
                 ? submitting
