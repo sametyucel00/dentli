@@ -22,6 +22,7 @@ export function ProfileSummaryCard({
   const { theme } = useAppTheme();
   const { width } = useWindowDimensions();
   const isCompactWidth = width < 390;
+  const isVeryNarrow = width < 350;
   const { selectedProfile, appointmentsCount, careItemsCount } =
     useSelectedProfileSummary();
 
@@ -62,13 +63,13 @@ export function ProfileSummaryCard({
             marginTop: theme.spacing.lg,
           }}>
           <Button
-            style={{ flexBasis: '47%', maxWidth: 220 }}
+            style={{ flexBasis: isVeryNarrow ? '100%' : '47%', maxWidth: 220 }}
             title={isCompactWidth ? t('common.switchTheme').replace(' ', '\n') : t('common.switchTheme')}
             onPress={() => void settingsService.toggleThemeMode()}
             variant="secondary"
           />
           <Button
-            style={{ flexBasis: '47%', maxWidth: 220 }}
+            style={{ flexBasis: isVeryNarrow ? '100%' : '47%', maxWidth: 220 }}
             title={isCompactWidth ? t('common.switchLanguage').replace(' ', '\n') : t('common.switchLanguage')}
             onPress={() => void settingsService.applyLanguage(getAlternateLanguage(i18n.language))}
             variant="secondary"

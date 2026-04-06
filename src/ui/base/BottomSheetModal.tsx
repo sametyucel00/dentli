@@ -28,6 +28,11 @@ export function BottomSheetModal({
   const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isCompactWidth = width < 390;
+  const isShortScreen = height < 760;
+  const horizontalPadding = isCompactWidth ? theme.spacing.lg : theme.spacing.xl;
+  const bottomPadding = Math.max(theme.spacing.lg, insets.bottom + theme.spacing.md);
+  const maxSheetHeight = height * (isShortScreen ? 0.9 : 0.84);
+  const sheetWidth = Math.min(width, 560);
 
   return (
     <Modal animationType="slide" statusBarTranslucent transparent visible={visible}>
@@ -39,6 +44,7 @@ export function BottomSheetModal({
         style={{ backgroundColor: 'rgba(0,0,0,0.25)', flex: 1, justifyContent: 'flex-end' }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
           style={{ justifyContent: 'flex-end' }}>
           <Pressable
             accessibilityViewIsModal
@@ -49,11 +55,11 @@ export function BottomSheetModal({
               borderTopLeftRadius: theme.radii.lg,
               borderTopRightRadius: theme.radii.lg,
               minHeight,
-              maxHeight: height * 0.84,
-              paddingHorizontal: isCompactWidth ? theme.spacing.lg : theme.spacing.xl,
+              maxHeight: maxSheetHeight,
+              paddingHorizontal: horizontalPadding,
               paddingTop: theme.spacing.md,
-              paddingBottom: theme.spacing.xl + insets.bottom,
-              width: '100%',
+              paddingBottom: bottomPadding,
+              width: sheetWidth,
             }}>
             <View
               style={{
@@ -71,6 +77,7 @@ export function BottomSheetModal({
             </View>
             <ScrollView
               bounces={false}
+              contentContainerStyle={{ paddingBottom: theme.spacing.sm }}
               contentInsetAdjustmentBehavior="automatic"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               keyboardShouldPersistTaps="handled"

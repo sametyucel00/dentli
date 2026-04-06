@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button } from '@/src/ui/base/Button';
@@ -22,6 +22,8 @@ export function StateMessageCard({
   children,
 }: StateMessageCardProps) {
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
 
   return (
     <Card style={{ marginTop: theme.spacing.lg }}>
@@ -37,7 +39,13 @@ export function StateMessageCard({
       {actionLabel && onActionPress ? (
         <Button
           onPress={onActionPress}
-          style={{ alignSelf: 'center', marginTop: theme.spacing.lg }}
+          style={{
+            alignSelf: 'center',
+            marginTop: theme.spacing.lg,
+            maxWidth: 320,
+            minWidth: isCompactWidth ? 180 : 220,
+            width: isCompactWidth ? '76%' : '68%',
+          }}
           title={actionLabel}
           variant="secondary"
         />

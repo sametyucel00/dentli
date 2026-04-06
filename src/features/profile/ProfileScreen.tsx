@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
 import {
@@ -30,18 +30,29 @@ const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '21:30', '22:00'] as const;
 const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
 const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
-const ACTION_BUTTON_STYLE = { flexBasis: '31%', flexGrow: 1, minWidth: 0 } as const;
-const PROFILE_BUTTON_STYLE = { flexBasis: '47%', flexGrow: 1, minWidth: 0 } as const;
 
 export function ProfileScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
+  const isVeryNarrow = width < 350;
   const profileScreen = useProfileScreen();
   const { isPro } = useEntitlementSummary();
   const { selectedProfile } = useSelectedProfileSummary();
   const accessibleProfileIds = useAccessibleProfileIds();
   const hasAdvancedAnalyticsAccess = useFeatureAccess('analytics_advanced');
   const hasBiometricLockAccess = useFeatureAccess('biometric_lock');
+  const actionButtonStyle = {
+    flexBasis: isCompactWidth ? '48%' : '31%',
+    flexGrow: 1,
+    minWidth: 0,
+  } as const;
+  const profileButtonStyle = {
+    flexBasis: isVeryNarrow ? '100%' : '48%',
+    flexGrow: 1,
+    minWidth: 0,
+  } as const;
 
   return (
     <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 3 }}>
@@ -175,7 +186,7 @@ export function ProfileScreen() {
                       }}>
                       <Button
                         onPress={() => void profileScreen.switchProfile(profile.id)}
-                        style={PROFILE_BUTTON_STYLE}
+                        style={profileButtonStyle}
                         title={
                           isSelected
                             ? t('profile.profiles.selectedAction')
@@ -187,7 +198,7 @@ export function ProfileScreen() {
                         <Button
                           disabled={profileScreen.settingsBusyKey === `deleteProfile:${profile.id}`}
                           onPress={() => void profileScreen.deleteProfile(profile.id)}
-                          style={PROFILE_BUTTON_STYLE}
+                          style={profileButtonStyle}
                           title={t('profile.profiles.deleteAction')}
                           variant="ghost"
                         />
@@ -436,14 +447,14 @@ export function ProfileScreen() {
             <Button
               disabled={profileScreen.settingsBusyKey === 'notifications'}
               onPress={() => void profileScreen.requestNotificationPermission()}
-              style={PROFILE_BUTTON_STYLE}
+              style={profileButtonStyle}
               title={t('profile.settings.notificationsButton')}
               variant="secondary"
             />
             <Button
               disabled={profileScreen.settingsBusyKey === 'clearData'}
               onPress={() => void profileScreen.clearAllData()}
-              style={PROFILE_BUTTON_STYLE}
+              style={profileButtonStyle}
               title={t('profile.settings.clearData')}
               variant="secondary"
             />
@@ -502,19 +513,19 @@ export function ProfileScreen() {
           }}>
           <Button
             onPress={() => router.push('/privacy')}
-            style={ACTION_BUTTON_STYLE}
+            style={actionButtonStyle}
             title={t('profile.release.privacy')}
             variant="secondary"
           />
           <Button
             onPress={() => router.push('/legal')}
-            style={ACTION_BUTTON_STYLE}
+            style={actionButtonStyle}
             title={t('profile.release.terms')}
             variant="secondary"
           />
           <Button
             onPress={() => router.push('/permissions')}
-            style={ACTION_BUTTON_STYLE}
+            style={actionButtonStyle}
             title={t('profile.release.permissions')}
             variant="secondary"
           />

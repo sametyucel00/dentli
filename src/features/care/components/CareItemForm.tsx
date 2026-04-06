@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { CARE_ITEM_TYPE_OPTIONS } from '@/src/domain/care';
 import { CareItemDraft } from '@/src/features/care/model';
@@ -25,6 +25,10 @@ export function CareItemForm({
 }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isVeryNarrow = width < 350;
+  const splitButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
+  const singleButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '72%', maxWidth: 340, minWidth: 0 } as const;
   const availableTypes = allowAdvancedTypes
     ? CARE_ITEM_TYPE_OPTIONS
     : CARE_ITEM_TYPE_OPTIONS.filter((value) =>
@@ -83,13 +87,13 @@ export function CareItemForm({
         <Button
           disabled={!draft.title.trim()}
           onPress={onSubmit}
-          style={{ flexBasis: onDelete ? '48%' : '72%', minWidth: 0 }}
+          style={onDelete ? splitButtonStyle : singleButtonStyle}
           title={submitLabel}
         />
         {onDelete ? (
           <Button
             onPress={onDelete}
-            style={{ flexBasis: '48%', minWidth: 0 }}
+            style={splitButtonStyle}
             title={t('careTracking.form.delete')}
             variant="ghost"
           />

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { SYMPTOM_SEVERITY_OPTIONS, SYMPTOM_TYPE_OPTIONS } from '@/src/domain/symptoms';
@@ -46,9 +46,6 @@ const APPOINTMENT_TYPES: TimelineAppointmentDraft['appointmentType'][] = [
   'other',
 ];
 
-const SINGLE_ACTION_STYLE = { alignSelf: 'center', minWidth: 220, width: '72%' } as const;
-const SPLIT_ACTION_STYLE = { flexBasis: '48%', minWidth: 0 } as const;
-
 export function TimelineEditorSheet({
   visible,
   item,
@@ -69,6 +66,15 @@ export function TimelineEditorSheet({
 }: TimelineEditorSheetProps) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isVeryNarrow = width < 350;
+  const singleActionStyle = {
+    alignSelf: 'center',
+    maxWidth: 340,
+    minWidth: isVeryNarrow ? 0 : 220,
+    width: isVeryNarrow ? '100%' : '72%',
+  } as const;
+  const splitActionStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
 
   return (
     <BottomSheetModal minHeight={420} onClose={onClose} visible={visible}>
@@ -123,7 +129,7 @@ export function TimelineEditorSheet({
             <Button
               disabled={busy}
               onPress={onCreateSymptom}
-              style={SINGLE_ACTION_STYLE}
+              style={singleActionStyle}
               title={busy ? t('timeline.common.saving') : t('timeline.newSymptom.save')}
             />
           </>
@@ -178,13 +184,13 @@ export function TimelineEditorSheet({
               <Button
                 disabled={busy}
                 onPress={onSave}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
               />
               <Button
                 disabled={busy}
                 onPress={onDelete}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={t('timeline.common.delete')}
                 variant="ghost"
               />
@@ -243,13 +249,13 @@ export function TimelineEditorSheet({
               <Button
                 disabled={busy}
                 onPress={onSave}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
               />
               <Button
                 disabled={busy}
                 onPress={onDelete}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={t('timeline.common.delete')}
                 variant="ghost"
               />
@@ -287,13 +293,13 @@ export function TimelineEditorSheet({
               <Button
                 disabled={busy}
                 onPress={onSave}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
               />
               <Button
                 disabled={busy}
                 onPress={onDelete}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={t('timeline.common.delete')}
                 variant="ghost"
               />
@@ -335,13 +341,13 @@ export function TimelineEditorSheet({
               <Button
                 disabled={busy}
                 onPress={onSave}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
               />
               <Button
                 disabled={busy}
                 onPress={onDelete}
-                style={SPLIT_ACTION_STYLE}
+                style={splitActionStyle}
                 title={t('timeline.common.delete')}
                 variant="ghost"
               />

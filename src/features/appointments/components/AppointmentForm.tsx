@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { AppointmentDraft, APPOINTMENT_REMINDER_OPTIONS } from '@/src/features/appointments/model';
 import { useAppTheme } from '@/src/theme/useAppTheme';
@@ -35,6 +35,10 @@ export function AppointmentForm({
 }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isVeryNarrow = width < 350;
+  const splitButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
+  const singleButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '72%', maxWidth: 340, minWidth: 0 } as const;
 
   return (
     <View style={{ gap: theme.spacing.md }}>
@@ -136,13 +140,13 @@ export function AppointmentForm({
         <Button
           disabled={!draft.title.trim()}
           onPress={onSubmit}
-          style={{ flexBasis: onDelete ? '48%' : '72%', minWidth: 0 }}
+          style={onDelete ? splitButtonStyle : singleButtonStyle}
           title={submitLabel}
         />
         {onDelete ? (
           <Button
             onPress={onDelete}
-            style={{ flexBasis: '48%', minWidth: 0 }}
+            style={splitButtonStyle}
             title={t('appointments.form.delete')}
             variant="ghost"
           />
