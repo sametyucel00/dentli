@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base/Text';
 
-export function OptionPills<T extends string | number | null>({
+export function OptionPills<T extends string | number | boolean | null>({
   options,
   selectedValue,
   onSelect,

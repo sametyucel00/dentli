@@ -18,7 +18,16 @@ import {
   useSelectedProfileSummary,
 } from '@/src/state/selectors';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, Card, Screen, StateMessageCard, Text } from '@/src/ui/base';
+import { Button, Card, OptionPills, Screen, StateMessageCard, Text } from '@/src/ui/base';
+
+const BRUSHING_OPTIONS = [1, 2] as const;
+const BOOLEAN_OPTIONS = [true, false] as const;
+const LANGUAGE_OPTIONS = ['en', 'tr'] as const;
+const THEME_OPTIONS = ['system', 'light', 'dark'] as const;
+const MORNING_TIME_OPTIONS = ['07:00', '08:00', '08:30', '09:00'] as const;
+const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '21:30', '22:00'] as const;
+const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
+const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -114,6 +123,206 @@ export function ProfileScreen() {
               </Card>
             );
           })}
+        </View>
+      </Card>
+
+      <Card style={{ marginTop: theme.spacing.lg }}>
+        <Text variant="title" weight="semibold">
+          {t('profile.settings.title')}
+        </Text>
+        <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+          {t('profile.settings.body')}
+        </Text>
+
+        {profileScreen.settingsError ? (
+          <StateMessageCard body={profileScreen.settingsError} title={t('common.errorTitle')} />
+        ) : null}
+
+        {profileScreen.settingsNotice ? (
+          <StateMessageCard
+            body={profileScreen.settingsNotice}
+            title={t('profile.settings.savedTitle')}
+          />
+        ) : null}
+
+        <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.lg }}>
+          <View style={{ gap: theme.spacing.sm }}>
+            <Text variant="caption" color="muted" weight="semibold">
+              {t('profile.settings.language')}
+            </Text>
+            <OptionPills
+              labelMap={(value) => t(`onboarding.languages.${value}`)}
+              onSelect={(value) => void profileScreen.updateLanguage(value)}
+              options={LANGUAGE_OPTIONS}
+              selectedValue={profileScreen.language}
+            />
+          </View>
+
+          <View style={{ gap: theme.spacing.sm }}>
+            <Text variant="caption" color="muted" weight="semibold">
+              {t('profile.settings.theme')}
+            </Text>
+            <OptionPills
+              labelMap={(value) => t(`profile.settings.themeModes.${value}`)}
+              onSelect={(value) => void profileScreen.updateThemeMode(value)}
+              options={THEME_OPTIONS}
+              selectedValue={profileScreen.themeMode}
+            />
+          </View>
+
+          {profileScreen.routineSettings ? (
+            <>
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.brushingGoal')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => t(`onboarding.brushingFrequency.${value}`)}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings(
+                      { brushingFrequencyPerDay: value },
+                      'brushing',
+                    )
+                  }
+                  options={BRUSHING_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.brushingFrequencyPerDay as 1 | 2}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.floss')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings({ flossingEnabled: value }, 'floss')
+                  }
+                  options={BOOLEAN_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.flossingEnabled}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.mouthwash')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings({ mouthwashEnabled: value }, 'mouthwash')
+                  }
+                  options={BOOLEAN_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.mouthwashEnabled}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.reminders')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings({ remindersEnabled: value }, 'reminders')
+                  }
+                  options={BOOLEAN_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.remindersEnabled}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.morningReminder')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => value}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings(
+                      { morningReminderTime: value },
+                      'morningReminder',
+                    )
+                  }
+                  options={MORNING_TIME_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.morningReminderTime ?? '08:30'}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.nightReminder')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => value}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings(
+                      { nightReminderTime: value, reminderTime: value },
+                      'nightReminder',
+                    )
+                  }
+                  options={NIGHT_TIME_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.nightReminderTime ?? '21:00'}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.quietStart')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => value}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings({ quietHoursStart: value }, 'quietStart')
+                  }
+                  options={QUIET_START_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.quietHoursStart ?? '22:30'}
+                />
+              </View>
+
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('profile.settings.quietEnd')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => value}
+                  onSelect={(value) =>
+                    void profileScreen.updateRoutineSettings({ quietHoursEnd: value }, 'quietEnd')
+                  }
+                  options={QUIET_END_OPTIONS}
+                  selectedValue={profileScreen.routineSettings.quietHoursEnd ?? '07:30'}
+                />
+              </View>
+            </>
+          ) : null}
+
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+            <Button
+              disabled={profileScreen.settingsBusyKey === 'notifications'}
+              onPress={() => void profileScreen.requestNotificationPermission()}
+              title={t('profile.settings.notificationsButton')}
+              variant="secondary"
+            />
+            <Button
+              disabled={profileScreen.settingsBusyKey === 'biometric'}
+              onPress={() =>
+                void profileScreen.updateBiometricLock(
+                  !profileScreen.appPreferences.biometricLockEnabled,
+                )
+              }
+              title={
+                profileScreen.appPreferences.biometricLockEnabled
+                  ? t('profile.settings.biometricDisable')
+                  : t('profile.settings.biometricEnable')
+              }
+              variant="secondary"
+            />
+            <Button
+              disabled={profileScreen.settingsBusyKey === 'clearData'}
+              onPress={() => void profileScreen.clearAllData()}
+              title={t('profile.settings.clearData')}
+              variant="ghost"
+            />
+          </View>
         </View>
       </Card>
 

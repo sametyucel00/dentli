@@ -1,16 +1,24 @@
-import { Platform } from 'react-native';
-
 import { Profile, RoutineSettings, SupportedLanguage } from '@/src/domain/models';
 import { createId, nowIso } from '@/src/lib/runtime';
 import { profileRepository, routineSettingsRepository } from '@/src/repositories';
 import { databaseService } from '@/src/services/database-service';
+import { notificationService } from '@/src/services/notification-service';
 import { profileContextService } from '@/src/services/profile-context-service';
-import { useAppStore } from '@/src/state/useAppStore';
+import { settingsService } from '@/src/services/settings-service';
 
 type CreateInitialProfileInput = {
   firstName: string;
   lastName: string;
   preferredLanguage: SupportedLanguage;
+  brushingFrequencyPerDay: 1 | 2;
+  flossingEnabled: boolean;
+  mouthwashEnabled: boolean;
+  remindersEnabled: boolean;
+  morningReminderTime: string;
+  nightReminderTime: string;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+  requestNotificationPermission: boolean;
 };
 
 class OnboardingService {
@@ -30,38 +38,33 @@ class OnboardingService {
     const routineSettings: RoutineSettings = {
       id: createId('routine'),
       profileId,
-      brushingFrequencyPerDay: 2,
-      flossingEnabled: true,
-      mouthwashEnabled: true,
-      remindersEnabled: true,
-      reminderTime: '21:00',
+      brushingFrequencyPerDay: input.brushingFrequencyPerDay,
+      flossingEnabled: input.flossingEnabled,
+      mouthwashEnabled: input.mouthwashEnabled,
+      remindersEnabled: input.remindersEnabled,
+      reminderTime: input.nightReminderTime,
+      morningReminderTime: input.morningReminderTime,
+      nightReminderTime: input.nightReminderTime,
+      quietHoursStart: input.quietHoursStart,
+      quietHoursEnd: input.quietHoursEnd,
       toothbrushReplacementIntervalDays: 90,
       toothbrushLastReplacedAt: timestamp,
       createdAt: timestamp,
       updatedAt: timestamp,
     };
 
-    if (Platform.OS === 'web') {
-      const store = useAppStore.getState();
-      store.cacheProfiles([profile]);
-      store.setLanguage(profile.preferredLanguage);
-      store.setSelectedProfileContext({
-        selectedProfileId: profileId,
-        routineSettings,
-        appointments: [],
-        careItems: [],
-        toothCurrentStatuses: [],
-        language: profile.preferredLanguage,
-      });
-      return;
-    }
-
     await databaseService.withTransaction(async () => {
       await profileRepository.create(profile);
       await routineSettingsRepository.upsert(routineSettings);
     });
 
+    await settingsService.applyLanguage(input.preferredLanguage);
     await profileContextService.selectProfile(profileId);
+
+    if (input.requestNotificationPermission && input.remindersEnabled) {
+      await notificationService.initialize();
+      await notificationService.requestPermissions();
+    }
   }
 }
 

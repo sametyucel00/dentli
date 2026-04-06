@@ -167,4 +167,27 @@ export const migrations: DatabaseMigration[] = [
       );`,
     ],
   },
+  {
+    version: 7,
+    name: 'routine_settings_preferences',
+    up: [
+      `ALTER TABLE routine_settings ADD COLUMN morning_reminder_time TEXT;`,
+      `ALTER TABLE routine_settings ADD COLUMN night_reminder_time TEXT;`,
+      `ALTER TABLE routine_settings ADD COLUMN quiet_hours_start TEXT;`,
+      `ALTER TABLE routine_settings ADD COLUMN quiet_hours_end TEXT;`,
+    ],
+  },
+  {
+    version: 8,
+    name: 'app_preferences',
+    up: [
+      `CREATE TABLE IF NOT EXISTS app_preferences (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        biometric_lock_enabled INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL
+      );`,
+      `INSERT OR IGNORE INTO app_preferences (id, biometric_lock_enabled, updated_at)
+       VALUES (1, 0, datetime('now'));`,
+    ],
+  },
 ];

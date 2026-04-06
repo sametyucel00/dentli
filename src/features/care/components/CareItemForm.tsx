@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { CARE_ITEM_TYPE_OPTIONS } from '@/src/domain/care';
+import { CARE_ITEM_TYPE_OPTIONS, DEFAULT_CARE_ITEM_REPLACEMENT_DAYS } from '@/src/domain/care';
 import { CareItemDraft } from '@/src/features/care/model';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
@@ -36,7 +36,12 @@ export function CareItemForm({
       />
       <OptionPills
         labelMap={(value) => t(`careTracking.types.${value}`)}
-        onSelect={(value) => onChange({ itemType: value })}
+        onSelect={(value) =>
+          onChange({
+            itemType: value,
+            replacementCycleDays: `${DEFAULT_CARE_ITEM_REPLACEMENT_DAYS[value] ?? ''}`,
+          })
+        }
         options={CARE_ITEM_TYPE_OPTIONS}
         selectedValue={draft.itemType}
       />

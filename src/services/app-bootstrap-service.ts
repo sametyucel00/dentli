@@ -1,5 +1,6 @@
 import { seedDevelopmentData } from '@/src/dev/seed-data';
 import { profileRepository } from '@/src/repositories';
+import { appPreferencesRepository } from '@/src/repositories/app-preferences-repository';
 import { databaseService } from '@/src/services/database-service';
 import { entitlementService } from '@/src/services/entitlement-service';
 import { notificationService } from '@/src/services/notification-service';
@@ -23,6 +24,10 @@ class AppBootstrapService {
   async hydrateStore() {
     const profiles = await profileRepository.list();
     const entitlements = await entitlementService.loadSnapshot();
+    const appPreferences = (await appPreferencesRepository.get()) ?? {
+      biometricLockEnabled: false,
+      updatedAt: new Date().toISOString(),
+    };
     const preferredSelectedProfileId = useAppStore.getState().selectedProfileId ?? profiles[0]?.id ?? null;
 
     useAppStore.getState().hydrate({
@@ -33,6 +38,7 @@ class AppBootstrapService {
       careItems: [],
       toothCurrentStatuses: [],
       entitlements,
+      appPreferences,
     });
 
     const didSelectProfile = await profileContextService.selectProfile(preferredSelectedProfileId);
@@ -42,6 +48,10 @@ class AppBootstrapService {
       useAppStore.getState().selectProfile(fallbackProfileId);
       await profileContextService.selectProfile(fallbackProfileId);
     }
+  }
+
+  resetInitialization() {
+    this.initializationPromise = null;
   }
 
   private async runInitialization() {

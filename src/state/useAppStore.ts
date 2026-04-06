@@ -4,6 +4,7 @@ import {
   AppBootstrapData,
   AppBootstrapStatus,
   AppCacheState,
+  AppPreferences,
   EntitlementSnapshot,
   Appointment,
   CareItem,
@@ -30,9 +31,11 @@ type AppStoreState = {
   bootstrapError: string | null;
   cache: AppCacheState;
   entitlements: EntitlementSnapshot;
+  appPreferences: AppPreferences;
   setLanguage: (language: SupportedLanguage) => void;
   setThemeMode: (themeMode: ThemeMode) => void;
   setEntitlements: (entitlements: EntitlementSnapshot) => void;
+  setAppPreferences: (appPreferences: AppPreferences) => void;
   toggleThemeMode: () => void;
   selectProfile: (profileId: string | null) => void;
   setBootstrapState: (payload: {
@@ -56,11 +59,17 @@ type AppStoreState = {
     profileId: string,
     toothCurrentStatuses: ToothCurrentStatus[],
   ) => void;
+  resetApp: () => void;
 };
 
 function getNextThemeMode(currentThemeMode: ThemeMode): ThemeMode {
   return currentThemeMode === 'dark' ? 'light' : 'dark';
 }
+
+const INITIAL_APP_PREFERENCES: AppPreferences = {
+  biometricLockEnabled: false,
+  updatedAt: new Date(0).toISOString(),
+};
 
 export const useAppStore = create<AppStoreState>((set) => ({
   language: 'en',
@@ -71,9 +80,11 @@ export const useAppStore = create<AppStoreState>((set) => ({
   bootstrapError: null,
   cache: createEmptyCache(),
   entitlements: EMPTY_ENTITLEMENT_SNAPSHOT,
+  appPreferences: INITIAL_APP_PREFERENCES,
   setLanguage: (language) => set({ language }),
   setThemeMode: (themeMode) => set({ themeMode }),
   setEntitlements: (entitlements) => set({ entitlements }),
+  setAppPreferences: (appPreferences) => set({ appPreferences }),
   toggleThemeMode: () =>
     set((state) => ({
       themeMode: getNextThemeMode(state.themeMode),
@@ -92,6 +103,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
     careItems,
     toothCurrentStatuses,
     entitlements,
+    appPreferences,
   }) =>
     set((state) => ({
       isHydrated: true,
@@ -102,6 +114,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
         state.language,
       selectedProfileId,
       entitlements,
+      appPreferences,
       cache: mergeSelectedProfileCache(
         {
           ...state.cache,
@@ -186,4 +199,16 @@ export const useAppStore = create<AppStoreState>((set) => ({
         ),
       },
     })),
+  resetApp: () =>
+    set({
+      language: 'en',
+      themeMode: 'system',
+      selectedProfileId: null,
+      isHydrated: false,
+      bootstrapStatus: 'idle',
+      bootstrapError: null,
+      cache: createEmptyCache(),
+      entitlements: EMPTY_ENTITLEMENT_SNAPSHOT,
+      appPreferences: INITIAL_APP_PREFERENCES,
+    }),
 }));

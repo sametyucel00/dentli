@@ -14,6 +14,31 @@ import {
 import { careService } from '@/src/services';
 import { useAppStore } from '@/src/state/useAppStore';
 
+function sortCareItems(items: CareItem[]) {
+  return [...items].sort((left, right) => {
+    const leftCountdown = getCareCountdown(left);
+    const rightCountdown = getCareCountdown(right);
+
+    if (leftCountdown.dueNow !== rightCountdown.dueNow) {
+      return leftCountdown.dueNow ? -1 : 1;
+    }
+
+    if (leftCountdown.daysLeft !== null && rightCountdown.daysLeft !== null) {
+      return leftCountdown.daysLeft - rightCountdown.daysLeft;
+    }
+
+    if (leftCountdown.daysLeft !== null) {
+      return -1;
+    }
+
+    if (rightCountdown.daysLeft !== null) {
+      return 1;
+    }
+
+    return left.title.localeCompare(right.title);
+  });
+}
+
 export function useCareScreen() {
   const isFocused = useIsFocused();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
@@ -44,7 +69,7 @@ export function useCareScreen() {
     setError(null);
 
     try {
-      setCareItems(await careService.listByProfileId(selectedProfileId));
+      setCareItems(sortCareItems(await careService.listByProfileId(selectedProfileId)));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unable to load care items.');
     } finally {
@@ -53,7 +78,7 @@ export function useCareScreen() {
   }, [selectedProfileId]);
 
   useEffect(() => {
-    setCareItems(cachedCareItems);
+    setCareItems(sortCareItems(cachedCareItems));
   }, [cachedCareItems]);
 
   useFocusedAsyncEffect(isFocused, reload);

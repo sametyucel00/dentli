@@ -1,10 +1,11 @@
 import { ThemeProvider } from '@react-navigation/native';
+import * as LocalAuthentication from 'expo-local-authentication';
 import * as NavigationBar from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { PropsWithChildren, useEffect, useRef } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { Platform, Pressable, View } from 'react-native';
+import { AppState, Platform, Pressable, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { OnboardingScreen } from '@/src/features/onboarding/OnboardingScreen';
@@ -21,9 +22,46 @@ export function AppProviders({ children }: PropsWithChildren) {
   const language = useAppStore((state) => state.language);
   const bootstrapStatus = useAppStore((state) => state.bootstrapStatus);
   const bootstrapError = useAppStore((state) => state.bootstrapError);
+  const appPreferences = useAppStore((state) => state.appPreferences);
   const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const { colorScheme, theme } = useAppTheme();
   const splashHiddenRef = useRef(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockError, setLockError] = useState<string | null>(null);
+  const authInFlightRef = useRef(false);
+
+  const authenticate = useCallback(async () => {
+    if (
+      Platform.OS === 'web' ||
+      bootstrapStatus !== 'ready' ||
+      !appPreferences.biometricLockEnabled ||
+      authInFlightRef.current
+    ) {
+      return;
+    }
+
+    authInFlightRef.current = true;
+    setIsLocked(true);
+    setLockError(null);
+
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        cancelLabel: i18n.t('common.retry'),
+        fallbackLabel: i18n.t('profile.settings.biometricFallback'),
+        promptMessage: i18n.t('profile.settings.biometricPrompt'),
+      });
+
+      if (result.success) {
+        setIsLocked(false);
+      } else {
+        setLockError(i18n.t('profile.settings.biometricFailed'));
+      }
+    } catch {
+      setLockError(i18n.t('profile.settings.biometricFailed'));
+    } finally {
+      authInFlightRef.current = false;
+    }
+  }, [appPreferences.biometricLockEnabled, bootstrapStatus]);
 
   useEffect(() => {
     void appBootstrapService.initialize().catch(() => undefined);
@@ -45,7 +83,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         await NavigationBar.setButtonStyleAsync(colorScheme === 'dark' ? 'light' : 'dark');
         await NavigationBar.setVisibilityAsync('hidden');
       } catch {
-        // Navigation bar control is best-effort on Android and unsupported elsewhere.
+        // Best-effort only.
       }
     };
 
@@ -68,6 +106,32 @@ export function AppProviders({ children }: PropsWithChildren) {
     return () => clearTimeout(timeoutId);
   }, [bootstrapStatus]);
 
+  useEffect(() => {
+    if (bootstrapStatus !== 'ready' || !appPreferences.biometricLockEnabled) {
+      setIsLocked(false);
+      setLockError(null);
+      return;
+    }
+
+    void authenticate();
+  }, [appPreferences.biometricLockEnabled, authenticate, bootstrapStatus]);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      return;
+    }
+
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && appPreferences.biometricLockEnabled) {
+        void authenticate();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appPreferences.biometricLockEnabled, authenticate]);
+
   const shouldShowOnboarding = bootstrapStatus === 'ready' && profiles.length === 0;
 
   return (
@@ -76,7 +140,46 @@ export function AppProviders({ children }: PropsWithChildren) {
         <ThemeProvider value={createNavigationTheme(theme)}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           {bootstrapStatus === 'ready' ? (
-            shouldShowOnboarding ? <OnboardingScreen /> : children
+            <>
+              {shouldShowOnboarding ? <OnboardingScreen /> : children}
+              {isLocked ? (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    backgroundColor: theme.colors.background,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    left: 0,
+                    paddingHorizontal: theme.spacing.xl,
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                  }}>
+                  <Text variant="title" weight="semibold">
+                    {i18n.t('profile.settings.biometricPrompt')}
+                  </Text>
+                  <Text
+                    color="muted"
+                    style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
+                    {lockError ?? i18n.t('profile.settings.biometricBody')}
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => void authenticate()}
+                    style={{
+                      backgroundColor: theme.colors.primary,
+                      borderRadius: theme.radii.pill,
+                      marginTop: theme.spacing.xl,
+                      paddingHorizontal: theme.spacing.xl,
+                      paddingVertical: theme.spacing.md,
+                    }}>
+                    <Text style={{ color: theme.colors.textInverse }} weight="semibold">
+                      {i18n.t('common.retry')}
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : null}
+            </>
           ) : (
             <View
               style={{

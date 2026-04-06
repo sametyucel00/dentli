@@ -11,6 +11,10 @@ type RoutineSettingsRow = {
   mouthwash_enabled: number;
   reminders_enabled: number;
   reminder_time: string | null;
+  morning_reminder_time: string | null;
+  night_reminder_time: string | null;
+  quiet_hours_start: string | null;
+  quiet_hours_end: string | null;
   toothbrush_replacement_interval_days: number;
   toothbrush_last_replaced_at: string | null;
   created_at: string;
@@ -26,6 +30,10 @@ function mapRoutineSettings(row: RoutineSettingsRow): RoutineSettings {
     mouthwashEnabled: toBoolean(row.mouthwash_enabled),
     remindersEnabled: toBoolean(row.reminders_enabled),
     reminderTime: row.reminder_time,
+    morningReminderTime: row.morning_reminder_time,
+    nightReminderTime: row.night_reminder_time,
+    quietHoursStart: row.quiet_hours_start,
+    quietHoursEnd: row.quiet_hours_end,
     toothbrushReplacementIntervalDays: row.toothbrush_replacement_interval_days,
     toothbrushLastReplacedAt: row.toothbrush_last_replaced_at,
     createdAt: row.created_at,
@@ -47,15 +55,20 @@ export class RoutineSettingsRepository extends BaseRepository {
     await this.database.run(
       `INSERT INTO routine_settings (
         id, profile_id, brushing_frequency_per_day, flossing_enabled, mouthwash_enabled,
-        reminders_enabled, reminder_time, toothbrush_replacement_interval_days,
+        reminders_enabled, reminder_time, morning_reminder_time, night_reminder_time,
+        quiet_hours_start, quiet_hours_end, toothbrush_replacement_interval_days,
         toothbrush_last_replaced_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(profile_id) DO UPDATE SET
         brushing_frequency_per_day = excluded.brushing_frequency_per_day,
         flossing_enabled = excluded.flossing_enabled,
         mouthwash_enabled = excluded.mouthwash_enabled,
         reminders_enabled = excluded.reminders_enabled,
         reminder_time = excluded.reminder_time,
+        morning_reminder_time = excluded.morning_reminder_time,
+        night_reminder_time = excluded.night_reminder_time,
+        quiet_hours_start = excluded.quiet_hours_start,
+        quiet_hours_end = excluded.quiet_hours_end,
         toothbrush_replacement_interval_days = excluded.toothbrush_replacement_interval_days,
         toothbrush_last_replaced_at = excluded.toothbrush_last_replaced_at,
         updated_at = excluded.updated_at;`,
@@ -67,6 +80,10 @@ export class RoutineSettingsRepository extends BaseRepository {
         toSqliteBoolean(settings.mouthwashEnabled),
         toSqliteBoolean(settings.remindersEnabled),
         settings.reminderTime,
+        settings.morningReminderTime,
+        settings.nightReminderTime,
+        settings.quietHoursStart,
+        settings.quietHoursEnd,
         settings.toothbrushReplacementIntervalDays,
         settings.toothbrushLastReplacedAt,
         settings.createdAt,

@@ -3,11 +3,6 @@ import i18n from '@/src/i18n';
 import { appointmentsRepository, hygieneEventsRepository, routineSettingsRepository } from '@/src/repositories';
 import { notificationService, NotificationRequest } from '@/src/services/notification-service';
 
-const QUIET_HOURS = {
-  startHour: 22,
-  endHour: 8,
-} as const;
-
 const DEFAULT_ROUTINE_MINUTES = {
   morning_brush: 8 * 60 + 30,
   night_brush: 21 * 60,
@@ -66,38 +61,65 @@ function endOfDay(date: Date) {
   return value;
 }
 
-function isWithinQuietHours(date: Date) {
-  const hour = date.getHours();
-  return hour >= QUIET_HOURS.startHour || hour < QUIET_HOURS.endHour;
+function resolveQuietHours(routineSettings: RoutineSettings) {
+  return {
+    startMinutes: parseTimeToMinutes(routineSettings.quietHoursStart) ?? 22 * 60,
+    endMinutes: parseTimeToMinutes(routineSettings.quietHoursEnd) ?? 8 * 60,
+  };
 }
 
-function nextAllowedDate(date: Date) {
+function isWithinQuietHours(date: Date, quietHours: { startMinutes: number; endMinutes: number }) {
+  const currentMinutes = date.getHours() * 60 + date.getMinutes();
+  if (quietHours.startMinutes === quietHours.endMinutes) {
+    return false;
+  }
+
+  if (quietHours.startMinutes < quietHours.endMinutes) {
+    return currentMinutes >= quietHours.startMinutes && currentMinutes < quietHours.endMinutes;
+  }
+
+  return currentMinutes >= quietHours.startMinutes || currentMinutes < quietHours.endMinutes;
+}
+
+function minutesToHourMinute(minutes: number) {
+  return {
+    hour: Math.floor(minutes / 60),
+    minute: minutes % 60,
+  };
+}
+
+function nextAllowedDate(date: Date, quietHours: { startMinutes: number; endMinutes: number }) {
+  const hour = date.getHours();
   const value = new Date(date);
 
-  if (!isWithinQuietHours(value)) {
+  if (!isWithinQuietHours(value, quietHours)) {
     return value;
   }
 
-  if (value.getHours() >= QUIET_HOURS.startHour) {
+  if (hour * 60 + value.getMinutes() >= quietHours.startMinutes) {
     value.setDate(value.getDate() + 1);
   }
 
-  value.setHours(QUIET_HOURS.endHour, 0, 0, 0);
+  const nextStart = minutesToHourMinute(quietHours.endMinutes);
+  value.setHours(nextStart.hour, nextStart.minute, 0, 0);
   return value;
 }
 
-function previousAllowedDate(date: Date) {
+function previousAllowedDate(date: Date, quietHours: { startMinutes: number; endMinutes: number }) {
   const value = new Date(date);
 
-  if (!isWithinQuietHours(value)) {
+  if (!isWithinQuietHours(value, quietHours)) {
     return value;
   }
 
-  if (value.getHours() < QUIET_HOURS.endHour) {
+  if (value.getHours() * 60 + value.getMinutes() < quietHours.endMinutes) {
     value.setDate(value.getDate() - 1);
   }
 
-  value.setHours(QUIET_HOURS.startHour - 1, 30, 0, 0);
+  const lastAllowedMinutes = quietHours.startMinutes - 30;
+  const adjusted = lastAllowedMinutes >= 0 ? lastAllowedMinutes : 23 * 60 + 30;
+  const previousStart = minutesToHourMinute(adjusted);
+  value.setHours(previousStart.hour, previousStart.minute, 0, 0);
   return value;
 }
 
@@ -137,6 +159,7 @@ function buildRoutineScheduleDate(input: {
   preferredMinutes: number;
   todayEvents: HygieneEvent[];
   now: Date;
+  quietHours: { startMinutes: number; endMinutes: number };
 }) {
   const baseMinutes = input.adaptiveMinutes || input.preferredMinutes;
   const scheduleToday = setMinutesOnDate(input.now, baseMinutes);
@@ -144,13 +167,17 @@ function buildRoutineScheduleDate(input: {
   const hasPassed = scheduleToday.getTime() <= input.now.getTime() + 90 * 60 * 1000;
 
   if (alreadyDone || hasPassed) {
-    return nextAllowedDate(setMinutesOnDate(addLocalDays(input.now, 1), baseMinutes));
+    return nextAllowedDate(setMinutesOnDate(addLocalDays(input.now, 1), baseMinutes), input.quietHours);
   }
 
-  return nextAllowedDate(scheduleToday);
+  return nextAllowedDate(scheduleToday, input.quietHours);
 }
 
-function buildAppointmentReminderSchedule(appointment: Appointment, now: Date) {
+function buildAppointmentReminderSchedule(
+  appointment: Appointment,
+  now: Date,
+  quietHours: { startMinutes: number; endMinutes: number },
+) {
   if (!appointment.reminderEnabled || appointment.reminderMinutesBefore === null) {
     return null;
   }
@@ -163,7 +190,7 @@ function buildAppointmentReminderSchedule(appointment: Appointment, now: Date) {
     return null;
   }
 
-  const allowedDate = previousAllowedDate(rawDate);
+  const allowedDate = previousAllowedDate(rawDate, quietHours);
   if (allowedDate.getTime() <= now.getTime()) {
     return null;
   }
@@ -192,6 +219,7 @@ class NotificationSchedulerService {
     }
 
     const now = new Date();
+    const quietHours = resolveQuietHours(routineSettings);
     const [todayEvents, recentMorningBrushes, recentNightBrushes, recentFlosses, recentMouthwashes] =
       await Promise.all([
         hygieneEventsRepository.listByDateRange(profileId, startOfDay(now).toISOString(), endOfDay(now).toISOString()),
@@ -201,32 +229,60 @@ class NotificationSchedulerService {
         hygieneEventsRepository.listByActionKey(profileId, 'mouthwash'),
       ]);
 
-    const reminderBaseMinutes = parseTimeToMinutes(routineSettings.reminderTime) ?? DEFAULT_ROUTINE_MINUTES.night_brush;
+    const morningBaseMinutes =
+      parseTimeToMinutes(routineSettings.morningReminderTime) ??
+      DEFAULT_ROUTINE_MINUTES.morning_brush;
+    const nightBaseMinutes =
+      parseTimeToMinutes(routineSettings.nightReminderTime) ??
+      parseTimeToMinutes(routineSettings.reminderTime) ??
+      DEFAULT_ROUTINE_MINUTES.night_brush;
     const adaptiveMinutesByAction: Record<DailyActionKey, number> = {
-      morning_brush: averageCompletionMinutes(recentMorningBrushes, DEFAULT_ROUTINE_MINUTES.morning_brush, 'morning_brush'),
-      night_brush: averageCompletionMinutes(recentNightBrushes, reminderBaseMinutes, 'night_brush'),
-      floss: averageCompletionMinutes(recentFlosses, reminderBaseMinutes + 15, 'floss'),
-      mouthwash: averageCompletionMinutes(recentMouthwashes, reminderBaseMinutes + 30, 'mouthwash'),
+      morning_brush: averageCompletionMinutes(recentMorningBrushes, morningBaseMinutes, 'morning_brush'),
+      night_brush: averageCompletionMinutes(recentNightBrushes, nightBaseMinutes, 'night_brush'),
+      floss: averageCompletionMinutes(recentFlosses, nightBaseMinutes + 15, 'floss'),
+      mouthwash: averageCompletionMinutes(recentMouthwashes, nightBaseMinutes + 30, 'mouthwash'),
     };
 
-    await this.scheduleRoutineReminder(profileId, 'morning_brush', todayEvents, now, adaptiveMinutesByAction.morning_brush, DEFAULT_ROUTINE_MINUTES.morning_brush);
-    await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, reminderBaseMinutes);
+    await this.scheduleRoutineReminder(profileId, 'morning_brush', todayEvents, now, adaptiveMinutesByAction.morning_brush, morningBaseMinutes, quietHours);
+    await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, nightBaseMinutes, quietHours);
 
     if (routineSettings.flossingEnabled) {
-      await this.scheduleRoutineReminder(profileId, 'floss', todayEvents, now, adaptiveMinutesByAction.floss, reminderBaseMinutes + 15);
+      await this.scheduleRoutineReminder(profileId, 'floss', todayEvents, now, adaptiveMinutesByAction.floss, nightBaseMinutes + 15, quietHours);
     }
 
     if (routineSettings.mouthwashEnabled) {
-      await this.scheduleRoutineReminder(profileId, 'mouthwash', todayEvents, now, adaptiveMinutesByAction.mouthwash, reminderBaseMinutes + 30);
+      await this.scheduleRoutineReminder(profileId, 'mouthwash', todayEvents, now, adaptiveMinutesByAction.mouthwash, nightBaseMinutes + 30, quietHours);
     }
 
-    await this.scheduleToothbrushReminder(profileId, routineSettings, now);
-    await this.scheduleDentalCheckReminder(profileId, appointments, now);
-    await this.syncAppointmentRemindersForProfile(profileId, appointments);
+    await this.scheduleToothbrushReminder(profileId, routineSettings, now, quietHours);
+    await this.scheduleDentalCheckReminder(profileId, appointments, now, quietHours);
+    await this.syncAppointmentRemindersForProfile(profileId, appointments, quietHours);
   }
 
   async syncAppointmentReminder(appointment: Appointment) {
-    const request = this.buildAppointmentReminderRequest(appointment, new Date());
+    const routineSettings = appointment.profileId
+      ? await routineSettingsRepository.getByProfileId(appointment.profileId)
+      : null;
+    const quietHours = resolveQuietHours(
+      routineSettings ?? {
+        id: '',
+        profileId: appointment.profileId,
+        brushingFrequencyPerDay: 2,
+        flossingEnabled: true,
+        mouthwashEnabled: false,
+        remindersEnabled: true,
+        reminderTime: null,
+        morningReminderTime: null,
+        nightReminderTime: null,
+        quietHoursStart: null,
+        quietHoursEnd: null,
+        toothbrushReplacementIntervalDays: 90,
+        toothbrushLastReplacedAt: null,
+        createdAt: '',
+        updatedAt: '',
+      },
+    );
+    const request = this.buildAppointmentReminderRequest(appointment, new Date(), quietHours);
 
     if (!request) {
       if (appointment.reminderNotificationId) {
@@ -238,8 +294,33 @@ class NotificationSchedulerService {
     await notificationService.schedule(request);
   }
 
-  async syncAppointmentRemindersForProfile(profileId: string, appointments?: Appointment[]) {
+  async syncAppointmentRemindersForProfile(
+    profileId: string,
+    appointments?: Appointment[],
+    quietHours?: { startMinutes: number; endMinutes: number },
+  ) {
     const appointmentList = appointments ?? (await appointmentsRepository.listByProfileId(profileId));
+    const profileQuietHours =
+      quietHours ??
+      resolveQuietHours(
+        (await routineSettingsRepository.getByProfileId(profileId)) ?? {
+          id: '',
+          profileId,
+          brushingFrequencyPerDay: 2,
+          flossingEnabled: true,
+          mouthwashEnabled: false,
+          remindersEnabled: true,
+          reminderTime: null,
+          morningReminderTime: null,
+          nightReminderTime: null,
+          quietHoursStart: null,
+          quietHoursEnd: null,
+          toothbrushReplacementIntervalDays: 90,
+          toothbrushLastReplacedAt: null,
+          createdAt: '',
+          updatedAt: '',
+        },
+      );
     const activeReminderIds = new Set(
       appointmentList
         .map((appointment) =>
@@ -260,7 +341,16 @@ class NotificationSchedulerService {
     }
 
     for (const appointment of appointmentList) {
-      await this.syncAppointmentReminder(appointment);
+      const request = this.buildAppointmentReminderRequest(appointment, new Date(), profileQuietHours);
+
+      if (!request) {
+        if (appointment.reminderNotificationId) {
+          await notificationService.cancel(appointment.reminderNotificationId);
+        }
+        continue;
+      }
+
+      await notificationService.schedule(request);
     }
   }
 
@@ -271,6 +361,7 @@ class NotificationSchedulerService {
     now: Date,
     adaptiveMinutes: number,
     preferredMinutes: number,
+    quietHours: { startMinutes: number; endMinutes: number },
   ) {
     const scheduledFor = buildRoutineScheduleDate({
       actionKey,
@@ -278,6 +369,7 @@ class NotificationSchedulerService {
       preferredMinutes,
       todayEvents,
       now,
+      quietHours,
     });
 
     const copy = buildRoutineNotificationCopy(actionKey);
@@ -295,6 +387,7 @@ class NotificationSchedulerService {
     profileId: string,
     routineSettings: RoutineSettings,
     now: Date,
+    quietHours: { startMinutes: number; endMinutes: number },
   ) {
     if (!routineSettings.toothbrushLastReplacedAt) {
       return;
@@ -305,8 +398,8 @@ class NotificationSchedulerService {
     dueDate.setHours(10, 0, 0, 0);
 
     const scheduledFor = dueDate.getTime() <= now.getTime()
-      ? nextAllowedDate(new Date(now.getTime() + 60 * 60 * 1000))
-      : nextAllowedDate(dueDate);
+      ? nextAllowedDate(new Date(now.getTime() + 60 * 60 * 1000), quietHours)
+      : nextAllowedDate(dueDate, quietHours);
 
     await notificationService.schedule({
       id: createToothbrushNotificationId(profileId),
@@ -322,6 +415,7 @@ class NotificationSchedulerService {
     profileId: string,
     appointments: Appointment[],
     now: Date,
+    quietHours: { startMinutes: number; endMinutes: number },
   ) {
     const futureScheduledAppointment = appointments.find(
       (appointment) =>
@@ -345,8 +439,8 @@ class NotificationSchedulerService {
     dueDate.setHours(10, 0, 0, 0);
 
     const scheduledFor = dueDate.getTime() <= now.getTime()
-      ? nextAllowedDate(new Date(now.getTime() + 2 * 60 * 60 * 1000))
-      : nextAllowedDate(dueDate);
+      ? nextAllowedDate(new Date(now.getTime() + 2 * 60 * 60 * 1000), quietHours)
+      : nextAllowedDate(dueDate, quietHours);
 
     await notificationService.schedule({
       id: createDentalCheckNotificationId(profileId),
@@ -361,8 +455,9 @@ class NotificationSchedulerService {
   private buildAppointmentReminderRequest(
     appointment: Appointment,
     now: Date,
+    quietHours: { startMinutes: number; endMinutes: number },
   ): NotificationRequest | null {
-    const scheduledFor = buildAppointmentReminderSchedule(appointment, now);
+    const scheduledFor = buildAppointmentReminderSchedule(appointment, now, quietHours);
     if (!scheduledFor || !appointment.reminderNotificationId) {
       return null;
     }

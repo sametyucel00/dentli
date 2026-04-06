@@ -29,6 +29,10 @@ export type RoutineSettings = {
   mouthwashEnabled: boolean;
   remindersEnabled: boolean;
   reminderTime: string | null;
+  morningReminderTime: string | null;
+  nightReminderTime: string | null;
+  quietHoursStart: string | null;
+  quietHoursEnd: string | null;
   toothbrushReplacementIntervalDays: number;
   toothbrushLastReplacedAt: ISODateString | null;
   createdAt: ISODateString;
@@ -164,6 +168,11 @@ export type EntitlementSnapshot = {
   source: string | null;
 };
 
+export type AppPreferences = {
+  biometricLockEnabled: boolean;
+  updatedAt: ISODateString;
+};
+
 export type CacheEntry<T> = {
   data: T;
   updatedAt: ISODateString;
@@ -187,4 +196,5 @@ export type AppBootstrapData = {
   careItems: CareItem[];
   toothCurrentStatuses: ToothCurrentStatus[];
   entitlements: EntitlementSnapshot;
+  appPreferences: AppPreferences;
 };

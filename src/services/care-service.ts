@@ -3,6 +3,7 @@ import { DEFAULT_TOOTHBRUSH_REPLACEMENT_DAYS } from '@/src/domain/care';
 import { createId, nowIso } from '@/src/lib/runtime';
 import { careItemsRepository } from '@/src/repositories';
 import { CareItemMutationInput } from '@/src/services/care-service.types';
+import { notificationSchedulerService } from '@/src/services/notification-scheduler-service';
 import { useAppStore } from '@/src/state/useAppStore';
 
 function resolveReplacementCycleDays(
@@ -60,6 +61,7 @@ class CareService {
 
     await careItemsRepository.create(careItem);
     await this.listByProfileId(input.profileId);
+    await notificationSchedulerService.syncForProfile(input.profileId);
     return careItem;
   }
 
@@ -89,6 +91,7 @@ class CareService {
 
     await careItemsRepository.update(careItem);
     await this.listByProfileId(existing.profileId);
+    await notificationSchedulerService.syncForProfile(existing.profileId);
     return careItem;
   }
 
@@ -98,6 +101,7 @@ class CareService {
 
     await careItemsRepository.deleteById(id);
     await this.listByProfileId(existing.profileId);
+    await notificationSchedulerService.syncForProfile(existing.profileId);
   }
 }
 

@@ -18,9 +18,11 @@ export type NotificationRequest = {
 
 export interface NotificationService {
   initialize(): Promise<void>;
+  requestPermissions(): Promise<boolean>;
   schedule(request: NotificationRequest): Promise<void>;
   cancel(notificationId: string): Promise<void>;
   cancelByPrefix(prefix: string): Promise<void>;
+  cancelAll(): Promise<void>;
   listScheduled(): Promise<NotificationRequest[]>;
 }
 
@@ -45,10 +47,18 @@ class NativeNotificationService implements NotificationService {
         name: 'default',
         importance: Notifications.AndroidImportance.DEFAULT,
       });
-      await Notifications.requestPermissionsAsync();
     }
 
     this.initialized = true;
+  }
+
+  async requestPermissions() {
+    if (Platform.OS === 'web') {
+      return true;
+    }
+
+    const permissions = await Notifications.requestPermissionsAsync();
+    return permissions.granted || permissions.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
   }
 
   async schedule(request: NotificationRequest) {
@@ -121,6 +131,16 @@ class NativeNotificationService implements NotificationService {
     for (const identifier of matchingIds) {
       await Notifications.cancelScheduledNotificationAsync(identifier);
     }
+  }
+
+  async cancelAll() {
+    this.scheduled.clear();
+
+    if (Platform.OS === 'web') {
+      return;
+    }
+
+    await Notifications.cancelAllScheduledNotificationsAsync();
   }
 
   async listScheduled() {

@@ -20,12 +20,23 @@ import {
 } from '@/src/repositories';
 import { databaseService } from '@/src/services/database-service';
 
+let skipNextSeed = false;
+const DEV_SEED_ENABLED = process.env.EXPO_PUBLIC_ENABLE_DEV_SEED === '1';
+
 function hoursFromNow(hours: number) {
   return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }
 
+export function skipNextDevelopmentSeed() {
+  skipNextSeed = true;
+}
+
 export async function seedDevelopmentData() {
-  if (!__DEV__) return;
+  if (!__DEV__ || !DEV_SEED_ENABLED) return;
+  if (skipNextSeed) {
+    skipNextSeed = false;
+    return;
+  }
 
   const existingProfiles = await profileRepository.list();
   if (existingProfiles.length > 0) return;
@@ -50,6 +61,10 @@ export async function seedDevelopmentData() {
     mouthwashEnabled: true,
     remindersEnabled: true,
     reminderTime: '21:00',
+    morningReminderTime: '08:30',
+    nightReminderTime: '21:00',
+    quietHoursStart: '22:30',
+    quietHoursEnd: '07:30',
     toothbrushReplacementIntervalDays: 90,
     toothbrushLastReplacedAt: hoursFromNow(-(24 * 72)),
     createdAt: timestamp,

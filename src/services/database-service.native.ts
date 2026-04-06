@@ -136,6 +136,17 @@ class NativeDatabaseService implements DatabaseService {
     return rows.map((row) => row.name);
   }
 
+  async reset() {
+    await this.enqueue(async () => {
+      const database = await this.getDatabase();
+      await database.closeAsync();
+      await SQLite.deleteDatabaseAsync(DATABASE_NAME);
+      this.databasePromise = null;
+      this.initializationPromise = null;
+      this.activeExecutor = null;
+    });
+  }
+
   private enqueue<T>(operation: () => Promise<T>): Promise<T> {
     const nextOperation = this.operationQueue.then(operation, operation);
     this.operationQueue = nextOperation.then(
