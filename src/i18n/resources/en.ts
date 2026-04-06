@@ -19,6 +19,7 @@ export const en = {
     errorFallback: 'Dentli could not create your profile right now.',
     progress: 'Step {{current}} of {{total}}',
     flossingLabel: 'Floss',
+    flossFrequency: 'Floss frequency',
     mouthwashLabel: 'Mouthwash',
     remindersLabel: 'Routine reminders',
     notificationPermissionLabel: 'Ask for notification permission now',
@@ -37,6 +38,12 @@ export const en = {
     brushingFrequency: {
       1: 'Once a day',
       2: 'Twice a day',
+      3: 'Three times a day',
+    },
+    flossFrequencyOptions: {
+      1: 'About weekly',
+      3: 'A few times a week',
+      7: 'Daily',
     },
     steps: {
       welcome: {
@@ -234,6 +241,7 @@ export const en = {
       },
       brushingGoal: 'Brushing target',
       floss: 'Floss tracking',
+      flossFrequency: 'Floss frequency',
       mouthwash: 'Mouthwash tracking',
       reminders: 'Routine reminders',
       morningReminder: 'Morning reminder time',
@@ -383,6 +391,10 @@ export const en = {
     },
   },
   notifications: {
+    followUp: {
+      title: 'A gentle reminder',
+      body: '{{action}} still looks open today, if it fits your routine.',
+    },
     routines: {
       morning_brush: {
         title: 'Morning brush',

@@ -21,6 +21,10 @@ function createRoutineNotificationId(profileId: string, actionKey: DailyActionKe
   return `routine_${profileId}_${actionKey}`;
 }
 
+function createRoutineFollowUpNotificationId(profileId: string) {
+  return `routine_${profileId}_follow_up`;
+}
+
 function createToothbrushNotificationId(profileId: string) {
   return `care_${profileId}_toothbrush`;
 }
@@ -153,6 +157,19 @@ function buildRoutineNotificationCopy(actionKey: DailyActionKey) {
   };
 }
 
+function getActionLabelKey(actionKey: DailyActionKey) {
+  switch (actionKey) {
+    case 'morning_brush':
+      return 'today.actions.morningBrush';
+    case 'night_brush':
+      return 'today.actions.nightBrush';
+    case 'floss':
+      return 'today.actions.floss';
+    case 'mouthwash':
+      return 'today.actions.mouthwash';
+  }
+}
+
 function buildRoutineScheduleDate(input: {
   actionKey: DailyActionKey;
   adaptiveMinutes: number;
@@ -171,6 +188,79 @@ function buildRoutineScheduleDate(input: {
   }
 
   return nextAllowedDate(scheduleToday, input.quietHours);
+}
+
+function buildFlossScheduleDate(input: {
+  now: Date;
+  quietHours: { startMinutes: number; endMinutes: number };
+  routineSettings: RoutineSettings;
+  lastFlossEvent: HygieneEvent | null;
+  todayEvents: HygieneEvent[];
+  preferredMinutes: number;
+}) {
+  if (hasActionToday(input.todayEvents, 'floss')) {
+    return nextAllowedDate(
+      setMinutesOnDate(addLocalDays(input.now, 1), input.preferredMinutes),
+      input.quietHours,
+    );
+  }
+
+  const cadenceDays = Math.max(
+    1,
+    Math.round(7 / Math.max(1, Math.min(input.routineSettings.flossSessionsPerWeek, 7))),
+  );
+
+  if (!input.lastFlossEvent) {
+    return nextAllowedDate(setMinutesOnDate(input.now, input.preferredMinutes), input.quietHours);
+  }
+
+  const lastFlossAt = new Date(input.lastFlossEvent.occurredAt);
+  const dueDate = setMinutesOnDate(addLocalDays(lastFlossAt, cadenceDays), input.preferredMinutes);
+  return dueDate.getTime() <= input.now.getTime()
+    ? nextAllowedDate(setMinutesOnDate(input.now, input.preferredMinutes), input.quietHours)
+    : nextAllowedDate(dueDate, input.quietHours);
+}
+
+function findMissedCareAction(input: {
+  routineSettings: RoutineSettings;
+  todayEvents: HygieneEvent[];
+  now: Date;
+}) {
+  const currentMinutes = input.now.getHours() * 60 + input.now.getMinutes();
+
+  if (
+    input.routineSettings.brushingFrequencyPerDay >= 1 &&
+    currentMinutes >= ACTION_TIME_WINDOWS.morning_brush.max &&
+    !hasActionToday(input.todayEvents, 'morning_brush')
+  ) {
+    return 'morning_brush' as const;
+  }
+
+  if (
+    input.routineSettings.brushingFrequencyPerDay >= 2 &&
+    currentMinutes >= ACTION_TIME_WINDOWS.night_brush.max &&
+    !hasActionToday(input.todayEvents, 'night_brush')
+  ) {
+    return 'night_brush' as const;
+  }
+
+  if (
+    input.routineSettings.flossingEnabled &&
+    currentMinutes >= ACTION_TIME_WINDOWS.floss.max &&
+    !hasActionToday(input.todayEvents, 'floss')
+  ) {
+    return 'floss' as const;
+  }
+
+  if (
+    input.routineSettings.mouthwashEnabled &&
+    currentMinutes >= ACTION_TIME_WINDOWS.mouthwash.max &&
+    !hasActionToday(input.todayEvents, 'mouthwash')
+  ) {
+    return 'mouthwash' as const;
+  }
+
+  return null;
 }
 
 function buildAppointmentReminderSchedule(
@@ -243,16 +333,31 @@ class NotificationSchedulerService {
       mouthwash: averageCompletionMinutes(recentMouthwashes, nightBaseMinutes + 30, 'mouthwash'),
     };
 
-    await this.scheduleRoutineReminder(profileId, 'morning_brush', todayEvents, now, adaptiveMinutesByAction.morning_brush, morningBaseMinutes, quietHours);
-    await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, nightBaseMinutes, quietHours);
+    if (routineSettings.brushingFrequencyPerDay >= 1) {
+      await this.scheduleRoutineReminder(profileId, 'morning_brush', todayEvents, now, adaptiveMinutesByAction.morning_brush, morningBaseMinutes, quietHours);
+    }
+
+    if (routineSettings.brushingFrequencyPerDay >= 2) {
+      await this.scheduleRoutineReminder(profileId, 'night_brush', todayEvents, now, adaptiveMinutesByAction.night_brush, nightBaseMinutes, quietHours);
+    }
 
     if (routineSettings.flossingEnabled) {
-      await this.scheduleRoutineReminder(profileId, 'floss', todayEvents, now, adaptiveMinutesByAction.floss, nightBaseMinutes + 15, quietHours);
+      await this.scheduleFlossReminder(
+        profileId,
+        routineSettings,
+        todayEvents,
+        now,
+        recentFlosses[0] ?? null,
+        nightBaseMinutes + 15,
+        quietHours,
+      );
     }
 
     if (routineSettings.mouthwashEnabled) {
       await this.scheduleRoutineReminder(profileId, 'mouthwash', todayEvents, now, adaptiveMinutesByAction.mouthwash, nightBaseMinutes + 30, quietHours);
     }
+
+    await this.scheduleMissedCareFollowUp(profileId, routineSettings, todayEvents, now, quietHours);
 
     await this.scheduleToothbrushReminder(profileId, routineSettings, now, quietHours);
     await this.scheduleDentalCheckReminder(profileId, appointments, now, quietHours);
@@ -269,6 +374,7 @@ class NotificationSchedulerService {
         profileId: appointment.profileId,
         brushingFrequencyPerDay: 2,
         flossingEnabled: true,
+        flossSessionsPerWeek: 3,
         mouthwashEnabled: false,
         remindersEnabled: true,
         reminderTime: null,
@@ -308,6 +414,7 @@ class NotificationSchedulerService {
           profileId,
           brushingFrequencyPerDay: 2,
           flossingEnabled: true,
+          flossSessionsPerWeek: 3,
           mouthwashEnabled: false,
           remindersEnabled: true,
           reminderTime: null,
@@ -379,6 +486,67 @@ class NotificationSchedulerService {
       intent: 'routine_reminder',
       title: copy.title,
       body: copy.body,
+      scheduledFor: scheduledFor.toISOString(),
+    });
+  }
+
+  private async scheduleFlossReminder(
+    profileId: string,
+    routineSettings: RoutineSettings,
+    todayEvents: HygieneEvent[],
+    now: Date,
+    lastFlossEvent: HygieneEvent | null,
+    preferredMinutes: number,
+    quietHours: { startMinutes: number; endMinutes: number },
+  ) {
+    const scheduledFor = buildFlossScheduleDate({
+      now,
+      quietHours,
+      routineSettings,
+      lastFlossEvent,
+      todayEvents,
+      preferredMinutes,
+    });
+    const copy = buildRoutineNotificationCopy('floss');
+
+    await notificationService.schedule({
+      id: createRoutineNotificationId(profileId, 'floss'),
+      profileId,
+      intent: 'routine_reminder',
+      title: copy.title,
+      body: copy.body,
+      scheduledFor: scheduledFor.toISOString(),
+    });
+  }
+
+  private async scheduleMissedCareFollowUp(
+    profileId: string,
+    routineSettings: RoutineSettings,
+    todayEvents: HygieneEvent[],
+    now: Date,
+    quietHours: { startMinutes: number; endMinutes: number },
+  ) {
+    const missedActionKey = findMissedCareAction({
+      routineSettings,
+      todayEvents,
+      now,
+    });
+
+    if (!missedActionKey) {
+      await notificationService.cancel(createRoutineFollowUpNotificationId(profileId));
+      return;
+    }
+
+    const scheduledFor = nextAllowedDate(new Date(now.getTime() + 15 * 60 * 1000), quietHours);
+
+    await notificationService.schedule({
+      id: createRoutineFollowUpNotificationId(profileId),
+      profileId,
+      intent: 'routine_follow_up',
+      title: i18n.t('notifications.followUp.title'),
+      body: i18n.t('notifications.followUp.body', {
+        action: i18n.t(getActionLabelKey(missedActionKey)),
+      }),
       scheduledFor: scheduledFor.toISOString(),
     });
   }

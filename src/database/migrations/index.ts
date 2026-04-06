@@ -205,4 +205,11 @@ export const migrations: DatabaseMigration[] = [
        WHERE doctor_name IS NULL AND provider_name IS NOT NULL;`,
     ],
   },
+  {
+    version: 10,
+    name: 'routine_settings_floss_frequency',
+    up: [
+      `ALTER TABLE routine_settings ADD COLUMN floss_sessions_per_week INTEGER NOT NULL DEFAULT 3;`,
+    ],
+  },
 ];

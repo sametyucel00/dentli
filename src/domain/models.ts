@@ -29,6 +29,7 @@ export type RoutineSettings = {
   profileId: EntityId;
   brushingFrequencyPerDay: number;
   flossingEnabled: boolean;
+  flossSessionsPerWeek: number;
   mouthwashEnabled: boolean;
   remindersEnabled: boolean;
   reminderTime: string | null;

@@ -20,7 +20,8 @@ import {
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, Card, OptionPills, Screen, StateMessageCard, Text } from '@/src/ui/base';
 
-const BRUSHING_OPTIONS = [1, 2] as const;
+const BRUSHING_OPTIONS = [1, 2, 3] as const;
+const FLOSS_FREQUENCY_OPTIONS = [1, 3, 7] as const;
 const BOOLEAN_OPTIONS = [true, false] as const;
 const LANGUAGE_OPTIONS = ['en', 'tr'] as const;
 const THEME_OPTIONS = ['system', 'light', 'dark'] as const;
@@ -186,7 +187,7 @@ export function ProfileScreen() {
                     )
                   }
                   options={BRUSHING_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.brushingFrequencyPerDay as 1 | 2}
+                  selectedValue={profileScreen.routineSettings.brushingFrequencyPerDay as 1 | 2 | 3}
                 />
               </View>
 
@@ -203,6 +204,25 @@ export function ProfileScreen() {
                   selectedValue={profileScreen.routineSettings.flossingEnabled}
                 />
               </View>
+
+              {profileScreen.routineSettings.flossingEnabled ? (
+                <View style={{ gap: theme.spacing.sm }}>
+                  <Text variant="caption" color="muted" weight="semibold">
+                    {t('profile.settings.flossFrequency')}
+                  </Text>
+                  <OptionPills
+                    labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
+                    onSelect={(value) =>
+                      void profileScreen.updateRoutineSettings(
+                        { flossSessionsPerWeek: value },
+                        'flossFrequency',
+                      )
+                    }
+                    options={FLOSS_FREQUENCY_OPTIONS}
+                    selectedValue={profileScreen.routineSettings.flossSessionsPerWeek}
+                  />
+                </View>
+              ) : null}
 
               <View style={{ gap: theme.spacing.sm }}>
                 <Text variant="caption" color="muted" weight="semibold">

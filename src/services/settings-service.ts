@@ -17,6 +17,7 @@ type RoutineSettingsPatch = Partial<
     RoutineSettings,
     | 'brushingFrequencyPerDay'
     | 'flossingEnabled'
+    | 'flossSessionsPerWeek'
     | 'mouthwashEnabled'
     | 'remindersEnabled'
     | 'reminderTime'

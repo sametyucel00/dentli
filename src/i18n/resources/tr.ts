@@ -19,6 +19,7 @@ export const tr = {
     errorFallback: 'Dentli şu anda profilini oluşturamadı.',
     progress: '{{current}} / {{total}} adım',
     flossingLabel: 'Diş ipi',
+    flossFrequency: 'Diş ipi sıklığı',
     mouthwashLabel: 'Gargara',
     remindersLabel: 'Rutin hatırlatmaları',
     notificationPermissionLabel: 'Bildirim iznini şimdi iste',
@@ -37,6 +38,12 @@ export const tr = {
     brushingFrequency: {
       1: 'Günde 1 kez',
       2: 'Günde 2 kez',
+      3: 'Günde 3 kez',
+    },
+    flossFrequencyOptions: {
+      1: 'Haftada yaklaşık 1 kez',
+      3: 'Haftada birkaç kez',
+      7: 'Her gün',
     },
     steps: {
       welcome: {
@@ -234,6 +241,7 @@ export const tr = {
       },
       brushingGoal: 'Fırçalama hedefi',
       floss: 'Diş ipi takibi',
+      flossFrequency: 'Diş ipi sıklığı',
       mouthwash: 'Gargara takibi',
       reminders: 'Rutin hatırlatmaları',
       morningReminder: 'Sabah hatırlatma saati',
@@ -383,6 +391,10 @@ export const tr = {
     },
   },
   notifications: {
+    followUp: {
+      title: 'Nazik bir hatırlatma',
+      body: '{{action}} bugün hâlâ açık görünüyor, rutinin uygunsa tamamlayabilirsin.',
+    },
     routines: {
       morning_brush: {
         title: 'Sabah fırçalama',

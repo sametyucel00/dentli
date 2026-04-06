@@ -7,8 +7,7 @@ import {
   buildMonthlyCompletion,
   buildWeeklyHeatmap,
   buildYearlyCompletion,
-  createHygieneActionMap,
-  getExpectedDailyActionKeys,
+  createDailySummaryMap,
   getStartOfYear,
 } from '@/src/features/profile/analytics';
 import { hygieneEventsRepository, routineSettingsRepository } from '@/src/repositories';
@@ -47,20 +46,19 @@ class ProfileService {
       hygieneEventsRepository.getLatestByType(profileId, 'floss'),
     ]);
 
-    const expectedActionKeys = getExpectedDailyActionKeys(routineSettings);
-    const eventMap = createHygieneActionMap(yearEvents);
+    const summaryMap = createDailySummaryMap(yearEvents);
 
     return {
       weeklyHeatmap: buildWeeklyHeatmap(
-        eventMap,
-        expectedActionKeys,
+        summaryMap,
+        routineSettings,
         locale,
         today,
       ),
-      monthlyCompletion: buildMonthlyCompletion(eventMap, routineSettings, today),
+      monthlyCompletion: buildMonthlyCompletion(summaryMap, routineSettings, today),
       yearlyCompletion: buildYearlyCompletion(
-        eventMap,
-        expectedActionKeys,
+        summaryMap,
+        routineSettings,
         locale,
         today,
       ),

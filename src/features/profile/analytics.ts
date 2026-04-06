@@ -5,6 +5,11 @@ import {
   YearlyCompletionMonth,
 } from '@/src/features/profile/model';
 
+type DailySummary = {
+  actionKeys: Set<DailyActionKey>;
+  brushCount: number;
+};
+
 function getStartOfDay(date: Date) {
   const value = new Date(date);
   value.setHours(0, 0, 0, 0);
@@ -36,46 +41,44 @@ function toDayKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function getExpectedDailyActionKeys(
-  routineSettings: RoutineSettings | null,
-): DailyActionKey[] {
-  const actions: DailyActionKey[] = [];
-  const brushCount = Math.min(routineSettings?.brushingFrequencyPerDay ?? 2, 2);
-
-  if (brushCount >= 1) {
-    actions.push('morning_brush');
-  }
-
-  if (brushCount >= 2) {
-    actions.push('night_brush');
-  }
-
-  if (routineSettings?.flossingEnabled) {
-    actions.push('floss');
-  }
-
-  if (routineSettings?.mouthwashEnabled) {
-    actions.push('mouthwash');
-  }
-
-  return actions;
+function getExpectedBrushCount(routineSettings: RoutineSettings | null) {
+  return Math.max(1, Math.min(routineSettings?.brushingFrequencyPerDay ?? 2, 3));
 }
 
-export function createHygieneActionMap(events: HygieneEvent[]) {
-  const actionMap = new Map<string, Set<DailyActionKey>>();
-
-  for (const event of events) {
-    if (!event.actionKey) {
-      continue;
-    }
-
-    const dayKey = toDayKey(new Date(event.occurredAt));
-    const dayActions = actionMap.get(dayKey) ?? new Set<DailyActionKey>();
-    dayActions.add(event.actionKey);
-    actionMap.set(dayKey, dayActions);
+function getExpectedFlossCount(routineSettings: RoutineSettings | null) {
+  if (!routineSettings?.flossingEnabled) {
+    return 0;
   }
 
-  return actionMap;
+  return Math.max(1, Math.min(routineSettings.flossSessionsPerWeek ?? 3, 7)) / 7;
+}
+
+function getExpectedMouthwashCount(routineSettings: RoutineSettings | null) {
+  return routineSettings?.mouthwashEnabled ? 1 : 0;
+}
+
+export function createDailySummaryMap(events: HygieneEvent[]) {
+  const summaryMap = new Map<string, DailySummary>();
+
+  for (const event of events) {
+    const dayKey = toDayKey(new Date(event.occurredAt));
+    const summary = summaryMap.get(dayKey) ?? {
+      actionKeys: new Set<DailyActionKey>(),
+      brushCount: 0,
+    };
+
+    if (event.eventType === 'brush') {
+      summary.brushCount += 1;
+    }
+
+    if (event.actionKey) {
+      summary.actionKeys.add(event.actionKey);
+    }
+
+    summaryMap.set(dayKey, summary);
+  }
+
+  return summaryMap;
 }
 
 function toIntensity(completionRate: number): AnalyticsHeatmapCell['intensity'] {
@@ -87,8 +90,8 @@ function toIntensity(completionRate: number): AnalyticsHeatmapCell['intensity'] 
 }
 
 function countCompletedActions(
-  eventMap: Map<string, Set<DailyActionKey>>,
-  expectedActionKeys: DailyActionKey[],
+  summaryMap: Map<string, DailySummary>,
+  routineSettings: RoutineSettings | null,
   startDate: Date,
   endDate: Date,
 ) {
@@ -101,15 +104,83 @@ function countCompletedActions(
     cursor = addDays(cursor, 1)
   ) {
     const dayKey = toDayKey(cursor);
-    const dayActions = eventMap.get(dayKey) ?? new Set<DailyActionKey>();
+    const summary = summaryMap.get(dayKey) ?? {
+      actionKeys: new Set<DailyActionKey>(),
+      brushCount: 0,
+    };
 
-    expectedCount += expectedActionKeys.length;
+    const expectedBrushCount = getExpectedBrushCount(routineSettings);
+    const expectedFlossCount = getExpectedFlossCount(routineSettings);
+    const expectedMouthwashCount = getExpectedMouthwashCount(routineSettings);
 
-    for (const actionKey of expectedActionKeys) {
-      if (dayActions.has(actionKey)) {
-        completedCount += 1;
-      }
-    }
+    expectedCount += expectedBrushCount + expectedFlossCount + expectedMouthwashCount;
+    completedCount += Math.min(summary.brushCount, expectedBrushCount);
+    completedCount += summary.actionKeys.has('floss') ? expectedFlossCount : 0;
+    completedCount += summary.actionKeys.has('mouthwash') ? expectedMouthwashCount : 0;
+  }
+
+  return {
+    completedCount,
+    expectedCount,
+    completionRate: expectedCount === 0 ? 0 : completedCount / expectedCount,
+  };
+}
+
+function countCompletedBrushing(
+  summaryMap: Map<string, DailySummary>,
+  routineSettings: RoutineSettings | null,
+  startDate: Date,
+  endDate: Date,
+) {
+  let completedCount = 0;
+  let expectedCount = 0;
+  const expectedBrushCount = getExpectedBrushCount(routineSettings);
+
+  for (
+    let cursor = getStartOfDay(startDate);
+    cursor < endDate;
+    cursor = addDays(cursor, 1)
+  ) {
+    const dayKey = toDayKey(cursor);
+    const summary = summaryMap.get(dayKey) ?? {
+      actionKeys: new Set<DailyActionKey>(),
+      brushCount: 0,
+    };
+
+    expectedCount += expectedBrushCount;
+    completedCount += Math.min(summary.brushCount, expectedBrushCount);
+  }
+
+  return {
+    completedCount,
+    expectedCount,
+    completionRate: expectedCount === 0 ? 0 : completedCount / expectedCount,
+  };
+}
+
+function countCompletedBooleanAction(
+  summaryMap: Map<string, DailySummary>,
+  actionKey: 'floss' | 'mouthwash',
+  expectedPerDay: number,
+  startDate: Date,
+  endDate: Date,
+) {
+  let completedCount = 0;
+  let expectedCount = 0;
+
+  for (
+    let cursor = getStartOfDay(startDate);
+    cursor < endDate;
+    cursor = addDays(cursor, 1)
+  ) {
+    const dayKey = toDayKey(cursor);
+    const summary = summaryMap.get(dayKey) ?? {
+      actionKeys: new Set<DailyActionKey>(),
+      brushCount: 0,
+    };
+
+    expectedCount += expectedPerDay;
+    completedCount += summary.actionKeys.has(actionKey) ? expectedPerDay : 0;
   }
 
   return {
@@ -120,8 +191,8 @@ function countCompletedActions(
 }
 
 export function buildWeeklyHeatmap(
-  eventMap: Map<string, Set<DailyActionKey>>,
-  expectedActionKeys: DailyActionKey[],
+  summaryMap: Map<string, DailySummary>,
+  routineSettings: RoutineSettings | null,
   locale: string,
   today: Date,
 ) {
@@ -131,13 +202,19 @@ export function buildWeeklyHeatmap(
   for (let index = 0; index < 7; index += 1) {
     const date = addDays(startDate, index);
     const dayKey = toDayKey(date);
-    const dayActions = eventMap.get(dayKey) ?? new Set<DailyActionKey>();
-    const completedCount = expectedActionKeys.filter((actionKey) =>
-      dayActions.has(actionKey),
-    ).length;
-    const expectedCount = expectedActionKeys.length;
-    const completionRate =
-      expectedCount === 0 ? 0 : completedCount / expectedCount;
+    const summary = summaryMap.get(dayKey) ?? {
+      actionKeys: new Set<DailyActionKey>(),
+      brushCount: 0,
+    };
+    const expectedBrushCount = getExpectedBrushCount(routineSettings);
+    const expectedFlossCount = getExpectedFlossCount(routineSettings);
+    const expectedMouthwashCount = getExpectedMouthwashCount(routineSettings);
+    const expectedCount = expectedBrushCount + expectedFlossCount + expectedMouthwashCount;
+    const completedCount =
+      Math.min(summary.brushCount, expectedBrushCount) +
+      (summary.actionKeys.has('floss') ? expectedFlossCount : 0) +
+      (summary.actionKeys.has('mouthwash') ? expectedMouthwashCount : 0);
+    const completionRate = expectedCount === 0 ? 0 : completedCount / expectedCount;
 
     cells.push({
       id: dayKey,
@@ -154,42 +231,38 @@ export function buildWeeklyHeatmap(
 }
 
 export function buildMonthlyCompletion(
-  eventMap: Map<string, Set<DailyActionKey>>,
+  summaryMap: Map<string, DailySummary>,
   routineSettings: RoutineSettings | null,
   today: Date,
 ) {
   const startOfMonth = getStartOfMonth(today);
   const endDate = addDays(getStartOfDay(today), 1);
-  const overallKeys = getExpectedDailyActionKeys(routineSettings);
-  const brushingKeys = overallKeys.filter(
-    (actionKey) => actionKey === 'morning_brush' || actionKey === 'night_brush',
-  );
-  const flossKeys = overallKeys.filter((actionKey) => actionKey === 'floss');
-  const mouthwashKeys = overallKeys.filter((actionKey) => actionKey === 'mouthwash');
+  const flossExpected = getExpectedFlossCount(routineSettings);
+  const mouthwashExpected = getExpectedMouthwashCount(routineSettings);
 
   return [
     {
       id: 'overall',
-      ...countCompletedActions(eventMap, overallKeys, startOfMonth, endDate),
+      ...countCompletedActions(summaryMap, routineSettings, startOfMonth, endDate),
     },
     {
       id: 'brushing',
-      ...countCompletedActions(eventMap, brushingKeys, startOfMonth, endDate),
+      ...countCompletedBrushing(summaryMap, routineSettings, startOfMonth, endDate),
     },
     {
       id: 'floss',
-      ...countCompletedActions(eventMap, flossKeys, startOfMonth, endDate),
+      ...countCompletedBooleanAction(summaryMap, 'floss', flossExpected, startOfMonth, endDate),
     },
     {
       id: 'mouthwash',
-      ...countCompletedActions(eventMap, mouthwashKeys, startOfMonth, endDate),
+      ...countCompletedBooleanAction(summaryMap, 'mouthwash', mouthwashExpected, startOfMonth, endDate),
     },
   ] satisfies MonthlyCompletionMetric[];
 }
 
 export function buildYearlyCompletion(
-  eventMap: Map<string, Set<DailyActionKey>>,
-  expectedActionKeys: DailyActionKey[],
+  summaryMap: Map<string, DailySummary>,
+  routineSettings: RoutineSettings | null,
   locale: string,
   today: Date,
 ) {
@@ -207,7 +280,7 @@ export function buildYearlyCompletion(
       nextMonthStart > today ? addDays(getStartOfDay(today), 1) : nextMonthStart;
     const counts = isFutureMonth
       ? { completionRate: null }
-      : countCompletedActions(eventMap, expectedActionKeys, monthStart, rangeEnd);
+      : countCompletedActions(summaryMap, routineSettings, monthStart, rangeEnd);
 
     months.push({
       id: `${year}-${monthIndex + 1}`,

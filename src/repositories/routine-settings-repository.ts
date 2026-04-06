@@ -8,6 +8,7 @@ type RoutineSettingsRow = {
   profile_id: string;
   brushing_frequency_per_day: number;
   flossing_enabled: number;
+  floss_sessions_per_week: number;
   mouthwash_enabled: number;
   reminders_enabled: number;
   reminder_time: string | null;
@@ -27,6 +28,7 @@ function mapRoutineSettings(row: RoutineSettingsRow): RoutineSettings {
     profileId: row.profile_id,
     brushingFrequencyPerDay: row.brushing_frequency_per_day,
     flossingEnabled: toBoolean(row.flossing_enabled),
+    flossSessionsPerWeek: row.floss_sessions_per_week,
     mouthwashEnabled: toBoolean(row.mouthwash_enabled),
     remindersEnabled: toBoolean(row.reminders_enabled),
     reminderTime: row.reminder_time,
@@ -54,14 +56,15 @@ export class RoutineSettingsRepository extends BaseRepository {
   async upsert(settings: RoutineSettings) {
     await this.database.run(
       `INSERT INTO routine_settings (
-        id, profile_id, brushing_frequency_per_day, flossing_enabled, mouthwash_enabled,
+        id, profile_id, brushing_frequency_per_day, flossing_enabled, floss_sessions_per_week, mouthwash_enabled,
         reminders_enabled, reminder_time, morning_reminder_time, night_reminder_time,
         quiet_hours_start, quiet_hours_end, toothbrush_replacement_interval_days,
         toothbrush_last_replaced_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(profile_id) DO UPDATE SET
         brushing_frequency_per_day = excluded.brushing_frequency_per_day,
         flossing_enabled = excluded.flossing_enabled,
+        floss_sessions_per_week = excluded.floss_sessions_per_week,
         mouthwash_enabled = excluded.mouthwash_enabled,
         reminders_enabled = excluded.reminders_enabled,
         reminder_time = excluded.reminder_time,
@@ -77,6 +80,7 @@ export class RoutineSettingsRepository extends BaseRepository {
         settings.profileId,
         settings.brushingFrequencyPerDay,
         toSqliteBoolean(settings.flossingEnabled),
+        settings.flossSessionsPerWeek,
         toSqliteBoolean(settings.mouthwashEnabled),
         toSqliteBoolean(settings.remindersEnabled),
         settings.reminderTime,

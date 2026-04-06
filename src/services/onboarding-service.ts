@@ -10,8 +10,9 @@ type CreateInitialProfileInput = {
   firstName: string;
   lastName: string;
   preferredLanguage: SupportedLanguage;
-  brushingFrequencyPerDay: 1 | 2;
+  brushingFrequencyPerDay: 1 | 2 | 3;
   flossingEnabled: boolean;
+  flossSessionsPerWeek: number;
   mouthwashEnabled: boolean;
   remindersEnabled: boolean;
   morningReminderTime: string;
@@ -40,6 +41,7 @@ class OnboardingService {
       profileId,
       brushingFrequencyPerDay: input.brushingFrequencyPerDay,
       flossingEnabled: input.flossingEnabled,
+      flossSessionsPerWeek: input.flossSessionsPerWeek,
       mouthwashEnabled: input.mouthwashEnabled,
       remindersEnabled: input.remindersEnabled,
       reminderTime: input.nightReminderTime,

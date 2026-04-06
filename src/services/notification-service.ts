@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 export type NotificationIntent =
   | 'routine_reminder'
+  | 'routine_follow_up'
   | 'appointment_reminder'
   | 'care_item_due'
   | 'dental_check_reminder';
