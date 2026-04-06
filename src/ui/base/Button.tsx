@@ -46,10 +46,12 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         {
+          alignItems: 'center',
           backgroundColor,
           borderColor,
           borderWidth: 0,
           borderRadius: theme.radii.pill,
+          justifyContent: 'center',
           opacity: disabled ? 0.45 : pressed ? 0.9 : 1,
           transform: [{ scale: pressed ? 0.99 : 1 }],
           paddingHorizontal: theme.spacing.lg,

@@ -15,7 +15,6 @@ import { appBootstrapService } from '@/src/services/app-bootstrap-service';
 import { useAppStore } from '@/src/state/useAppStore';
 import { createNavigationTheme } from '@/src/theme';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { DentliMark } from '@/src/ui/branding/DentliMark';
 import { Text } from '@/src/ui/base';
 
 const EMPTY_PROFILES: { id: string }[] = [];
@@ -113,7 +112,7 @@ export function AppProviders({ children }: PropsWithChildren) {
           splashHiddenRef.current = true;
         })
         .catch(() => undefined);
-    }, 120);
+    }, 850);
 
     return () => clearTimeout(timeoutId);
   }, []);
@@ -209,8 +208,7 @@ export function AppProviders({ children }: PropsWithChildren) {
                   alignItems: 'center',
                   marginBottom: theme.spacing.xxxl,
                 }}>
-                <DentliMark size={84} />
-                <Text style={{ marginTop: theme.spacing.lg }} variant="display" weight="bold">
+                <Text variant="display" weight="bold">
                   Dentli
                 </Text>
                 <Text

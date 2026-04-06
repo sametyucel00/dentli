@@ -77,6 +77,18 @@ export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldPro
     setDraftDate(selectedDate);
   }
 
+  function handleAndroidChange(event: DateTimePickerEvent, selectedDate?: Date) {
+    if (event.type === 'dismissed' || !selectedDate) {
+      closePicker();
+      return;
+    }
+
+    onChange(
+      mode === 'date' ? setDatePart(value, selectedDate) : setTimePart(value, selectedDate),
+    );
+    closePicker();
+  }
+
   function confirmSelection() {
     const nextDate = draftDate ?? dateValue;
     onChange(mode === 'date' ? setDatePart(value, nextDate) : setTimePart(value, nextDate));
@@ -127,6 +139,40 @@ export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldPro
           type: mode,
           value: toWebInputValue(mode, dateValue),
         })}
+      </View>
+    );
+  }
+
+  if (Platform.OS === 'android') {
+    return (
+      <View style={{ gap: theme.spacing.xs }}>
+        <Text color="muted" variant="caption">
+          {label}
+        </Text>
+        <Pressable
+          accessibilityLabel={label}
+          accessibilityRole="button"
+          onPress={() => setIsPickerVisible(true)}
+          style={{
+            backgroundColor: theme.colors.surfaceMuted,
+            borderColor: focusBorderColor,
+            borderRadius: theme.radii.md,
+            borderWidth: isPickerVisible ? 1 : 0,
+            justifyContent: 'center',
+            minHeight: 44,
+            paddingHorizontal: theme.spacing.md,
+          }}>
+          <Text weight="regular">{displayValue}</Text>
+        </Pressable>
+        {isPickerVisible ? (
+          <DateTimePicker
+            display="default"
+            mode={mode}
+            onChange={handleAndroidChange}
+            themeVariant={colorScheme}
+            value={dateValue}
+          />
+        ) : null}
       </View>
     );
   }

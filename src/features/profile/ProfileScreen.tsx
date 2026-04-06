@@ -44,7 +44,7 @@ export function ProfileScreen() {
   const hasBiometricLockAccess = useFeatureAccess('biometric_lock');
 
   return (
-    <Screen>
+    <Screen contentContainerStyle={{ paddingBottom: theme.spacing.xxxxl * 3 }}>
       <Text color="primary" variant="caption" weight="semibold">
         {t('profile.header.kicker')}
       </Text>
@@ -252,7 +252,8 @@ export function ProfileScreen() {
           </View>
 
           {profileScreen.routineSettings ? (
-            <>
+            <Card style={{ padding: theme.spacing.lg }}>
+              <View style={{ gap: theme.spacing.lg }}>
               <View style={{ gap: theme.spacing.sm }}>
                 <Text variant="caption" color="muted" weight="semibold">
                   {t('profile.settings.brushingGoal')}
@@ -421,7 +422,8 @@ export function ProfileScreen() {
                   selectedValue={profileScreen.routineSettings.quietHoursEnd ?? '07:30'}
                 />
               </View>
-            </>
+              </View>
+            </Card>
           ) : null}
 
           <View

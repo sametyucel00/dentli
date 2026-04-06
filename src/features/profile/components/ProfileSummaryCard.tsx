@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { settingsService } from '@/src/services/settings-service';
 import {
@@ -20,6 +20,8 @@ export function ProfileSummaryCard({
 }) {
   const { t, i18n } = useTranslation();
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
   const { selectedProfile, appointmentsCount, careItemsCount } =
     useSelectedProfileSummary();
 
@@ -61,13 +63,13 @@ export function ProfileSummaryCard({
           }}>
           <Button
             style={{ flexBasis: '47%', maxWidth: 220 }}
-            title={t('common.switchTheme')}
+            title={isCompactWidth ? t('common.switchTheme').replace(' ', '\n') : t('common.switchTheme')}
             onPress={() => void settingsService.toggleThemeMode()}
             variant="secondary"
           />
           <Button
             style={{ flexBasis: '47%', maxWidth: 220 }}
-            title={t('common.switchLanguage')}
+            title={isCompactWidth ? t('common.switchLanguage').replace(' ', '\n') : t('common.switchLanguage')}
             onPress={() => void settingsService.applyLanguage(getAlternateLanguage(i18n.language))}
             variant="secondary"
           />
