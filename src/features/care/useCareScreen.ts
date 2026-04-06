@@ -14,6 +14,8 @@ import {
 import { careService } from '@/src/services';
 import { useAppStore } from '@/src/state/useAppStore';
 
+const EMPTY_CARE_ITEMS: CareItem[] = [];
+
 function sortCareItems(items: CareItem[]) {
   return [...items].sort((left, right) => {
     const leftCountdown = getCareCountdown(left);
@@ -43,7 +45,9 @@ export function useCareScreen() {
   const isFocused = useIsFocused();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const cachedCareItems = useAppStore((state) =>
-    selectedProfileId ? state.cache.careItemsByProfileId[selectedProfileId]?.data ?? [] : [],
+    selectedProfileId
+      ? state.cache.careItemsByProfileId[selectedProfileId]?.data ?? EMPTY_CARE_ITEMS
+      : EMPTY_CARE_ITEMS,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

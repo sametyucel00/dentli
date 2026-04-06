@@ -1,3 +1,4 @@
+import * as Localization from 'expo-localization';
 import { create } from 'zustand';
 
 import {
@@ -68,12 +69,17 @@ function getNextThemeMode(currentThemeMode: ThemeMode): ThemeMode {
 
 const INITIAL_APP_PREFERENCES: AppPreferences = {
   biometricLockEnabled: false,
+  themeMode: 'dark',
+  onboardingCompleted: false,
   updatedAt: new Date(0).toISOString(),
 };
 
+const INITIAL_LANGUAGE: SupportedLanguage =
+  Localization.getLocales()[0]?.languageCode === 'tr' ? 'tr' : 'en';
+
 export const useAppStore = create<AppStoreState>((set) => ({
-  language: 'en',
-  themeMode: 'system',
+  language: INITIAL_LANGUAGE,
+  themeMode: 'dark',
   selectedProfileId: null,
   isHydrated: false,
   bootstrapStatus: 'idle',
@@ -84,7 +90,11 @@ export const useAppStore = create<AppStoreState>((set) => ({
   setLanguage: (language) => set({ language }),
   setThemeMode: (themeMode) => set({ themeMode }),
   setEntitlements: (entitlements) => set({ entitlements }),
-  setAppPreferences: (appPreferences) => set({ appPreferences }),
+  setAppPreferences: (appPreferences) =>
+    set({
+      appPreferences,
+      themeMode: appPreferences.themeMode,
+    }),
   toggleThemeMode: () =>
     set((state) => ({
       themeMode: getNextThemeMode(state.themeMode),
@@ -115,6 +125,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
       selectedProfileId,
       entitlements,
       appPreferences,
+      themeMode: appPreferences.themeMode,
       cache: mergeSelectedProfileCache(
         {
           ...state.cache,
@@ -201,8 +212,8 @@ export const useAppStore = create<AppStoreState>((set) => ({
     })),
   resetApp: () =>
     set({
-      language: 'en',
-      themeMode: 'system',
+      language: INITIAL_LANGUAGE,
+      themeMode: 'dark',
       selectedProfileId: null,
       isHydrated: false,
       bootstrapStatus: 'idle',

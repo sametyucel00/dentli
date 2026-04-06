@@ -26,6 +26,10 @@ export default function TabsLayout() {
           paddingTop: 8,
           paddingBottom: Math.max(insets.bottom, theme.spacing.sm),
         },
+        tabBarItemStyle: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
         tabBarLabelStyle: {
           fontSize: theme.typography.caption.fontSize,
           fontWeight: '600',

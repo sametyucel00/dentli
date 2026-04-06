@@ -45,11 +45,15 @@ export function ProAccessCard({
           <Text color="primary" style={{ marginTop: theme.spacing.sm }} weight="semibold">
             {t(product.priceLabelKey)}
           </Text>
+          <Text color="muted" style={{ marginTop: theme.spacing.sm }} variant="caption">
+            {t('monetization.paywall.trustLine')}
+          </Text>
         </View>
       ) : null}
 
       {featureKeys && featureKeys.length > 0 ? (
         <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
+          <Text weight="semibold">{t('monetization.paywall.includesTitle')}</Text>
           {featureKeys.map((featureKey) => (
             <Text key={featureKey} color="muted">
               {'\u2022'} {t(`monetization.features.${featureKey}`)}

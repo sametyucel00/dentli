@@ -8,6 +8,7 @@ export { notificationService } from '@/src/services/notification-service';
 export { notificationSchedulerService } from '@/src/services/notification-scheduler-service';
 export { onboardingService } from '@/src/services/onboarding-service';
 export { profileContextService } from '@/src/services/profile-context-service';
+export { profileManagementService } from '@/src/services/profile-management-service';
 export { settingsService } from '@/src/services/settings-service';
 export { symptomService } from '@/src/services/symptom-service';
 export { toothStatusService } from '@/src/services/tooth-status-service';

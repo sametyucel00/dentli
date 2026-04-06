@@ -24,23 +24,24 @@ export function TodaySheetAction({
       style={({ pressed }) => ({
         alignItems: 'center',
         backgroundColor: theme.colors.surfaceMuted,
-        borderColor: theme.colors.border,
         borderRadius: theme.radii.md,
-        borderWidth: 1,
-        flexDirection: 'row',
+        flexBasis: '48%',
+        gap: theme.spacing.sm,
+        justifyContent: 'center',
+        minHeight: 112,
         opacity: pressed ? 0.82 : 1,
         padding: theme.spacing.lg,
         transform: [{ scale: pressed ? 0.99 : 1 }],
       })}>
       <Ionicons color={theme.colors.primary} name={icon} size={20} />
-      <Text style={{ marginLeft: theme.spacing.md, flex: 1 }} weight="semibold">
+      <Text style={{ textAlign: 'center' }} weight="semibold">
         {label}
       </Text>
       {description ? (
         <Text
           color="muted"
-          numberOfLines={1}
-          style={{ flex: 1.1, marginLeft: theme.spacing.sm, textAlign: 'right' }}
+          numberOfLines={2}
+          style={{ textAlign: 'center' }}
           variant="caption">
           {description}
         </Text>

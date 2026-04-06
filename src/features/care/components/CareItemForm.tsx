@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { CARE_ITEM_TYPE_OPTIONS, DEFAULT_CARE_ITEM_REPLACEMENT_DAYS } from '@/src/domain/care';
+import { CARE_ITEM_TYPE_OPTIONS } from '@/src/domain/care';
 import { CareItemDraft } from '@/src/features/care/model';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
@@ -42,13 +42,9 @@ export function CareItemForm({
         value={draft.title}
       />
       <OptionPills
+        containerStyle={{ justifyContent: 'center' }}
         labelMap={(value) => t(`careTracking.types.${value}`)}
-        onSelect={(value) =>
-          onChange({
-            itemType: value,
-            replacementCycleDays: `${DEFAULT_CARE_ITEM_REPLACEMENT_DAYS[value] ?? ''}`,
-          })
-        }
+        onSelect={(value) => onChange({ itemType: value })}
         options={availableTypes}
         selectedValue={draft.itemType}
       />
@@ -60,31 +56,45 @@ export function CareItemForm({
       <TextField
         keyboardType="number-pad"
         onChangeText={(value) => onChange({ replacementCycleDays: value })}
-        placeholder={t('careTracking.form.replacementDays')}
+        placeholder={t('careTracking.form.replacementDaysPlaceholder')}
         value={draft.replacementCycleDays}
       />
-      <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-        <View style={{ flex: 1 }}>
-          <DateTimeField
-            label={t('careTracking.form.lastReplacedDate')}
-            mode="date"
-            onChange={(value) => onChange({ lastReplacedAt: value })}
-            value={draft.lastReplacedAt}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <DateTimeField
-            label={t('careTracking.form.lastReplacedTime')}
-            mode="time"
-            onChange={(value) => onChange({ lastReplacedAt: value })}
-            value={draft.lastReplacedAt}
-          />
-        </View>
+      <View style={{ gap: theme.spacing.md }}>
+        <DateTimeField
+          label={t('careTracking.form.lastReplacedDate')}
+          mode="date"
+          onChange={(value) => onChange({ lastReplacedAt: value })}
+          value={draft.lastReplacedAt}
+        />
+        <DateTimeField
+          label={t('careTracking.form.lastReplacedTime')}
+          mode="time"
+          onChange={(value) => onChange({ lastReplacedAt: value })}
+          value={draft.lastReplacedAt}
+        />
       </View>
-      <Button disabled={!draft.title.trim()} onPress={onSubmit} title={submitLabel} />
-      {onDelete ? (
-        <Button onPress={onDelete} title={t('careTracking.form.delete')} variant="ghost" />
-      ) : null}
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: theme.spacing.sm,
+          justifyContent: 'center',
+        }}>
+        <Button
+          disabled={!draft.title.trim()}
+          onPress={onSubmit}
+          style={{ flexBasis: onDelete ? '48%' : '72%', minWidth: 0 }}
+          title={submitLabel}
+        />
+        {onDelete ? (
+          <Button
+            onPress={onDelete}
+            style={{ flexBasis: '48%', minWidth: 0 }}
+            title={t('careTracking.form.delete')}
+            variant="ghost"
+          />
+        ) : null}
+      </View>
     </View>
   );
 }

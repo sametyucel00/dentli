@@ -31,16 +31,16 @@ export function AppointmentCard({
           <View style={{ flex: 1 }}>
             <Text weight="semibold">{appointment.title}</Text>
             <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-              {t(`appointments.types.${appointment.appointmentType}`)}
+              {t('appointments.labels.type')}: {t(`appointments.types.${appointment.appointmentType}`)}
             </Text>
             {appointment.clinicName ? (
               <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {appointment.clinicName}
+                {t('appointments.labels.clinic')}: {appointment.clinicName}
               </Text>
             ) : null}
             {appointment.doctorName ? (
               <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {appointment.doctorName}
+                {t('appointments.labels.doctor')}: {appointment.doctorName}
               </Text>
             ) : null}
           </View>

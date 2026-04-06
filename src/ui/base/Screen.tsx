@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect, useRef } from 'react';
 import {
   ScrollView,
   StyleProp,
@@ -6,6 +6,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
@@ -21,6 +22,8 @@ export function Screen({
   contentContainerStyle,
 }: Props) {
   const { theme } = useAppTheme();
+  const isFocused = useIsFocused();
+  const scrollRef = useRef<ScrollView | null>(null);
 
   const sharedStyle: ViewStyle = {
     flexGrow: 1,
@@ -29,10 +32,17 @@ export function Screen({
     backgroundColor: theme.colors.background,
   };
 
+  useEffect(() => {
+    if (scroll && isFocused) {
+      scrollRef.current?.scrollTo({ animated: false, y: 0 });
+    }
+  }, [isFocused, scroll]);
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       {scroll ? (
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={[sharedStyle, contentContainerStyle]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>

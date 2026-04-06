@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@react-navigation/native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as Localization from 'expo-localization';
 import * as NavigationBar from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +15,7 @@ import { appBootstrapService } from '@/src/services/app-bootstrap-service';
 import { useAppStore } from '@/src/state/useAppStore';
 import { createNavigationTheme } from '@/src/theme';
 import { useAppTheme } from '@/src/theme/useAppTheme';
+import { DentliMark } from '@/src/ui/branding/DentliMark';
 import { Text } from '@/src/ui/base';
 
 const EMPTY_PROFILES: { id: string }[] = [];
@@ -29,6 +31,16 @@ export function AppProviders({ children }: PropsWithChildren) {
   const [isLocked, setIsLocked] = useState(false);
   const [lockError, setLockError] = useState<string | null>(null);
   const authInFlightRef = useRef(false);
+  const launchLanguage =
+    bootstrapStatus === 'ready'
+      ? language
+      : Localization.getLocales()[0]?.languageCode === 'tr'
+        ? 'tr'
+        : 'en';
+  const launchSlogan =
+    launchLanguage === 'tr'
+      ? 'Kişisel ağız bakım sistemi'
+      : 'Personal oral care system';
 
   const authenticate = useCallback(async () => {
     if (
@@ -91,7 +103,7 @@ export function AppProviders({ children }: PropsWithChildren) {
   }, [colorScheme]);
 
   useEffect(() => {
-    if (bootstrapStatus === 'loading' || splashHiddenRef.current) {
+    if (splashHiddenRef.current) {
       return;
     }
 
@@ -101,10 +113,10 @@ export function AppProviders({ children }: PropsWithChildren) {
           splashHiddenRef.current = true;
         })
         .catch(() => undefined);
-    }, 550);
+    }, 120);
 
     return () => clearTimeout(timeoutId);
-  }, [bootstrapStatus]);
+  }, []);
 
   useEffect(() => {
     if (bootstrapStatus !== 'ready' || !appPreferences.biometricLockEnabled) {
@@ -132,7 +144,10 @@ export function AppProviders({ children }: PropsWithChildren) {
     };
   }, [appPreferences.biometricLockEnabled, authenticate]);
 
-  const shouldShowOnboarding = bootstrapStatus === 'ready' && profiles.length === 0;
+  const shouldShowOnboarding =
+    bootstrapStatus === 'ready' &&
+    profiles.length === 0 &&
+    !appPreferences.onboardingCompleted;
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -189,6 +204,21 @@ export function AppProviders({ children }: PropsWithChildren) {
                 justifyContent: 'center',
                 paddingHorizontal: theme.spacing.xl,
               }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                  marginBottom: theme.spacing.xxxl,
+                }}>
+                <DentliMark size={84} />
+                <Text style={{ marginTop: theme.spacing.lg }} variant="display" weight="bold">
+                  Dentli
+                </Text>
+                <Text
+                  color="muted"
+                  style={{ marginTop: theme.spacing.sm, textAlign: 'center' }}>
+                  {launchSlogan}
+                </Text>
+              </View>
               <Text variant="title" weight="semibold">
                 {bootstrapStatus === 'error'
                   ? i18n.t('bootstrap.errorTitle')

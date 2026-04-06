@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { TextInput } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
@@ -15,20 +16,25 @@ export function TextField({
   keyboardType?: 'default' | 'number-pad';
   accessibilityLabel?: string;
 }) {
-  const { theme } = useAppTheme();
+  const { colorScheme, theme } = useAppTheme();
+  const [isFocused, setIsFocused] = useState(false);
+  const focusBorderColor =
+    colorScheme === 'dark' ? theme.colors.accent : theme.colors.primary;
 
   return (
     <TextInput
       accessibilityLabel={accessibilityLabel ?? placeholder}
       keyboardType={keyboardType}
+      onBlur={() => setIsFocused(false)}
       onChangeText={onChangeText}
+      onFocus={() => setIsFocused(true)}
       placeholder={placeholder}
       placeholderTextColor={theme.colors.textMuted}
       style={{
         backgroundColor: theme.colors.surfaceMuted,
-        borderColor: theme.colors.border,
+        borderColor: focusBorderColor,
         borderRadius: theme.radii.md,
-        borderWidth: 1,
+        borderWidth: isFocused ? 1 : 0,
         color: theme.colors.text,
         paddingHorizontal: theme.spacing.lg,
         paddingVertical: theme.spacing.md,

@@ -1,8 +1,13 @@
 import { ToothStatus } from '@/src/domain/models';
 import { DentistModeSummary } from '@/src/features/dentist-mode/model';
 import {
+  createDailySummaryMap,
+  getCompletionTargetsForDateRange,
+} from '@/src/features/profile/analytics';
+import {
   appointmentsRepository,
   hygieneEventsRepository,
+  routineSettingsRepository,
   symptomEventsRepository,
   toothStatusRepository,
 } from '@/src/repositories';
@@ -20,22 +25,29 @@ export class DentistModeService {
   async load(profileId: string): Promise<DentistModeSummary> {
     const startIso = getRangeStart(30);
 
-    const [appointments, hygieneEvents, symptoms, toothHistory] = await Promise.all([
-      appointmentsRepository.listByProfileId(profileId),
-      hygieneEventsRepository.listByProfileId(profileId, 240),
-      symptomEventsRepository.listByProfileId(profileId, 120),
-      toothStatusRepository.listHistoryByProfileId(profileId),
-    ]);
+    const [appointments, hygieneEvents, routineSettings, symptoms, toothHistory] =
+      await Promise.all([
+        appointmentsRepository.listByProfileId(profileId),
+        hygieneEventsRepository.listByProfileId(profileId, 240),
+        routineSettingsRepository.getByProfileId(profileId),
+        symptomEventsRepository.listByProfileId(profileId, 120),
+        toothStatusRepository.listHistoryByProfileId(profileId),
+      ]);
 
     const recentHygiene = hygieneEvents.filter((event) => event.occurredAt >= startIso);
     const recentSymptoms = symptoms.filter((event) => event.occurredAt >= startIso);
     const recentAppointments = appointments.filter((event) => event.startsAt >= startIso);
     const recentToothUpdates = toothHistory.filter((event) => event.recordedAt >= startIso);
-
-    const brushCount = recentHygiene.filter((event) => event.eventType === 'brush').length;
-    const flossCount = recentHygiene.filter((event) => event.eventType === 'floss').length;
-    const mouthwashCount = recentHygiene.filter((event) => event.eventType === 'mouthwash').length;
-    const hygieneTargetDays = 30;
+    const summaryMap = createDailySummaryMap(recentHygiene);
+    const rangeStart = new Date(startIso);
+    const rangeEnd = new Date();
+    rangeEnd.setHours(23, 59, 59, 999);
+    const { brushing, floss, mouthwash } = getCompletionTargetsForDateRange(
+      summaryMap,
+      routineSettings,
+      rangeStart,
+      rangeEnd,
+    );
 
     const problemTeethMap = new Map<number, { status: ToothStatus; count: number }>();
     for (const update of recentToothUpdates) {
@@ -90,9 +102,9 @@ export class DentistModeService {
         totalToothUpdates: recentToothUpdates.length,
       },
       hygieneRates: {
-        brushingRate: percentage(brushCount, hygieneTargetDays * 2),
-        flossRate: percentage(flossCount, hygieneTargetDays),
-        mouthwashRate: percentage(mouthwashCount, hygieneTargetDays),
+        brushingRate: percentage(brushing.completedCount, brushing.expectedCount),
+        flossRate: percentage(floss.completedCount, floss.expectedCount),
+        mouthwashRate: percentage(mouthwash.completedCount, mouthwash.expectedCount),
       },
       problemTeeth: Array.from(problemTeethMap.entries()).map(([toothNumber, value]) => ({
         toothNumber,

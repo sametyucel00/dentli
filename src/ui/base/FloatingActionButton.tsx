@@ -10,15 +10,17 @@ export function FloatingActionButton({
   label,
   onPress,
   accessibilityLabel,
+  bottomOffset,
 }: {
   icon?: keyof typeof Ionicons.glyphMap;
   label?: string;
   onPress: () => void;
   accessibilityLabel?: string;
+  bottomOffset?: number;
 }) {
-  const { theme } = useAppTheme();
+  const { colorScheme, theme } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const bottomOffset = 80 + insets.bottom;
+  const resolvedBottomOffset = bottomOffset ?? 40 + insets.bottom;
 
   return (
     <Pressable
@@ -30,7 +32,7 @@ export function FloatingActionButton({
         alignItems: 'center',
         backgroundColor: theme.colors.primary,
         borderRadius: 999,
-        bottom: bottomOffset,
+        bottom: resolvedBottomOffset,
         flexDirection: 'row',
         gap: label ? theme.spacing.sm : 0,
         height: 56,
@@ -40,7 +42,7 @@ export function FloatingActionButton({
         position: 'absolute',
         right: theme.spacing.xl,
         width: label ? undefined : 56,
-        ...theme.shadows.floating,
+        ...(colorScheme === 'dark' ? theme.shadows.floating : null),
       }}>
       <Ionicons color={theme.colors.textInverse} name={icon} size={24} />
       {label ? (

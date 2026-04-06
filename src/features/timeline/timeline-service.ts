@@ -1,12 +1,11 @@
 import { Appointment, HygieneEvent, SymptomEvent, ToothStatusHistory } from '@/src/domain/models';
-import { nowIso } from '@/src/lib/runtime';
 import {
   appointmentsRepository,
   hygieneEventsRepository,
   symptomEventsRepository,
   toothStatusRepository,
 } from '@/src/repositories';
-import { symptomService, toothStatusService } from '@/src/services';
+import { appointmentService, symptomService, toothStatusService } from '@/src/services';
 
 import { TimelineItem } from '@/src/features/timeline/model';
 
@@ -101,14 +100,23 @@ class TimelineService {
   }
 
   async updateAppointment(event: Appointment) {
-    await appointmentsRepository.update({
-      ...event,
-      updatedAt: nowIso(),
+    await appointmentService.update(event.id, {
+      profileId: event.profileId,
+      title: event.title,
+      appointmentType: event.appointmentType,
+      clinicName: event.clinicName,
+      doctorName: event.doctorName,
+      startsAt: event.startsAt,
+      endsAt: event.endsAt,
+      notes: event.notes,
+      status: event.status,
+      reminderEnabled: event.reminderEnabled,
+      reminderMinutesBefore: event.reminderMinutesBefore,
     });
   }
 
   async deleteAppointment(id: string) {
-    await appointmentsRepository.deleteById(id);
+    await appointmentService.delete(id);
   }
 
   async updateToothUpdate(event: ToothStatusHistory) {

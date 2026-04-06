@@ -21,6 +21,7 @@ export const en = {
     flossingLabel: 'Floss',
     flossFrequency: 'Floss frequency',
     mouthwashLabel: 'Mouthwash',
+    mouthwashFrequency: 'Mouthwash frequency',
     remindersLabel: 'Routine reminders',
     notificationPermissionLabel: 'Ask for notification permission now',
     morningReminder: 'Morning reminder',
@@ -59,7 +60,7 @@ export const en = {
         body: 'This keeps Today, analytics, and reminders aligned with your real routine.',
       },
       routine: {
-        title: 'Do you also track floss and mouthwash?',
+        title: 'Would you like to track floss and mouthwash too?',
         body: 'Keep only the actions that matter to you.',
       },
       schedule: {
@@ -68,7 +69,7 @@ export const en = {
       },
       notifications: {
         title: 'Finish with reminders and privacy',
-        body: 'Dentli stays local-first and reminders remain optional.',
+        body: 'Dentli works locally and reminders remain optional.',
       },
     },
     languages: {
@@ -90,6 +91,8 @@ export const en = {
     notFoundTitle: 'Page not found',
     notFoundBody: 'The page you requested is not available in this Dentli build.',
     goToToday: 'Go to Today',
+    cancel: 'Cancel',
+    done: 'Done',
   },
   insights: {
     rules: {
@@ -122,6 +125,7 @@ export const en = {
       nightBrush: 'Night brush',
       floss: 'Floss / interdental',
       mouthwash: 'Mouthwash',
+      thirdBrushHint: 'A third brush goal stays in your analytics and reminders. Extra brush logs from the timer still count.',
       optional: 'Optional',
       tapHint: 'Tap once to complete',
       undoHint: 'Tap again to undo',
@@ -221,12 +225,21 @@ export const en = {
     profiles: {
       title: 'Profiles',
       body: 'Switch between profiles when you need separate histories or care tracking.',
+      addTitle: 'Add profile',
+      addBody: 'Create another profile on this device when you need a separate care history.',
+      addAction: 'Create profile',
+      creating: 'Creating profile...',
       current: 'Currently active',
       available: 'Available to switch',
       locked: 'Locked on Free',
       unlockHint: 'Pro unlocks switching across multiple profiles.',
       selectedAction: 'Selected',
       switchAction: 'Switch profile',
+      deleteAction: 'Delete',
+      keepOne: 'Keep at least one profile.',
+      firstNameRequired: 'Add a first name before creating a profile.',
+      created: 'Profile created.',
+      deleted: 'Profile deleted.',
       switchError: 'Dentli could not switch to that profile right now.',
     },
     settings: {
@@ -243,6 +256,7 @@ export const en = {
       floss: 'Floss tracking',
       flossFrequency: 'Floss frequency',
       mouthwash: 'Mouthwash tracking',
+      mouthwashFrequency: 'Mouthwash frequency',
       reminders: 'Routine reminders',
       morningReminder: 'Morning reminder time',
       nightReminder: 'Night reminder time',
@@ -278,6 +292,7 @@ export const en = {
       weeklyTitle: 'Weekly heatmap',
       weeklyBody: 'The last 7 days, based on the routine you are tracking.',
       weeklyLegend: 'Each block shows completed actions out of expected actions for that day.',
+      notTracked: 'Not tracked',
       monthlyTitle: 'Monthly completion',
       monthlyBody: 'A quick look at how the current month is going so far.',
       yearlyTitle: 'Yearly view',
@@ -329,7 +344,9 @@ export const en = {
     },
     paywall: {
       title: 'Unlock Dentli Pro',
-      body: 'A one-time purchase unlocks the advanced parts of Dentli without ads or subscriptions.',
+      body: 'A one-time purchase unlocks the deeper parts of Dentli for people who want a more complete oral care system.',
+      includesTitle: 'Dentli Pro includes',
+      trustLine: 'One-time unlock. No ads. No subscription.',
     },
     gates: {
       toothMapFull: {
@@ -408,6 +425,10 @@ export const en = {
         title: 'Floss reminder',
         body: 'A quick floss helps keep the routine complete.',
       },
+      third_brush: {
+        title: 'Extra brush reminder',
+        body: 'If your day allows it, one more quick brush will support your current goal.',
+      },
       mouthwash: {
         title: 'Mouthwash reminder',
         body: 'If it fits tonight, a rinse can finish the routine gently.',
@@ -443,6 +464,20 @@ export const en = {
       lower: 'Lower teeth',
       lowerSubtitle: 'Teeth 17 to 32',
     },
+    guide: {
+      title: 'How the map works',
+      body: 'The chart is split into upper and lower teeth so the full 32-tooth view stays easy to scan.',
+      pointOne: 'Tap any tooth to save its current status, note, and date.',
+      pointTwo: 'Use problem zones to keep an eye on teeth that need extra attention.',
+      pointThree: 'History stays attached to each tooth so changes remain easy to review later.',
+    },
+    locked: {
+      title: 'The full tooth map is part of Dentli Pro',
+      body: 'The interactive 32-tooth chart is reserved for Pro so the free experience stays simple and focused.',
+      pointOne: 'Track detailed tooth status for all 32 teeth.',
+      pointTwo: 'Mark problem zones and keep a dated history per tooth.',
+      pointThree: 'Use the complete chart in Dentist Mode and exports.',
+    },
     common: {
       notRecorded: 'Not recorded yet',
     },
@@ -451,6 +486,7 @@ export const en = {
       lastUpdated: 'Last updated: {{value}}',
       notePlaceholder: 'Add a short note',
       save: 'Save tooth',
+      saving: 'Saving...',
       historyTitle: 'History',
       emptyHistory: 'No history for this tooth yet.',
     },
@@ -487,10 +523,18 @@ export const en = {
     },
     common: {
       save: 'Save changes',
+      saving: 'Saving...',
       delete: 'Delete',
       noNote: 'No note',
       noProvider: 'No provider',
+      date: 'Date',
+      time: 'Time',
       datePlaceholder: 'Date/time (ISO)',
+    },
+    errors: {
+      load: 'Dentli could not load the timeline right now.',
+      save: 'Dentli could not save this change right now.',
+      appointmentTitleRequired: 'Add an appointment title first.',
     },
     symptoms: {
       pain: 'Pain',
@@ -542,6 +586,11 @@ export const en = {
       kicker: 'Visits',
       title: 'Appointments',
       description: 'Track upcoming visits, set reminders, and keep details ready when you need them.',
+    },
+    labels: {
+      type: 'Type',
+      clinic: 'Clinic',
+      doctor: 'Doctor',
     },
     summary: {
       title: 'Overview',
@@ -608,6 +657,11 @@ export const en = {
     loading: 'Preparing summary...',
     statsTitle: '30-day summary',
     periodLabel: 'Based on the last {{count}} days.',
+    generatedAt: 'Generated {{value}}',
+    totalHygieneShort: 'Hygiene',
+    totalSymptomsShort: 'Symptoms',
+    totalAppointmentsShort: 'Appointments',
+    totalToothUpdatesShort: 'Tooth updates',
     totalHygiene: 'Hygiene events: {{count}}',
     totalSymptoms: 'Symptoms logged: {{count}}',
     totalAppointments: 'Appointments: {{count}}',
@@ -620,6 +674,9 @@ export const en = {
     noProblemTeeth: 'No problem teeth recorded in the last 30 days.',
     problemToothItem: 'Tooth {{toothNumber}}: {{status}} ({{count}} updates)',
     recentEvents: 'Recent events',
+    exportCardTitle: 'Professional PDF summary',
+    exportCardBody:
+      'Create a cleaner shareable summary with hygiene rates, problem teeth, and recent activity.',
     exportPdf: 'Export PDF',
     exportReady: 'PDF ready: {{uri}}',
   },
@@ -631,7 +688,7 @@ export const en = {
     },
     summary: {
       title: 'Replacement view',
-      body: '{{count}} items need attention within 7 days.',
+      body: '{{count}} items are approaching their replacement window in the next 7 days.',
       add: 'Add item',
       freeHint: 'Core items stay free. Advanced care inventory unlocks with Pro.',
     },
@@ -645,6 +702,7 @@ export const en = {
       title: 'Item name',
       description: 'Optional note',
       replacementDays: 'Replacement cycle in days',
+      replacementDaysPlaceholder: 'Enter replacement interval in days',
       lastReplacedDate: 'Last replaced date',
       lastReplacedTime: 'Last replaced time',
       create: 'Create item',

@@ -45,7 +45,7 @@ export function TodayActionRow({
         <Text weight="semibold">{label}</Text>
         <Text color="muted" variant="caption" style={{ marginTop: theme.spacing.xxs }}>
           {helperLabel}
-          {action.optional && !completed ? ` • ${optionalLabel}` : ''}
+          {action.optional && !completed && optionalLabel ? ` • ${optionalLabel}` : ''}
         </Text>
       </View>
       <View

@@ -1,4 +1,3 @@
-import { DEFAULT_CARE_ITEM_REPLACEMENT_DAYS } from '@/src/domain/care';
 import { CareItem, CareItemType } from '@/src/domain/models';
 import { CareItemMutationInput } from '@/src/services/care-service.types';
 
@@ -26,7 +25,7 @@ export function createInitialCareItemDraft(): CareItemDraft {
     title: '',
     description: '',
     itemType: 'toothbrush',
-    replacementCycleDays: `${DEFAULT_CARE_ITEM_REPLACEMENT_DAYS.toothbrush ?? ''}`,
+    replacementCycleDays: '',
     lastReplacedAt: createDefaultCareDateTime(),
   };
 }
@@ -65,7 +64,6 @@ export function mapDraftToCareItemInput(
   profileId: string,
   draft: CareItemDraft,
 ): CareItemMutationInput {
-  const fallbackReplacementDays = DEFAULT_CARE_ITEM_REPLACEMENT_DAYS[draft.itemType] ?? null;
   return {
     profileId,
     title: draft.title.trim(),
@@ -73,7 +71,7 @@ export function mapDraftToCareItemInput(
     itemType: draft.itemType,
     replacementCycleDays: draft.replacementCycleDays
       ? Number(draft.replacementCycleDays)
-      : fallbackReplacementDays,
+      : null,
     lastReplacedAt: draft.lastReplacedAt.trim() || null,
   };
 }

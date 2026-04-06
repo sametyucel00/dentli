@@ -1,6 +1,6 @@
 import { Profile, RoutineSettings, SupportedLanguage } from '@/src/domain/models';
 import { createId, nowIso } from '@/src/lib/runtime';
-import { profileRepository, routineSettingsRepository } from '@/src/repositories';
+import { appPreferencesRepository, profileRepository, routineSettingsRepository } from '@/src/repositories';
 import { databaseService } from '@/src/services/database-service';
 import { notificationService } from '@/src/services/notification-service';
 import { profileContextService } from '@/src/services/profile-context-service';
@@ -14,6 +14,7 @@ type CreateInitialProfileInput = {
   flossingEnabled: boolean;
   flossSessionsPerWeek: number;
   mouthwashEnabled: boolean;
+  mouthwashSessionsPerWeek: number;
   remindersEnabled: boolean;
   morningReminderTime: string;
   nightReminderTime: string;
@@ -43,6 +44,7 @@ class OnboardingService {
       flossingEnabled: input.flossingEnabled,
       flossSessionsPerWeek: input.flossSessionsPerWeek,
       mouthwashEnabled: input.mouthwashEnabled,
+      mouthwashSessionsPerWeek: input.mouthwashSessionsPerWeek,
       remindersEnabled: input.remindersEnabled,
       reminderTime: input.nightReminderTime,
       morningReminderTime: input.morningReminderTime,
@@ -58,6 +60,12 @@ class OnboardingService {
     await databaseService.withTransaction(async () => {
       await profileRepository.create(profile);
       await routineSettingsRepository.upsert(routineSettings);
+      await appPreferencesRepository.upsert({
+        biometricLockEnabled: false,
+        themeMode: 'dark',
+        onboardingCompleted: true,
+        updatedAt: timestamp,
+      });
     });
 
     await settingsService.applyLanguage(input.preferredLanguage);

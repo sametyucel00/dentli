@@ -11,6 +11,7 @@ type ToothJawSectionProps = {
   subtitle: string;
   segments: readonly (readonly number[])[];
   teeth: ToothMapItem[];
+  isInteractive: boolean;
   onSelectTooth: (toothNumber: number) => void;
 };
 
@@ -19,6 +20,7 @@ export function ToothJawSection({
   subtitle,
   segments,
   teeth,
+  isInteractive,
   onSelectTooth,
 }: ToothJawSectionProps) {
   const { theme } = useAppTheme();
@@ -47,6 +49,7 @@ export function ToothJawSection({
               return (
                 <ToothCell
                   key={toothNumber}
+                  disabled={!isInteractive}
                   isProblemZone={tooth.isProblemZone}
                   onPress={() => onSelectTooth(toothNumber)}
                   status={tooth.status}

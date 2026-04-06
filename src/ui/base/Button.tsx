@@ -31,8 +31,7 @@ export function Button({
         ? theme.colors.surfaceMuted
         : 'transparent';
 
-  const borderColor =
-    variant === 'ghost' ? theme.colors.border : backgroundColor;
+  const borderColor = 'transparent';
 
   const textColor =
     variant === 'primary' ? theme.colors.textInverse : theme.colors.text;
@@ -49,6 +48,7 @@ export function Button({
         {
           backgroundColor,
           borderColor,
+          borderWidth: 0,
           borderRadius: theme.radii.pill,
           opacity: disabled ? 0.45 : pressed ? 0.9 : 1,
           transform: [{ scale: pressed ? 0.99 : 1 }],
@@ -68,7 +68,6 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderWidth: 1,
-    minWidth: 140,
+    minWidth: 0,
   },
 });

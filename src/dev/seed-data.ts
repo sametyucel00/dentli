@@ -60,6 +60,7 @@ export async function seedDevelopmentData() {
     flossingEnabled: true,
     flossSessionsPerWeek: 3,
     mouthwashEnabled: true,
+    mouthwashSessionsPerWeek: 3,
     remindersEnabled: true,
     reminderTime: '21:00',
     morningReminderTime: '08:30',

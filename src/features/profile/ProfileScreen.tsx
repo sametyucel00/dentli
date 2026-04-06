@@ -5,7 +5,6 @@ import { View } from 'react-native';
 import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
 import {
   MonthlyCompletionCard,
-  ProfileInsightsSection,
   ProfileSectionCard,
   ProfileSummaryCard,
   WeeklyHeatmap,
@@ -18,10 +17,11 @@ import {
   useSelectedProfileSummary,
 } from '@/src/state/selectors';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, Card, OptionPills, Screen, StateMessageCard, Text } from '@/src/ui/base';
+import { Button, Card, OptionPills, Screen, StateMessageCard, Text, TextField } from '@/src/ui/base';
 
 const BRUSHING_OPTIONS = [1, 2, 3] as const;
 const FLOSS_FREQUENCY_OPTIONS = [1, 3, 7] as const;
+const MOUTHWASH_FREQUENCY_OPTIONS = [1, 3, 7] as const;
 const BOOLEAN_OPTIONS = [true, false] as const;
 const LANGUAGE_OPTIONS = ['en', 'tr'] as const;
 const THEME_OPTIONS = ['system', 'light', 'dark'] as const;
@@ -29,6 +29,9 @@ const MORNING_TIME_OPTIONS = ['07:00', '08:00', '08:30', '09:00'] as const;
 const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '21:30', '22:00'] as const;
 const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
 const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00', '08:30'] as const;
+const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
+const ACTION_BUTTON_STYLE = { flexBasis: '31%', flexGrow: 1, minWidth: 0 } as const;
+const PROFILE_BUTTON_STYLE = { flexBasis: '47%', flexGrow: 1, minWidth: 0 } as const;
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -58,6 +61,23 @@ export function ProfileScreen() {
         title={t('profile.preferences.title')}
       />
 
+      <ProfileSectionCard
+        description={t('profile.analytics.weeklyBody')}
+        loading={profileScreen.loading && !profileScreen.error}
+        loadingLabel={t('profile.loading')}
+        title={t('profile.analytics.weeklyTitle')}>
+        {profileScreen.error ? (
+          <StateMessageCard
+            actionLabel={t('common.retry')}
+            body={profileScreen.error}
+            onActionPress={() => void profileScreen.reload()}
+            title={t('common.errorTitle')}
+          />
+        ) : (
+          <WeeklyHeatmap cells={profileScreen.analytics.weeklyHeatmap} />
+        )}
+      </ProfileSectionCard>
+
       <Card style={{ marginTop: theme.spacing.lg }}>
         <Text variant="title" weight="semibold">
           {t('profile.plan.title')}
@@ -78,6 +98,9 @@ export function ProfileScreen() {
             'pdf_export',
             'analytics_advanced',
             'multi_profile',
+            'timeline_full',
+            'care_full_inventory',
+            'biometric_lock',
           ]}
           title={t('profile.plan.unlockTitle')}
         />
@@ -91,9 +114,41 @@ export function ProfileScreen() {
           {t('profile.profiles.body')}
         </Text>
         <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
+          <Card style={{ padding: theme.spacing.lg }}>
+            <Text weight="semibold">{t('profile.profiles.addTitle')}</Text>
+            <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+              {t('profile.profiles.addBody')}
+            </Text>
+            <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.md }}>
+              <TextField
+                onChangeText={profileScreen.setNewProfileFirstName}
+                placeholder={t('onboarding.firstName')}
+                value={profileScreen.newProfileFirstName}
+              />
+              <TextField
+                onChangeText={profileScreen.setNewProfileLastName}
+                placeholder={t('onboarding.lastName')}
+                value={profileScreen.newProfileLastName}
+              />
+              {isPro ? (
+                <Button
+                  disabled={profileScreen.settingsBusyKey === 'createProfile'}
+                  onPress={() => void profileScreen.createProfile()}
+                  title={
+                    profileScreen.settingsBusyKey === 'createProfile'
+                      ? t('profile.profiles.creating')
+                      : t('profile.profiles.addAction')
+                  }
+                />
+              ) : (
+                <Text color="muted">{t('profile.profiles.unlockHint')}</Text>
+              )}
+            </View>
+          </Card>
           {profileScreen.profiles.map((profile) => {
             const isSelected = profile.id === selectedProfile?.id;
             const isLocked = !accessibleProfileIds.includes(profile.id);
+            const canDelete = profileScreen.profiles.length > 1;
 
             return (
               <Card key={profile.id} style={{ padding: theme.spacing.lg }}>
@@ -111,15 +166,37 @@ export function ProfileScreen() {
                   {isLocked ? (
                     <Text color="muted">{t('profile.profiles.unlockHint')}</Text>
                   ) : (
-                    <Button
-                      onPress={() => void profileScreen.switchProfile(profile.id)}
-                      title={
-                        isSelected
-                          ? t('profile.profiles.selectedAction')
-                          : t('profile.profiles.switchAction')
-                      }
-                      variant={isSelected ? 'secondary' : 'primary'}
-                    />
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        gap: theme.spacing.sm,
+                      }}>
+                      <Button
+                        onPress={() => void profileScreen.switchProfile(profile.id)}
+                        style={PROFILE_BUTTON_STYLE}
+                        title={
+                          isSelected
+                            ? t('profile.profiles.selectedAction')
+                            : t('profile.profiles.switchAction')
+                        }
+                        variant={isSelected ? 'secondary' : 'primary'}
+                      />
+                      {canDelete ? (
+                        <Button
+                          disabled={profileScreen.settingsBusyKey === `deleteProfile:${profile.id}`}
+                          onPress={() => void profileScreen.deleteProfile(profile.id)}
+                          style={PROFILE_BUTTON_STYLE}
+                          title={t('profile.profiles.deleteAction')}
+                          variant="ghost"
+                        />
+                      ) : (
+                        <Text color="muted" style={{ lineHeight: 20, minHeight: 48 }}>
+                          {t('profile.profiles.keepOne')}
+                        </Text>
+                      )}
+                    </View>
                   )}
                 </View>
               </Card>
@@ -153,6 +230,7 @@ export function ProfileScreen() {
               {t('profile.settings.language')}
             </Text>
             <OptionPills
+              containerStyle={CENTERED_PILL_STYLE}
               labelMap={(value) => t(`onboarding.languages.${value}`)}
               onSelect={(value) => void profileScreen.updateLanguage(value)}
               options={LANGUAGE_OPTIONS}
@@ -165,6 +243,7 @@ export function ProfileScreen() {
               {t('profile.settings.theme')}
             </Text>
             <OptionPills
+              containerStyle={CENTERED_PILL_STYLE}
               labelMap={(value) => t(`profile.settings.themeModes.${value}`)}
               onSelect={(value) => void profileScreen.updateThemeMode(value)}
               options={THEME_OPTIONS}
@@ -179,6 +258,7 @@ export function ProfileScreen() {
                   {t('profile.settings.brushingGoal')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(`onboarding.brushingFrequency.${value}`)}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings(
@@ -196,6 +276,7 @@ export function ProfileScreen() {
                   {t('profile.settings.floss')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings({ flossingEnabled: value }, 'floss')
@@ -211,6 +292,7 @@ export function ProfileScreen() {
                     {t('profile.settings.flossFrequency')}
                   </Text>
                   <OptionPills
+                    containerStyle={CENTERED_PILL_STYLE}
                     labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
                     onSelect={(value) =>
                       void profileScreen.updateRoutineSettings(
@@ -229,6 +311,7 @@ export function ProfileScreen() {
                   {t('profile.settings.mouthwash')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings({ mouthwashEnabled: value }, 'mouthwash')
@@ -238,11 +321,32 @@ export function ProfileScreen() {
                 />
               </View>
 
+              {profileScreen.routineSettings.mouthwashEnabled ? (
+                <View style={{ gap: theme.spacing.sm }}>
+                  <Text variant="caption" color="muted" weight="semibold">
+                    {t('profile.settings.mouthwashFrequency')}
+                  </Text>
+                  <OptionPills
+                    containerStyle={CENTERED_PILL_STYLE}
+                    labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
+                    onSelect={(value) =>
+                      void profileScreen.updateRoutineSettings(
+                        { mouthwashSessionsPerWeek: value },
+                        'mouthwashFrequency',
+                      )
+                    }
+                    options={MOUTHWASH_FREQUENCY_OPTIONS}
+                    selectedValue={profileScreen.routineSettings.mouthwashSessionsPerWeek}
+                  />
+                </View>
+              ) : null}
+
               <View style={{ gap: theme.spacing.sm }}>
                 <Text variant="caption" color="muted" weight="semibold">
                   {t('profile.settings.reminders')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings({ remindersEnabled: value }, 'reminders')
@@ -257,6 +361,7 @@ export function ProfileScreen() {
                   {t('profile.settings.morningReminder')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => value}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings(
@@ -274,6 +379,7 @@ export function ProfileScreen() {
                   {t('profile.settings.nightReminder')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => value}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings(
@@ -291,6 +397,7 @@ export function ProfileScreen() {
                   {t('profile.settings.quietStart')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => value}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings({ quietHoursStart: value }, 'quietStart')
@@ -305,6 +412,7 @@ export function ProfileScreen() {
                   {t('profile.settings.quietEnd')}
                 </Text>
                 <OptionPills
+                  containerStyle={CENTERED_PILL_STYLE}
                   labelMap={(value) => value}
                   onSelect={(value) =>
                     void profileScreen.updateRoutineSettings({ quietHoursEnd: value }, 'quietEnd')
@@ -316,50 +424,64 @@ export function ProfileScreen() {
             </>
           ) : null}
 
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.md,
+              justifyContent: 'center',
+            }}>
             <Button
               disabled={profileScreen.settingsBusyKey === 'notifications'}
               onPress={() => void profileScreen.requestNotificationPermission()}
+              style={PROFILE_BUTTON_STYLE}
               title={t('profile.settings.notificationsButton')}
-              variant="secondary"
-            />
-            <Button
-              disabled={
-                profileScreen.settingsBusyKey === 'biometric' || !hasBiometricLockAccess
-              }
-              onPress={() =>
-                hasBiometricLockAccess
-                  ? void profileScreen.updateBiometricLock(
-                      !profileScreen.appPreferences.biometricLockEnabled,
-                    )
-                  : undefined
-              }
-              title={
-                hasBiometricLockAccess
-                  ? profileScreen.appPreferences.biometricLockEnabled
-                    ? t('profile.settings.biometricDisable')
-                    : t('profile.settings.biometricEnable')
-                  : t('profile.settings.biometricPro')
-              }
               variant="secondary"
             />
             <Button
               disabled={profileScreen.settingsBusyKey === 'clearData'}
               onPress={() => void profileScreen.clearAllData()}
+              style={PROFILE_BUTTON_STYLE}
               title={t('profile.settings.clearData')}
-              variant="ghost"
+              variant="secondary"
             />
           </View>
         </View>
 
-        {!hasBiometricLockAccess ? (
-          <ProAccessCard
-            body={t('monetization.gates.biometricLock.body')}
-            featureKeys={['biometric_lock']}
-            title={t('monetization.gates.biometricLock.title')}
-          />
-        ) : null}
       </Card>
+
+      {hasBiometricLockAccess ? (
+        <Card style={{ marginTop: theme.spacing.lg }}>
+          <Text variant="title" weight="semibold">
+            {t('profile.settings.biometricEnable')}
+          </Text>
+          <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+            {t('profile.settings.biometricBody')}
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: theme.spacing.lg,
+            }}>
+            <Button
+              disabled={profileScreen.settingsBusyKey === 'biometric'}
+              onPress={() =>
+                void profileScreen.updateBiometricLock(
+                  !profileScreen.appPreferences.biometricLockEnabled,
+                )
+              }
+              style={{ minWidth: 240 }}
+              title={
+                profileScreen.appPreferences.biometricLockEnabled
+                  ? t('profile.settings.biometricDisable')
+                  : t('profile.settings.biometricEnable')
+              }
+              variant="secondary"
+            />
+          </View>
+        </Card>
+      ) : null}
 
       <Card style={{ marginTop: theme.spacing.lg }}>
         <Text variant="title" weight="semibold">
@@ -373,42 +495,29 @@ export function ProfileScreen() {
             flexDirection: 'row',
             flexWrap: 'wrap',
             gap: theme.spacing.md,
+            justifyContent: 'center',
             marginTop: theme.spacing.lg,
           }}>
           <Button
             onPress={() => router.push('/privacy')}
+            style={ACTION_BUTTON_STYLE}
             title={t('profile.release.privacy')}
             variant="secondary"
           />
           <Button
             onPress={() => router.push('/legal')}
+            style={ACTION_BUTTON_STYLE}
             title={t('profile.release.terms')}
-            variant="ghost"
+            variant="secondary"
           />
           <Button
             onPress={() => router.push('/permissions')}
+            style={ACTION_BUTTON_STYLE}
             title={t('profile.release.permissions')}
-            variant="ghost"
+            variant="secondary"
           />
         </View>
       </Card>
-
-      <ProfileSectionCard
-        description={t('profile.analytics.weeklyBody')}
-        loading={profileScreen.loading && !profileScreen.error}
-        loadingLabel={t('profile.loading')}
-        title={t('profile.analytics.weeklyTitle')}>
-        {profileScreen.error ? (
-          <StateMessageCard
-            actionLabel={t('common.retry')}
-            body={profileScreen.error}
-            onActionPress={() => void profileScreen.reload()}
-            title={t('common.errorTitle')}
-          />
-        ) : (
-          <WeeklyHeatmap cells={profileScreen.analytics.weeklyHeatmap} />
-        )}
-      </ProfileSectionCard>
 
       {hasAdvancedAnalyticsAccess ? (
         <>
@@ -445,20 +554,8 @@ export function ProfileScreen() {
               <YearlyOverviewCard months={profileScreen.analytics.yearlyCompletion} />
             )}
           </ProfileSectionCard>
-
-          <ProfileInsightsSection
-            insights={profileScreen.analytics.insights}
-            loading={profileScreen.loading && !profileScreen.error}
-            loadingLabel={t('profile.loading')}
-          />
         </>
-      ) : (
-        <ProAccessCard
-          body={t('profile.analytics.proBody')}
-          featureKeys={['analytics_advanced']}
-          title={t('profile.analytics.proTitle')}
-        />
-      )}
+      ) : null}
     </Screen>
   );
 }

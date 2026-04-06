@@ -28,7 +28,7 @@ export function TodayBrushTimer({
   activeQuadrantIndex: number;
   title: string;
 }) {
-  const { theme } = useAppTheme();
+  const { colorScheme, theme } = useAppTheme();
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
 
   return (
@@ -96,10 +96,14 @@ export function TodayBrushTimer({
                 {
                   alignItems: 'center',
                   backgroundColor: isActive
-                    ? theme.colors.primarySoft
+                    ? colorScheme === 'dark'
+                      ? theme.colors.primary
+                      : theme.colors.primarySoft
                     : theme.colors.surface,
                   borderColor: isActive
-                    ? theme.colors.primary
+                    ? colorScheme === 'dark'
+                      ? theme.colors.accent
+                      : theme.colors.primary
                     : theme.colors.border,
                   borderRadius: theme.radii.pill,
                   borderWidth: 1,
@@ -111,8 +115,13 @@ export function TodayBrushTimer({
                 positionStyle,
               ]}>
               <Text
-                style={{ textAlign: 'center' }}
                 variant="caption"
+                style={[
+                  { textAlign: 'center' },
+                  isActive && colorScheme === 'dark'
+                    ? { color: theme.colors.textInverse }
+                    : null,
+                ]}
                 weight={isActive ? 'bold' : 'medium'}>
                 {quadrant.label}
               </Text>

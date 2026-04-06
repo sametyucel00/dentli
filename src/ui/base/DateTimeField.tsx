@@ -2,10 +2,12 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { createElement, useMemo, useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Modal, Platform, Pressable, View } from 'react-native';
 
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useAppTheme } from '@/src/theme/useAppTheme';
+import { Button } from '@/src/ui/base/Button';
 import { Text } from '@/src/ui/base/Text';
 
 type DateTimeFieldProps = {
@@ -48,10 +50,13 @@ function toWebInputValue(mode: 'date' | 'time', value: Date) {
 }
 
 export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldProps) {
-  const { theme } = useAppTheme();
+  const { t } = useTranslation();
+  const { colorScheme, theme } = useAppTheme();
   const locale = useAppLocale();
   const [isPickerVisible, setIsPickerVisible] = useState(false);
+  const [draftDate, setDraftDate] = useState<Date | null>(null);
   const dateValue = useMemo(() => parseIso(value), [value]);
+  const pickerValue = draftDate ?? dateValue;
   const displayValue = useMemo(
     () =>
       new Intl.DateTimeFormat(
@@ -62,23 +67,32 @@ export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldPro
       ).format(dateValue),
     [dateValue, locale, mode],
   );
+  const focusBorderColor =
+    colorScheme === 'dark' ? theme.colors.accent : theme.colors.primary;
 
   function handleChange(_: DateTimePickerEvent, selectedDate?: Date) {
-    if (Platform.OS === 'android') {
-      setIsPickerVisible(false);
-    }
-
     if (!selectedDate) {
       return;
     }
+    setDraftDate(selectedDate);
+  }
 
-    onChange(mode === 'date' ? setDatePart(value, selectedDate) : setTimePart(value, selectedDate));
+  function confirmSelection() {
+    const nextDate = draftDate ?? dateValue;
+    onChange(mode === 'date' ? setDatePart(value, nextDate) : setTimePart(value, nextDate));
+    setIsPickerVisible(false);
+    setDraftDate(null);
+  }
+
+  function closePicker() {
+    setIsPickerVisible(false);
+    setDraftDate(null);
   }
 
   if (Platform.OS === 'web') {
     return (
       <View style={{ gap: theme.spacing.xs }}>
-        <Text color="muted" variant="caption" weight="semibold">
+        <Text color="muted" variant="caption">
           {label}
         </Text>
         {createElement('input', {
@@ -96,15 +110,18 @@ export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldPro
             onChange(mode === 'date' ? setDatePart(value, nextDate) : setTimePart(value, nextDate));
           },
           style: {
-            appearance: 'none',
             backgroundColor: theme.colors.surfaceMuted,
-            border: `1px solid ${theme.colors.border}`,
+            border: `1px solid transparent`,
             borderRadius: theme.radii.md,
+            boxSizing: 'border-box',
             color: theme.colors.text,
+            colorScheme,
             fontSize: 16,
-            minHeight: 52,
-            outline: 'none',
-            padding: `${theme.spacing.md}px ${theme.spacing.lg}px`,
+            minHeight: 48,
+            fontWeight: 400,
+            outlineColor: focusBorderColor,
+            padding: `${theme.spacing.sm}px ${theme.spacing.md}px`,
+            paddingRight: 14,
             width: '100%',
           },
           type: mode,
@@ -116,32 +133,75 @@ export function DateTimeField({ mode, value, label, onChange }: DateTimeFieldPro
 
   return (
     <View style={{ gap: theme.spacing.xs }}>
-      <Text color="muted" variant="caption" weight="semibold">
+      <Text color="muted" variant="caption">
         {label}
       </Text>
       <Pressable
         accessibilityLabel={label}
         accessibilityRole="button"
-        onPress={() => setIsPickerVisible((current) => !current)}
+        onPress={() => {
+          setDraftDate(dateValue);
+          setIsPickerVisible(true);
+        }}
         style={{
           backgroundColor: theme.colors.surfaceMuted,
-          borderColor: theme.colors.border,
+          borderColor: focusBorderColor,
           borderRadius: theme.radii.md,
-          borderWidth: 1,
+          borderWidth: isPickerVisible ? 1 : 0,
           justifyContent: 'center',
-          minHeight: 52,
-          paddingHorizontal: theme.spacing.lg,
+          minHeight: 44,
+          paddingHorizontal: theme.spacing.md,
         }}>
-        <Text>{displayValue}</Text>
+        <Text weight="regular">{displayValue}</Text>
       </Pressable>
-      {isPickerVisible ? (
-        <DateTimePicker
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          mode={mode}
-          onChange={handleChange}
-          value={dateValue}
-        />
-      ) : null}
+      <Modal
+        animationType="fade"
+        onRequestClose={closePicker}
+        transparent
+        visible={isPickerVisible}>
+        <Pressable
+          onPress={closePicker}
+          style={{
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            flex: 1,
+            justifyContent: 'center',
+            padding: theme.spacing.xl,
+          }}>
+          <Pressable
+            onPress={() => undefined}
+            style={{
+              backgroundColor: theme.colors.surface,
+              borderRadius: theme.radii.lg,
+              maxWidth: 420,
+              padding: theme.spacing.lg,
+              width: '100%',
+            }}>
+            <Text weight="semibold">{label}</Text>
+            <View style={{ alignItems: 'center', marginTop: theme.spacing.md }}>
+              <DateTimePicker
+                accentColor={focusBorderColor}
+                display="spinner"
+                mode={mode}
+                onChange={handleChange}
+                textColor={theme.colors.text}
+                themeVariant={colorScheme}
+                value={pickerValue}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: theme.spacing.sm,
+                justifyContent: 'flex-end',
+                marginTop: theme.spacing.md,
+              }}>
+              <Button onPress={closePicker} title={t('common.cancel')} variant="ghost" />
+              <Button onPress={confirmSelection} title={t('common.done')} />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }

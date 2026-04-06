@@ -8,6 +8,7 @@ type ToothCellProps = {
   toothNumber: number;
   status: ToothStatus;
   isProblemZone: boolean;
+  disabled?: boolean;
   onPress: () => void;
 };
 
@@ -39,6 +40,7 @@ export function ToothCell({
   toothNumber,
   status,
   isProblemZone,
+  disabled = false,
   onPress,
 }: ToothCellProps) {
   const { theme } = useAppTheme();
@@ -46,6 +48,8 @@ export function ToothCell({
 
   return (
     <Pressable
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         {
@@ -57,7 +61,7 @@ export function ToothCell({
           justifyContent: 'center',
           minHeight: 52,
           minWidth: 0,
-          opacity: pressed ? 0.9 : 1,
+          opacity: disabled ? 0.65 : pressed ? 0.9 : 1,
           paddingVertical: theme.spacing.sm,
           position: 'relative',
           width: '100%',

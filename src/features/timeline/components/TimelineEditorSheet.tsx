@@ -12,7 +12,7 @@ import {
 } from '@/src/features/timeline/model';
 import { getHygieneActionLabel } from '@/src/features/timeline/presentation';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { BottomSheetModal, Button, OptionPills, Text, TextField } from '@/src/ui/base';
+import { BottomSheetModal, Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
 export type TimelineEditorSheetProps = {
   visible: boolean;
@@ -29,6 +29,8 @@ export type TimelineEditorSheetProps = {
   onChangeAppointmentDraft: (patch: Partial<TimelineAppointmentDraft>) => void;
   onChangeHygieneDraft: (patch: Partial<TimelineHygieneDraft>) => void;
   onChangeToothDraft: (patch: Partial<TimelineToothDraft>) => void;
+  busy: boolean;
+  error: string | null;
 };
 
 const APPOINTMENT_STATUSES: TimelineAppointmentDraft['status'][] = [
@@ -43,6 +45,9 @@ const APPOINTMENT_TYPES: TimelineAppointmentDraft['appointmentType'][] = [
   'treatment',
   'other',
 ];
+
+const SINGLE_ACTION_STYLE = { alignSelf: 'center', minWidth: 220, width: '72%' } as const;
+const SPLIT_ACTION_STYLE = { flexBasis: '48%', minWidth: 0 } as const;
 
 export function TimelineEditorSheet({
   visible,
@@ -59,6 +64,8 @@ export function TimelineEditorSheet({
   onChangeAppointmentDraft,
   onChangeHygieneDraft,
   onChangeToothDraft,
+  busy,
+  error,
 }: TimelineEditorSheetProps) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
@@ -66,18 +73,21 @@ export function TimelineEditorSheet({
   return (
     <BottomSheetModal minHeight={420} onClose={onClose} visible={visible}>
       <View style={{ gap: theme.spacing.md }}>
+        {error ? <Text style={{ color: theme.colors.danger }}>{error}</Text> : null}
         {item === null ? (
           <>
             <Text variant="title" weight="semibold">
               {t('timeline.newSymptom.title')}
             </Text>
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`timeline.symptoms.${value}`)}
               onSelect={(value) => onChangeSymptomDraft({ symptomType: value })}
               options={SYMPTOM_TYPE_OPTIONS}
               selectedValue={symptomDraft.symptomType}
             />
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) =>
                 value === null ? t('timeline.newSymptom.noSeverity') : `${value}`
               }
@@ -96,7 +106,26 @@ export function TimelineEditorSheet({
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={symptomDraft.notes}
             />
-            <Button onPress={onCreateSymptom} title={t('timeline.newSymptom.save')} />
+            <View style={{ gap: theme.spacing.md }}>
+              <DateTimeField
+                label={t('timeline.common.date')}
+                mode="date"
+                onChange={(value) => onChangeSymptomDraft({ occurredAt: value })}
+                value={symptomDraft.occurredAt}
+              />
+              <DateTimeField
+                label={t('timeline.common.time')}
+                mode="time"
+                onChange={(value) => onChangeSymptomDraft({ occurredAt: value })}
+                value={symptomDraft.occurredAt}
+              />
+            </View>
+            <Button
+              disabled={busy}
+              onPress={onCreateSymptom}
+              style={SINGLE_ACTION_STYLE}
+              title={busy ? t('timeline.common.saving') : t('timeline.newSymptom.save')}
+            />
           </>
         ) : item.kind === 'symptom' ? (
           <>
@@ -104,12 +133,14 @@ export function TimelineEditorSheet({
               {t('timeline.editSymptom.title')}
             </Text>
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`timeline.symptoms.${value}`)}
               onSelect={(value) => onChangeSymptomDraft({ symptomType: value })}
               options={SYMPTOM_TYPE_OPTIONS}
               selectedValue={symptomDraft.symptomType}
             />
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) =>
                 value === null ? t('timeline.newSymptom.noSeverity') : `${value}`
               }
@@ -128,13 +159,36 @@ export function TimelineEditorSheet({
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={symptomDraft.notes}
             />
-            <TextField
-              onChangeText={(value) => onChangeSymptomDraft({ occurredAt: value })}
-              placeholder={t('timeline.common.datePlaceholder')}
-              value={symptomDraft.occurredAt}
-            />
-            <Button onPress={onSave} title={t('timeline.common.save')} />
-            <Button onPress={onDelete} title={t('timeline.common.delete')} variant="ghost" />
+            <View style={{ gap: theme.spacing.md }}>
+              <DateTimeField
+                label={t('timeline.common.date')}
+                mode="date"
+                onChange={(value) => onChangeSymptomDraft({ occurredAt: value })}
+                value={symptomDraft.occurredAt}
+              />
+              <DateTimeField
+                label={t('timeline.common.time')}
+                mode="time"
+                onChange={(value) => onChangeSymptomDraft({ occurredAt: value })}
+                value={symptomDraft.occurredAt}
+              />
+            </View>
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+              <Button
+                disabled={busy}
+                onPress={onSave}
+                style={SPLIT_ACTION_STYLE}
+                title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
+              />
+              <Button
+                disabled={busy}
+                onPress={onDelete}
+                style={SPLIT_ACTION_STYLE}
+                title={t('timeline.common.delete')}
+                variant="ghost"
+              />
+            </View>
           </>
         ) : item.kind === 'appointment' ? (
           <>
@@ -147,6 +201,7 @@ export function TimelineEditorSheet({
               value={appointmentDraft.title}
             />
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`appointments.types.${value}`)}
               onSelect={(value) => onChangeAppointmentDraft({ appointmentType: value })}
               options={APPOINTMENT_TYPES}
@@ -162,19 +217,43 @@ export function TimelineEditorSheet({
               placeholder={t('timeline.editAppointment.doctorPlaceholder')}
               value={appointmentDraft.doctorName}
             />
-            <TextField
-              onChangeText={(value) => onChangeAppointmentDraft({ startsAt: value })}
-              placeholder={t('timeline.common.datePlaceholder')}
-              value={appointmentDraft.startsAt}
-            />
+            <View style={{ gap: theme.spacing.md }}>
+              <DateTimeField
+                label={t('timeline.common.date')}
+                mode="date"
+                onChange={(value) => onChangeAppointmentDraft({ startsAt: value })}
+                value={appointmentDraft.startsAt}
+              />
+              <DateTimeField
+                label={t('timeline.common.time')}
+                mode="time"
+                onChange={(value) => onChangeAppointmentDraft({ startsAt: value })}
+                value={appointmentDraft.startsAt}
+              />
+            </View>
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`timeline.appointmentStatus.${value}`)}
               onSelect={(value) => onChangeAppointmentDraft({ status: value })}
               options={APPOINTMENT_STATUSES}
               selectedValue={appointmentDraft.status}
             />
-            <Button onPress={onSave} title={t('timeline.common.save')} />
-            <Button onPress={onDelete} title={t('timeline.common.delete')} variant="ghost" />
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+              <Button
+                disabled={busy}
+                onPress={onSave}
+                style={SPLIT_ACTION_STYLE}
+                title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
+              />
+              <Button
+                disabled={busy}
+                onPress={onDelete}
+                style={SPLIT_ACTION_STYLE}
+                title={t('timeline.common.delete')}
+                variant="ghost"
+              />
+            </View>
           </>
         ) : item.kind === 'hygiene' ? (
           <>
@@ -184,18 +263,41 @@ export function TimelineEditorSheet({
             <Text color="muted">
               {getHygieneActionLabel(item.event.actionKey, item.event.eventType, t)}
             </Text>
-            <TextField
-              onChangeText={(value) => onChangeHygieneDraft({ occurredAt: value })}
-              placeholder={t('timeline.common.datePlaceholder')}
-              value={hygieneDraft.occurredAt}
-            />
+            <View style={{ gap: theme.spacing.md }}>
+              <DateTimeField
+                label={t('timeline.common.date')}
+                mode="date"
+                onChange={(value) => onChangeHygieneDraft({ occurredAt: value })}
+                value={hygieneDraft.occurredAt}
+              />
+              <DateTimeField
+                label={t('timeline.common.time')}
+                mode="time"
+                onChange={(value) => onChangeHygieneDraft({ occurredAt: value })}
+                value={hygieneDraft.occurredAt}
+              />
+            </View>
             <TextField
               onChangeText={(value) => onChangeHygieneDraft({ notes: value })}
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={hygieneDraft.notes}
             />
-            <Button onPress={onSave} title={t('timeline.common.save')} />
-            <Button onPress={onDelete} title={t('timeline.common.delete')} variant="ghost" />
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+              <Button
+                disabled={busy}
+                onPress={onSave}
+                style={SPLIT_ACTION_STYLE}
+                title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
+              />
+              <Button
+                disabled={busy}
+                onPress={onDelete}
+                style={SPLIT_ACTION_STYLE}
+                title={t('timeline.common.delete')}
+                variant="ghost"
+              />
+            </View>
           </>
         ) : (
           <>
@@ -203,6 +305,7 @@ export function TimelineEditorSheet({
               {t('timeline.editTooth.title', { toothNumber: item.event.toothNumber })}
             </Text>
             <OptionPills
+              containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`toothMap.status.${value}`)}
               onSelect={(value) => onChangeToothDraft({ status: value })}
               options={TOOTH_STATUS_OPTIONS}
@@ -213,13 +316,36 @@ export function TimelineEditorSheet({
               placeholder={t('timeline.newSymptom.notePlaceholder')}
               value={toothDraft.note}
             />
-            <TextField
-              onChangeText={(value) => onChangeToothDraft({ recordedAt: value })}
-              placeholder={t('timeline.common.datePlaceholder')}
-              value={toothDraft.recordedAt}
-            />
-            <Button onPress={onSave} title={t('timeline.common.save')} />
-            <Button onPress={onDelete} title={t('timeline.common.delete')} variant="ghost" />
+            <View style={{ gap: theme.spacing.md }}>
+              <DateTimeField
+                label={t('timeline.common.date')}
+                mode="date"
+                onChange={(value) => onChangeToothDraft({ recordedAt: value })}
+                value={toothDraft.recordedAt}
+              />
+              <DateTimeField
+                label={t('timeline.common.time')}
+                mode="time"
+                onChange={(value) => onChangeToothDraft({ recordedAt: value })}
+                value={toothDraft.recordedAt}
+              />
+            </View>
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+              <Button
+                disabled={busy}
+                onPress={onSave}
+                style={SPLIT_ACTION_STYLE}
+                title={busy ? t('timeline.common.saving') : t('timeline.common.save')}
+              />
+              <Button
+                disabled={busy}
+                onPress={onDelete}
+                style={SPLIT_ACTION_STYLE}
+                title={t('timeline.common.delete')}
+                variant="ghost"
+              />
+            </View>
           </>
         )}
       </View>

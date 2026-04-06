@@ -15,6 +15,8 @@ type ToothEditSheetProps = {
   note: string;
   recordedAt: string | null;
   history: ToothStatusHistory[];
+  busy: boolean;
+  error: string | null;
   onChangeStatus: (status: ToothStatus) => void;
   onChangeNote: (note: string) => void;
   onSave: () => void;
@@ -28,6 +30,8 @@ export function ToothEditSheet({
   note,
   recordedAt,
   history,
+  busy,
+  error,
   onChangeStatus,
   onChangeNote,
   onSave,
@@ -43,6 +47,7 @@ export function ToothEditSheet({
         <Text variant="title" weight="semibold">
           {t('toothMap.editor.title', { toothNumber })}
         </Text>
+        {error ? <Text style={{ color: theme.colors.danger }}>{error}</Text> : null}
         <Text color="muted">
           {recordedAt
             ? t('toothMap.editor.lastUpdated', {
@@ -52,6 +57,7 @@ export function ToothEditSheet({
         </Text>
 
         <OptionPills
+          containerStyle={{ justifyContent: 'center' }}
           labelMap={(value) => t(`toothMap.status.${value}`)}
           onSelect={(value) => onChangeStatus(value)}
           options={TOOTH_STATUS_OPTIONS}
@@ -64,7 +70,12 @@ export function ToothEditSheet({
           value={note}
         />
 
-        <Button onPress={onSave} title={t('toothMap.editor.save')} />
+        <Button
+          disabled={busy}
+          onPress={onSave}
+          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
+          title={busy ? t('toothMap.editor.saving') : t('toothMap.editor.save')}
+        />
 
         <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
           <Text weight="semibold">{t('toothMap.editor.historyTitle')}</Text>

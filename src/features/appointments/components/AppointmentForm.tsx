@@ -47,6 +47,7 @@ export function AppointmentForm({
         value={draft.title}
       />
       <OptionPills
+        containerStyle={{ justifyContent: 'center' }}
         labelMap={(value) => t(`appointments.types.${value}`)}
         onSelect={(value) => onChange({ appointmentType: value })}
         options={APPOINTMENT_TYPES}
@@ -62,42 +63,34 @@ export function AppointmentForm({
         placeholder={t('appointments.form.doctor')}
         value={draft.doctorName}
       />
-      <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-        <View style={{ flex: 1 }}>
-          <DateTimeField
-            label={t('appointments.form.startDate')}
-            mode="date"
-            onChange={(value) => onChange({ startsAt: value })}
-            value={draft.startsAt}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <DateTimeField
-            label={t('appointments.form.startTime')}
-            mode="time"
-            onChange={(value) => onChange({ startsAt: value })}
-            value={draft.startsAt}
-          />
-        </View>
+      <View style={{ gap: theme.spacing.md }}>
+        <DateTimeField
+          label={t('appointments.form.startDate')}
+          mode="date"
+          onChange={(value) => onChange({ startsAt: value })}
+          value={draft.startsAt}
+        />
+        <DateTimeField
+          label={t('appointments.form.startTime')}
+          mode="time"
+          onChange={(value) => onChange({ startsAt: value })}
+          value={draft.startsAt}
+        />
       </View>
       {draft.endsAt ? (
-        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('appointments.form.endDate')}
-              mode="date"
-              onChange={(value) => onChange({ endsAt: value })}
-              value={draft.endsAt}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('appointments.form.endTime')}
-              mode="time"
-              onChange={(value) => onChange({ endsAt: value })}
-              value={draft.endsAt}
-            />
-          </View>
+        <View style={{ gap: theme.spacing.md }}>
+          <DateTimeField
+            label={t('appointments.form.endDate')}
+            mode="date"
+            onChange={(value) => onChange({ endsAt: value })}
+            value={draft.endsAt}
+          />
+          <DateTimeField
+            label={t('appointments.form.endTime')}
+            mode="time"
+            onChange={(value) => onChange({ endsAt: value })}
+            value={draft.endsAt}
+          />
         </View>
       ) : (
         <Button
@@ -112,6 +105,7 @@ export function AppointmentForm({
         value={draft.notes}
       />
       <OptionPills
+        containerStyle={{ justifyContent: 'center' }}
         labelMap={(value) => t(`appointments.status.${value}`)}
         onSelect={(value) => onChange({ status: value })}
         options={APPOINTMENT_STATUSES}
@@ -121,6 +115,7 @@ export function AppointmentForm({
         {t('appointments.form.reminderTitle')}
       </Text>
       <OptionPills
+        containerStyle={{ justifyContent: 'center' }}
         labelMap={(value) =>
           t(
             APPOINTMENT_REMINDER_OPTIONS.find((option) => option.value === value)?.labelKey ??
@@ -131,10 +126,28 @@ export function AppointmentForm({
         options={APPOINTMENT_REMINDER_OPTIONS.map((option) => option.value)}
         selectedValue={draft.reminderMinutesBefore}
       />
-      <Button disabled={!draft.title.trim()} onPress={onSubmit} title={submitLabel} />
-      {onDelete ? (
-        <Button onPress={onDelete} title={t('appointments.form.delete')} variant="ghost" />
-      ) : null}
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: theme.spacing.sm,
+          justifyContent: 'center',
+        }}>
+        <Button
+          disabled={!draft.title.trim()}
+          onPress={onSubmit}
+          style={{ flexBasis: onDelete ? '48%' : '72%', minWidth: 0 }}
+          title={submitLabel}
+        />
+        {onDelete ? (
+          <Button
+            onPress={onDelete}
+            style={{ flexBasis: '48%', minWidth: 0 }}
+            title={t('appointments.form.delete')}
+            variant="ghost"
+          />
+        ) : null}
+      </View>
     </View>
   );
 }

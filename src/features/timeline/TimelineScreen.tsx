@@ -1,10 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
+import { useFeatureAccess } from '@/src/features/monetization';
 import {
   TimelineEditorSheet,
   TimelineFilterBar,
@@ -13,7 +12,7 @@ import {
 import { useTimelineScreen } from '@/src/features/timeline/useTimelineScreen';
 import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Screen, StateMessageCard, Text } from '@/src/ui/base';
+import { FloatingActionButton, Screen, StateMessageCard, Text } from '@/src/ui/base';
 
 export function TimelineScreen() {
   const { t } = useTranslation();
@@ -51,14 +50,6 @@ export function TimelineScreen() {
           />
         </View>
 
-        {!hasFullTimelineAccess ? (
-          <ProAccessCard
-            body={t('monetization.gates.timelineFull.body')}
-            featureKeys={['timeline_full']}
-            title={t('monetization.gates.timelineFull.title')}
-          />
-        ) : null}
-
         {timeline.error ? (
           <StateMessageCard
             actionLabel={t('common.retry')}
@@ -82,31 +73,16 @@ export function TimelineScreen() {
         )}
       </Screen>
 
-      <Pressable
+      <FloatingActionButton
         accessibilityLabel={t('timeline.newSymptom.cta')}
-        accessibilityRole="button"
+        bottomOffset={40 + insets.bottom}
         onPress={() => void timeline.openNewSymptom()}
-        style={{
-          alignItems: 'center',
-          backgroundColor: theme.colors.primary,
-          borderRadius: theme.radii.pill,
-          bottom: 80 + insets.bottom,
-          flexDirection: 'row',
-          gap: theme.spacing.sm,
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.md,
-          position: 'absolute',
-          right: theme.spacing.xl,
-          ...theme.shadows.floating,
-        }}>
-        <Ionicons color={theme.colors.textInverse} name="add" size={18} />
-        <Text style={{ color: theme.colors.textInverse }} weight="semibold">
-          {t('timeline.newSymptom.cta')}
-        </Text>
-      </Pressable>
+      />
 
       <TimelineEditorSheet
         appointmentDraft={timeline.appointmentDraft}
+        busy={timeline.editorBusy}
+        error={timeline.editorError}
         hygieneDraft={timeline.hygieneDraft}
         item={timeline.selectedItem}
         onChangeAppointmentDraft={timeline.setAppointmentDraft}

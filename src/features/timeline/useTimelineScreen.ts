@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useDraftState } from '@/src/hooks/useDraftState';
 import { useFocusedAsyncEffect } from '@/src/hooks/useFocusedAsyncEffect';
@@ -18,8 +19,11 @@ import {
 import { timelineService } from '@/src/features/timeline/timeline-service';
 
 export function useTimelineScreen(profileId: string | null, isFocused: boolean) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editorError, setEditorError] = useState<string | null>(null);
+  const [editorBusy, setEditorBusy] = useState(false);
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [filter, setFilter] = useState<TimelineFilter>('all');
   const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
@@ -62,11 +66,11 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
     try {
       setItems(await timelineService.load(profileId));
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unable to load timeline.');
+      setError(error instanceof Error ? error.message : t('timeline.errors.load'));
     } finally {
       setLoading(false);
     }
-  }, [profileId]);
+  }, [profileId, t]);
 
   useFocusedAsyncEffect(isFocused, reload);
 
@@ -78,6 +82,8 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
   function closeEditor() {
     setSelectedItem(null);
     setCreatingSymptom(false);
+    setEditorError(null);
+    setEditorBusy(false);
     resetSymptomDraft();
     resetAppointmentDraft();
     resetHygieneDraft();
@@ -86,6 +92,7 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
 
   async function openItem(item: TimelineItem) {
     await Haptics.selectionAsync();
+    setEditorError(null);
     setSelectedItem(item);
     setCreatingSymptom(false);
 
@@ -128,6 +135,7 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
 
   async function openNewSymptom() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setEditorError(null);
     setCreatingSymptom(true);
     setSelectedItem(null);
     setSymptomDraft({
@@ -137,10 +145,20 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
   }
 
   async function runMutation(task: () => Promise<void>) {
-    await task();
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    closeEditor();
-    await reload();
+    setEditorBusy(true);
+    setEditorError(null);
+
+    try {
+      await task();
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      closeEditor();
+      await reload();
+    } catch (error) {
+      setEditorError(error instanceof Error ? error.message : t('timeline.errors.save'));
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setEditorBusy(false);
+    }
   }
 
   async function saveEditor() {
@@ -161,6 +179,11 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
     }
 
     if (selectedItem.kind === 'appointment') {
+      if (!appointmentDraft.title.trim()) {
+        setEditorError(t('timeline.errors.appointmentTitleRequired'));
+        return;
+      }
+
       await runMutation(() =>
         timelineService.updateAppointment({
           ...selectedItem.event,
@@ -220,6 +243,7 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
   async function createSymptom() {
     if (!profileId) return;
 
+    setEditorError(null);
     await runMutation(() =>
       timelineService.createSymptom({
         profileId,
@@ -241,6 +265,8 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
     reload,
     selectedItem,
     creatingSymptom,
+    editorBusy,
+    editorError,
     openItem,
     openNewSymptom,
     closeEditor,

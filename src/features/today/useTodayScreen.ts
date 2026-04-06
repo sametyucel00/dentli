@@ -46,6 +46,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   const [insights, setInsights] = useState<TodayInsight[]>([]);
   const [actionState, setActionState] = useState<TodayActionState>(TODAY_INITIAL_ACTION_STATE);
   const [mouthwashEnabled, setMouthwashEnabled] = useState(false);
+  const [brushingFrequencyPerDay, setBrushingFrequencyPerDay] = useState<1 | 2 | 3>(2);
   const [sheetMode, setSheetMode] = useState<TodaySheetMode>(null);
   const [symptomType, setSymptomType] = useState<SymptomType>('sensitivity');
   const [symptomSeverity, setSymptomSeverity] = useState<number | null>(null);
@@ -78,6 +79,9 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
       setQuickStatus(data.quickStatus);
       setInsights(data.insights);
       setMouthwashEnabled(Boolean(data.snapshot.routineSettings?.mouthwashEnabled));
+      setBrushingFrequencyPerDay(
+        (data.snapshot.routineSettings?.brushingFrequencyPerDay as 1 | 2 | 3 | undefined) ?? 2,
+      );
       setActionState(createTodayActionState(data.actionState));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unable to load today view.');
@@ -98,8 +102,15 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   });
 
   const visibleActions = useMemo(
-    () => TODAY_ACTIONS.filter((action) => action.key !== 'mouthwash' || mouthwashEnabled),
-    [mouthwashEnabled],
+    () =>
+      TODAY_ACTIONS.filter((action) => {
+        if (action.key === 'night_brush' && brushingFrequencyPerDay === 1) {
+          return false;
+        }
+
+        return action.key !== 'mouthwash' || mouthwashEnabled;
+      }),
+    [brushingFrequencyPerDay, mouthwashEnabled],
   );
 
   useEffect(() => {
@@ -236,6 +247,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     error,
     quickStatus,
     insights,
+    brushingFrequencyPerDay,
     reload,
     visibleActions,
     actionState,

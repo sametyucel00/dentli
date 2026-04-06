@@ -11,6 +11,7 @@ import { Button, Card, OptionPills, Screen, Text, TextField } from '@/src/ui/bas
 const ONBOARDING_LANGUAGES: SupportedLanguage[] = ['en', 'tr'];
 const BRUSHING_FREQUENCY_OPTIONS = [1, 2, 3] as const;
 const FLOSS_FREQUENCY_OPTIONS = [1, 3, 7] as const;
+const MOUTHWASH_FREQUENCY_OPTIONS = [1, 3, 7] as const;
 const TIME_OPTIONS_MORNING = ['07:00', '08:00', '08:30', '09:00'] as const;
 const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '21:30', '22:00'] as const;
 const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30', '23:00'] as const;
@@ -30,6 +31,7 @@ export function OnboardingScreen() {
   const [flossingEnabled, setFlossingEnabled] = useState(true);
   const [flossSessionsPerWeek, setFlossSessionsPerWeek] = useState<number>(3);
   const [mouthwashEnabled, setMouthwashEnabled] = useState(true);
+  const [mouthwashSessionsPerWeek, setMouthwashSessionsPerWeek] = useState<number>(3);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [requestNotificationPermission, setRequestNotificationPermission] = useState(true);
   const [morningReminderTime, setMorningReminderTime] = useState<string>('08:30');
@@ -65,6 +67,7 @@ export function OnboardingScreen() {
         flossingEnabled,
         flossSessionsPerWeek,
         mouthwashEnabled,
+        mouthwashSessionsPerWeek,
         remindersEnabled,
         morningReminderTime,
         nightReminderTime,
@@ -188,11 +191,29 @@ export function OnboardingScreen() {
               </Text>
               <OptionPills
                 labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
-                onSelect={setMouthwashEnabled}
+                onSelect={(value) => {
+                  setMouthwashEnabled(value);
+                  if (!value) {
+                    setMouthwashSessionsPerWeek(1);
+                  }
+                }}
                 options={[true, false]}
                 selectedValue={mouthwashEnabled}
               />
             </View>
+            {mouthwashEnabled ? (
+              <View style={{ gap: theme.spacing.sm }}>
+                <Text variant="caption" color="muted" weight="semibold">
+                  {t('onboarding.mouthwashFrequency')}
+                </Text>
+                <OptionPills
+                  labelMap={(value) => t(`onboarding.flossFrequencyOptions.${value}`)}
+                  onSelect={setMouthwashSessionsPerWeek}
+                  options={MOUTHWASH_FREQUENCY_OPTIONS}
+                  selectedValue={mouthwashSessionsPerWeek}
+                />
+              </View>
+            ) : null}
           </View>
         );
       case 4:

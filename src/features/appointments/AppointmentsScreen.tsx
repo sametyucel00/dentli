@@ -36,10 +36,23 @@ export function AppointmentsScreen() {
         <StateMessageCard
           body={t('appointments.summary.body', { count: appointmentsScreen.upcomingCount })}
           title={t('appointments.summary.title')}>
-          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
-            <Button onPress={() => router.push('/dentist-mode')} title={t('appointments.summary.dentistMode')} variant="secondary" />
+          <View
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: theme.spacing.sm,
+              justifyContent: 'center',
+              marginTop: theme.spacing.sm,
+            }}>
+            <Button
+              onPress={() => router.push('/dentist-mode')}
+              style={{ minWidth: 0 }}
+              title={t('appointments.summary.dentistMode')}
+              variant="secondary"
+            />
             <Button
               onPress={appointmentsScreen.openCreateSheet}
+              style={{ minWidth: 0 }}
               title={t('appointments.summary.add')}
             />
           </View>

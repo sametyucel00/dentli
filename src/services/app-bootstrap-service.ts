@@ -26,6 +26,8 @@ class AppBootstrapService {
     const entitlements = await entitlementService.loadSnapshot();
     const appPreferences = (await appPreferencesRepository.get()) ?? {
       biometricLockEnabled: false,
+      themeMode: 'dark',
+      onboardingCompleted: false,
       updatedAt: new Date().toISOString(),
     };
     const preferredSelectedProfileId = useAppStore.getState().selectedProfileId ?? profiles[0]?.id ?? null;
@@ -60,8 +62,8 @@ class AppBootstrapService {
     try {
       await databaseService.initialize();
       await seedDevelopmentData();
-      await notificationService.initialize();
       await this.hydrateStore();
+      void notificationService.initialize().catch(() => undefined);
     } catch (error) {
       useAppStore.getState().setBootstrapState({
         status: 'error',

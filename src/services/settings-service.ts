@@ -19,6 +19,7 @@ type RoutineSettingsPatch = Partial<
     | 'flossingEnabled'
     | 'flossSessionsPerWeek'
     | 'mouthwashEnabled'
+    | 'mouthwashSessionsPerWeek'
     | 'remindersEnabled'
     | 'reminderTime'
     | 'morningReminderTime'
@@ -32,6 +33,8 @@ type RoutineSettingsPatch = Partial<
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   biometricLockEnabled: false,
+  themeMode: 'dark',
+  onboardingCompleted: false,
   updatedAt: new Date(0).toISOString(),
 };
 
@@ -71,12 +74,29 @@ class SettingsService {
     }
   }
 
-  setThemeMode(themeMode: ThemeMode) {
-    useAppStore.getState().setThemeMode(themeMode);
+  async setThemeMode(themeMode: ThemeMode) {
+    const previous = useAppStore.getState().appPreferences ?? DEFAULT_PREFERENCES;
+    const nextPreferences: AppPreferences = {
+      ...previous,
+      themeMode,
+      updatedAt: nowIso(),
+    };
+
+    useAppStore.getState().setAppPreferences(nextPreferences);
+
+    try {
+      await appPreferencesRepository.upsert(nextPreferences);
+    } catch (error) {
+      useAppStore.getState().setAppPreferences(previous);
+      throw error;
+    }
   }
 
-  toggleThemeMode() {
-    useAppStore.getState().toggleThemeMode();
+  async toggleThemeMode() {
+    const state = useAppStore.getState();
+    const nextThemeMode: ThemeMode =
+      state.themeMode === 'dark' ? 'light' : state.themeMode === 'light' ? 'dark' : 'dark';
+    await this.setThemeMode(nextThemeMode);
   }
 
   async updateRoutineSettings(profileId: string, patch: RoutineSettingsPatch) {
@@ -126,6 +146,8 @@ class SettingsService {
 
     const previous = useAppStore.getState().appPreferences ?? DEFAULT_PREFERENCES;
     const nextPreferences: AppPreferences = {
+      onboardingCompleted: previous.onboardingCompleted,
+      themeMode: previous.themeMode,
       biometricLockEnabled: enabled,
       updatedAt: nowIso(),
     };

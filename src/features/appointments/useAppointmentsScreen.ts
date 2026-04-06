@@ -12,11 +12,15 @@ import {
 import { appointmentService } from '@/src/services';
 import { useAppStore } from '@/src/state/useAppStore';
 
+const EMPTY_APPOINTMENTS: Appointment[] = [];
+
 export function useAppointmentsScreen() {
   const isFocused = useIsFocused();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const cachedAppointments = useAppStore((state) =>
-    selectedProfileId ? state.cache.appointmentsByProfileId[selectedProfileId]?.data ?? [] : [],
+    selectedProfileId
+      ? state.cache.appointmentsByProfileId[selectedProfileId]?.data ?? EMPTY_APPOINTMENTS
+      : EMPTY_APPOINTMENTS,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -31,6 +31,7 @@ export type RoutineSettings = {
   flossingEnabled: boolean;
   flossSessionsPerWeek: number;
   mouthwashEnabled: boolean;
+  mouthwashSessionsPerWeek: number;
   remindersEnabled: boolean;
   reminderTime: string | null;
   morningReminderTime: string | null;
@@ -181,6 +182,8 @@ export type EntitlementSnapshot = {
 
 export type AppPreferences = {
   biometricLockEnabled: boolean;
+  themeMode: ThemeMode;
+  onboardingCompleted: boolean;
   updatedAt: ISODateString;
 };
 

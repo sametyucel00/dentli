@@ -66,30 +66,33 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
         <Text variant="title" weight="semibold">
           {t('today.sheet.title')}
         </Text>
-        <TodaySheetAction
-          description={t('today.sheet.addSymptomHint')}
-          icon="pulse-outline"
-          label={t('today.sheet.addSymptom')}
-          onPress={() => today.openSheet('symptom')}
-        />
-        <TodaySheetAction
-          description={t('today.sheet.addAppointmentHint')}
-          icon="calendar-outline"
-          label={t('today.sheet.addAppointment')}
-          onPress={() => today.openSheet('appointment')}
-        />
-        <TodaySheetAction
-          description={t('today.sheet.openTimerHint')}
-          icon="timer-outline"
-          label={t('today.sheet.openTimer')}
-          onPress={today.openTimer}
-        />
-        <TodaySheetAction
-          description={t('today.sheet.updateToothHint')}
-          icon="grid-outline"
-          label={t('today.sheet.updateTooth')}
-          onPress={() => today.openSheet('tooth')}
-        />
+        <View
+          style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'center' }}>
+          <TodaySheetAction
+            description={t('today.sheet.addSymptomHint')}
+            icon="pulse-outline"
+            label={t('today.sheet.addSymptom')}
+            onPress={() => today.openSheet('symptom')}
+          />
+          <TodaySheetAction
+            description={t('today.sheet.addAppointmentHint')}
+            icon="calendar-outline"
+            label={t('today.sheet.addAppointment')}
+            onPress={() => today.openSheet('appointment')}
+          />
+          <TodaySheetAction
+            description={t('today.sheet.openTimerHint')}
+            icon="timer-outline"
+            label={t('today.sheet.openTimer')}
+            onPress={today.openTimer}
+          />
+          <TodaySheetAction
+            description={t('today.sheet.updateToothHint')}
+            icon="grid-outline"
+            label={t('today.sheet.updateTooth')}
+            onPress={() => today.openSheet('tooth')}
+          />
+        </View>
       </View>
     );
   }
@@ -101,12 +104,14 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           {t('today.sheet.addSymptom')}
         </Text>
         <OptionPills
+          containerStyle={{ justifyContent: 'center' }}
           options={SYMPTOM_TYPE_OPTIONS}
           selectedValue={today.symptomType}
           onSelect={(value) => today.setSymptomType(value)}
           labelMap={(value) => t(`today.symptoms.${value}`)}
         />
         <OptionPills
+          containerStyle={{ justifyContent: 'center' }}
           options={[null, 1, 2, 3, 4, 5]}
           selectedValue={today.symptomSeverity}
           onSelect={(value) => today.setSymptomSeverity(value)}
@@ -125,6 +130,7 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
         />
         <Button
           disabled={!today.symptomNote.trim() && !today.symptomTooth.trim()}
+          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
           title={t('today.sheet.save')}
           onPress={() => void today.submitSymptom()}
         />
@@ -148,26 +154,23 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           onChangeText={today.setAppointmentProvider}
           placeholder={t('today.sheet.providerName')}
         />
-        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('today.sheet.startDate')}
-              mode="date"
-              onChange={today.setAppointmentStartsAt}
-              value={today.appointmentStartsAt}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('today.sheet.startTime')}
-              mode="time"
-              onChange={today.setAppointmentStartsAt}
-              value={today.appointmentStartsAt}
-            />
-          </View>
+        <View style={{ gap: theme.spacing.md }}>
+          <DateTimeField
+            label={t('today.sheet.startDate')}
+            mode="date"
+            onChange={today.setAppointmentStartsAt}
+            value={today.appointmentStartsAt}
+          />
+          <DateTimeField
+            label={t('today.sheet.startTime')}
+            mode="time"
+            onChange={today.setAppointmentStartsAt}
+            value={today.appointmentStartsAt}
+          />
         </View>
         <Button
           disabled={!today.appointmentStartsAt.trim()}
+          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
           title={t('today.sheet.save')}
           onPress={() => void today.submitAppointment(t('today.sheet.defaultAppointmentTitle'))}
         />
@@ -188,6 +191,7 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           keyboardType="number-pad"
         />
         <OptionPills
+          containerStyle={{ justifyContent: 'center' }}
           options={TOOTH_STATUS_OPTIONS}
           selectedValue={today.toothStatus}
           onSelect={(value) => today.setToothStatus(value)}
@@ -200,6 +204,7 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
         />
         <Button
           disabled={!today.toothNumber.trim()}
+          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
           title={t('today.sheet.save')}
           onPress={() => void today.submitToothUpdate()}
         />

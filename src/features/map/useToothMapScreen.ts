@@ -1,17 +1,20 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ToothStatus, ToothStatusHistory } from '@/src/domain/models';
+import { ToothCurrentStatus, ToothStatus, ToothStatusHistory } from '@/src/domain/models';
 import { useFocusedAsyncEffect } from '@/src/hooks/useFocusedAsyncEffect';
 import { toothMapService } from '@/src/features/map/map-service';
 import { createToothMapItems, ToothMapItem } from '@/src/features/map/map-model';
 import { useAppStore } from '@/src/state/useAppStore';
 
 const INITIAL_HISTORY: ToothStatusHistory[] = [];
+const EMPTY_TOOTH_STATUSES: ToothCurrentStatus[] = [];
 
 export function useToothMapScreen(profileId: string | null, isFocused: boolean) {
   const cachedCurrentStatuses = useAppStore((state) =>
-    profileId ? state.cache.toothCurrentStatusByProfileId[profileId]?.data ?? [] : [],
+    profileId
+      ? state.cache.toothCurrentStatusByProfileId[profileId]?.data ?? EMPTY_TOOTH_STATUSES
+      : EMPTY_TOOTH_STATUSES,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +25,8 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
   const [history, setHistory] = useState<ToothStatusHistory[]>(INITIAL_HISTORY);
   const [draftStatus, setDraftStatus] = useState<ToothStatus>('healthy');
   const [draftNote, setDraftNote] = useState('');
+  const [editorBusy, setEditorBusy] = useState(false);
+  const [editorError, setEditorError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!profileId) {
@@ -67,10 +72,16 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     if (!tooth) return;
 
     await Haptics.selectionAsync();
+    setEditorError(null);
     setSelectedToothNumber(toothNumber);
     setDraftStatus(tooth.status);
     setDraftNote(tooth.note ?? '');
-    setHistory(await toothMapService.loadToothHistory(profileId, toothNumber));
+    try {
+      setHistory(await toothMapService.loadToothHistory(profileId, toothNumber));
+    } catch (error) {
+      setEditorError(error instanceof Error ? error.message : 'Unable to load tooth history.');
+      setHistory(INITIAL_HISTORY);
+    }
   }
 
   function closeEditor() {
@@ -78,22 +89,34 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     setHistory(INITIAL_HISTORY);
     setDraftStatus('healthy');
     setDraftNote('');
+    setEditorBusy(false);
+    setEditorError(null);
   }
 
   async function saveTooth() {
     if (!profileId || selectedToothNumber === null) return;
 
-    const data = await toothMapService.saveTooth({
-      profileId,
-      toothNumber: selectedToothNumber,
-      status: draftStatus,
-      note: draftNote.trim() || null,
-    });
+    setEditorBusy(true);
+    setEditorError(null);
 
-    setTeeth(data.teeth);
-    setHistory(data.history);
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    closeEditor();
+    try {
+      const data = await toothMapService.saveTooth({
+        profileId,
+        toothNumber: selectedToothNumber,
+        status: draftStatus,
+        note: draftNote.trim() || null,
+      });
+
+      setTeeth(data.teeth);
+      setHistory(data.history);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      closeEditor();
+    } catch (error) {
+      setEditorError(error instanceof Error ? error.message : 'Unable to save this tooth.');
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setEditorBusy(false);
+    }
   }
 
   return {
@@ -109,6 +132,8 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     setDraftStatus,
     draftNote,
     setDraftNote,
+    editorBusy,
+    editorError,
     openTooth,
     closeEditor,
     saveTooth,

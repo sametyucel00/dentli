@@ -1,8 +1,8 @@
 import { useIsFocused } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { profileContextService, settingsService } from '@/src/services';
+import { profileContextService, profileManagementService, settingsService } from '@/src/services';
 import { useFocusedAsyncEffect } from '@/src/hooks/useFocusedAsyncEffect';
 import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { EMPTY_PROFILE_ANALYTICS } from '@/src/features/profile/model';
@@ -30,6 +30,8 @@ export function useProfileScreen() {
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [settingsNotice, setSettingsNotice] = useState<string | null>(null);
   const [settingsBusyKey, setSettingsBusyKey] = useState<string | null>(null);
+  const [newProfileFirstName, setNewProfileFirstName] = useState('');
+  const [newProfileLastName, setNewProfileLastName] = useState('');
   const [analytics, setAnalytics] = useState(EMPTY_PROFILE_ANALYTICS);
 
   const reload = useCallback(async () => {
@@ -95,8 +97,13 @@ export function useProfileScreen() {
   }
 
   async function updateThemeMode(nextThemeMode: 'system' | 'light' | 'dark') {
-    settingsService.setThemeMode(nextThemeMode);
-    setSettingsNotice(t('profile.settings.saved'));
+    await runSettingsAction(
+      'theme',
+      async () => {
+        await settingsService.setThemeMode(nextThemeMode);
+      },
+      t('profile.settings.saved'),
+    );
   }
 
   async function updateRoutineSettings(
@@ -149,7 +156,58 @@ export function useProfileScreen() {
     );
   }
 
+  async function createProfile() {
+    const firstName = newProfileFirstName.trim();
+    if (!firstName) {
+      setSettingsError(t('profile.profiles.firstNameRequired'));
+      return;
+    }
+
+    await runSettingsAction(
+      'createProfile',
+      async () => {
+        await profileManagementService.createProfile({
+          firstName,
+          lastName: newProfileLastName.trim(),
+          preferredLanguage: language,
+        });
+        setNewProfileFirstName('');
+        setNewProfileLastName('');
+        await reload();
+      },
+      t('profile.profiles.created'),
+    );
+  }
+
+  async function deleteProfile(profileId: string) {
+    await runSettingsAction(
+      `deleteProfile:${profileId}`,
+      async () => {
+        await profileManagementService.deleteProfile(profileId);
+        await reload();
+      },
+      t('profile.profiles.deleted'),
+    );
+  }
+
   useFocusedAsyncEffect(isFocused, reload);
+
+  useEffect(() => {
+    if (!isFocused || !selectedProfileId) {
+      return;
+    }
+
+    void reload();
+  }, [
+    isFocused,
+    reload,
+    selectedProfileId,
+    routineSettings?.brushingFrequencyPerDay,
+    routineSettings?.flossingEnabled,
+    routineSettings?.flossSessionsPerWeek,
+    routineSettings?.mouthwashEnabled,
+    routineSettings?.mouthwashSessionsPerWeek,
+  ]);
 
   return {
     loading,
@@ -166,11 +224,17 @@ export function useProfileScreen() {
     settingsError,
     settingsNotice,
     settingsBusyKey,
+    newProfileFirstName,
+    setNewProfileFirstName,
+    newProfileLastName,
+    setNewProfileLastName,
     updateLanguage,
     updateThemeMode,
     updateRoutineSettings,
     requestNotificationPermission,
     updateBiometricLock,
     clearAllData,
+    createProfile,
+    deleteProfile,
   };
 }

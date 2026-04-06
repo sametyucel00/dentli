@@ -29,7 +29,6 @@ export const TODAY_ACTIONS: TodayActionDefinition[] = [
     key: 'mouthwash',
     eventType: 'mouthwash',
     titleKey: 'today.actions.mouthwash',
-    optional: true,
   },
 ] as const;
 

@@ -2,7 +2,6 @@ import * as SQLite from 'expo-sqlite';
 
 import {
   DATABASE_MIGRATIONS,
-  DATABASE_NAME,
   createMigrationTableStatement,
 } from '@/src/database/shared';
 import {
@@ -13,7 +12,7 @@ import {
 
 type DatabaseExecutor = Pick<
   SQLite.SQLiteDatabase,
-  'runAsync' | 'getFirstAsync' | 'getAllAsync'
+  'execAsync' | 'runAsync' | 'getFirstAsync' | 'getAllAsync'
 >;
 
 type MigrationRow = {
@@ -29,6 +28,7 @@ class WebDatabaseService implements DatabaseService {
   private initializationPromise: Promise<void> | null = null;
   private operationQueue = Promise.resolve();
   private activeExecutor: DatabaseExecutor | null = null;
+  private readonly databaseName = ':memory:';
 
   async initialize() {
     if (!this.initializationPromise) {
@@ -45,16 +45,21 @@ class WebDatabaseService implements DatabaseService {
 
           if (existing) continue;
 
-          await database.withExclusiveTransactionAsync(async (transaction) => {
+          await database.execAsync('BEGIN TRANSACTION;');
+          try {
             for (const statement of migration.up) {
-              await transaction.execAsync(statement);
+              await database.execAsync(statement);
             }
 
-            await transaction.runAsync(
+            await database.runAsync(
               `INSERT INTO __migrations (version, name, applied_at) VALUES (?, ?, datetime('now'));`,
               [migration.version, migration.name],
             );
-          });
+            await database.execAsync('COMMIT;');
+          } catch (error) {
+            await database.execAsync('ROLLBACK;');
+            throw error;
+          }
         }
       }).catch((error) => {
         this.initializationPromise = null;
@@ -106,20 +111,20 @@ class WebDatabaseService implements DatabaseService {
 
     return this.enqueue(async () => {
       const database = await this.getDatabase();
-      let result: T | undefined;
+      const previousExecutor = this.activeExecutor;
+      this.activeExecutor = database;
+      await database.execAsync('BEGIN TRANSACTION;');
 
-      await database.withExclusiveTransactionAsync(async (transaction) => {
-        const previousExecutor = this.activeExecutor;
-        this.activeExecutor = transaction;
-
-        try {
-          result = await operation();
-        } finally {
-          this.activeExecutor = previousExecutor;
-        }
-      });
-
-      return result as T;
+      try {
+        const result = await operation();
+        await database.execAsync('COMMIT;');
+        return result;
+      } catch (error) {
+        await database.execAsync('ROLLBACK;');
+        throw error;
+      } finally {
+        this.activeExecutor = previousExecutor;
+      }
     });
   }
 
@@ -135,7 +140,6 @@ class WebDatabaseService implements DatabaseService {
     await this.enqueue(async () => {
       const database = await this.getDatabase();
       await database.closeAsync();
-      await SQLite.deleteDatabaseAsync(DATABASE_NAME);
       this.databasePromise = null;
       this.initializationPromise = null;
       this.activeExecutor = null;
@@ -153,7 +157,7 @@ class WebDatabaseService implements DatabaseService {
 
   private getDatabase() {
     if (!this.databasePromise) {
-      this.databasePromise = SQLite.openDatabaseAsync(DATABASE_NAME);
+      this.databasePromise = SQLite.openDatabaseAsync(this.databaseName);
     }
 
     return this.databasePromise;

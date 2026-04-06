@@ -79,6 +79,13 @@ export function TodayScreen() {
             variant="caption">
             {t('today.actions.sectionTitle')}
           </Text>
+          {today.brushingFrequencyPerDay === 3 ? (
+            <Text
+              color="muted"
+              style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.xs }}>
+              {t('today.actions.thirdBrushHint')}
+            </Text>
+          ) : null}
           {today.error ? (
             <View style={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.md }}>
               <Text weight="semibold">{t('common.errorTitle')}</Text>

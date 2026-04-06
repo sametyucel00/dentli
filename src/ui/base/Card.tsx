@@ -8,7 +8,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export function Card({ children, style }: Props) {
-  const { theme } = useAppTheme();
+  const { colorScheme, theme } = useAppTheme();
 
   return (
     <View
@@ -19,9 +19,10 @@ export function Card({ children, style }: Props) {
           borderColor: theme.colors.border,
           shadowColor: theme.colors.shadow,
           borderRadius: theme.radii.md,
+          borderWidth: colorScheme === 'dark' ? 1 : 0,
           padding: theme.spacing.lg,
         },
-        theme.shadows.card,
+        colorScheme === 'dark' ? theme.shadows.card : null,
         style,
       ]}>
       {children}
@@ -30,7 +31,5 @@ export function Card({ children, style }: Props) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
+  card: {},
 });

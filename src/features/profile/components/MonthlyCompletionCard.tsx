@@ -6,7 +6,11 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
 
 function formatPercent(rate: number) {
-  return Math.round(rate * 100);
+  if (!Number.isFinite(rate)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(rate * 100)));
 }
 
 export function MonthlyCompletionCard({
@@ -21,12 +25,18 @@ export function MonthlyCompletionCard({
     <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
       {metrics.map((metric) => (
         <View key={metric.id} style={{ gap: theme.spacing.xs }}>
+          {(() => {
+            const isTracked = metric.expectedCount > 0 && Number.isFinite(metric.completionRate);
+            const percent = formatPercent(metric.completionRate);
+
+            return (
+              <>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text weight={metric.id === 'overall' ? 'semibold' : 'medium'}>
               {t(`profile.analytics.metrics.${metric.id}`)}
             </Text>
             <Text color="muted">
-              {formatPercent(metric.completionRate)}%
+              {isTracked ? `${percent}%` : t('profile.analytics.notTracked')}
             </Text>
           </View>
           <View
@@ -44,16 +54,21 @@ export function MonthlyCompletionCard({
                     : theme.colors.accent,
                 borderRadius: theme.radii.pill,
                 height: '100%',
-                width: `${formatPercent(metric.completionRate)}%`,
+                width: isTracked ? `${percent}%` : '0%',
               }}
             />
           </View>
           <Text color="muted" variant="caption">
-            {t('profile.analytics.metricDetail', {
-              completed: metric.completedCount,
-              expected: metric.expectedCount,
-            })}
+            {isTracked
+              ? t('profile.analytics.metricDetail', {
+                  completed: metric.completedCount,
+                  expected: metric.expectedCount,
+                })
+              : t('profile.analytics.notTracked')}
           </Text>
+              </>
+            );
+          })()}
         </View>
       ))}
     </View>

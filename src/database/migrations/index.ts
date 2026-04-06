@@ -212,4 +212,34 @@ export const migrations: DatabaseMigration[] = [
       `ALTER TABLE routine_settings ADD COLUMN floss_sessions_per_week INTEGER NOT NULL DEFAULT 3;`,
     ],
   },
+  {
+    version: 11,
+    name: 'app_preferences_theme_mode',
+    up: [
+      `ALTER TABLE app_preferences ADD COLUMN theme_mode TEXT NOT NULL DEFAULT 'dark';`,
+      `UPDATE app_preferences
+       SET theme_mode = 'dark'
+       WHERE theme_mode IS NULL OR theme_mode = '';`,
+    ],
+  },
+  {
+    version: 12,
+    name: 'routine_settings_mouthwash_frequency',
+    up: [
+      `ALTER TABLE routine_settings ADD COLUMN mouthwash_sessions_per_week INTEGER NOT NULL DEFAULT 3;`,
+      `UPDATE routine_settings
+       SET mouthwash_sessions_per_week = 3
+       WHERE mouthwash_sessions_per_week IS NULL OR mouthwash_sessions_per_week = 0;`,
+    ],
+  },
+  {
+    version: 13,
+    name: 'app_preferences_onboarding_completed',
+    up: [
+      `ALTER TABLE app_preferences ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 0;`,
+      `UPDATE app_preferences
+       SET onboarding_completed = 0
+       WHERE onboarding_completed IS NULL;`,
+    ],
+  },
 ];

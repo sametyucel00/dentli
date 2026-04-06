@@ -7,14 +7,12 @@ import {
   TOTAL_TEETH_COUNT,
   UPPER_JAW_SEGMENTS,
 } from '@/src/domain/teeth';
-import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
+import { useFeatureAccess } from '@/src/features/monetization';
 import { ToothEditSheet, ToothJawSection } from '@/src/features/map/components';
 import { useToothMapScreen } from '@/src/features/map/useToothMapScreen';
 import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Card, Screen, StateMessageCard, Text } from '@/src/ui/base';
-
-const PREVIEW_TOOTH_NUMBERS = new Set([1, 2, 3, 4, 29, 30, 31, 32]);
 
 export function MapScreen() {
   const { t } = useTranslation();
@@ -23,10 +21,7 @@ export function MapScreen() {
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const map = useToothMapScreen(selectedProfileId, isFocused);
   const hasFullMapAccess = useFeatureAccess('tooth_map_full');
-  const visibleTeeth = hasFullMapAccess
-    ? map.teeth
-    : map.teeth.filter((tooth) => PREVIEW_TOOTH_NUMBERS.has(tooth.toothNumber));
-  const previewProblemZoneCount = visibleTeeth.filter((tooth) => tooth.isProblemZone).length;
+  const visibleTeeth = map.teeth;
 
   return (
     <>
@@ -56,7 +51,7 @@ export function MapScreen() {
                 {t('toothMap.summary.problemZones')}
               </Text>
               <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
-                {hasFullMapAccess ? map.problemZoneCount : previewProblemZoneCount}
+                {hasFullMapAccess ? map.problemZoneCount : '-'}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
@@ -82,25 +77,47 @@ export function MapScreen() {
           />
         ) : map.loading ? (
           <StateMessageCard title={t('toothMap.loading')} />
+        ) : !hasFullMapAccess ? (
+          <Card style={{ marginTop: theme.spacing.lg }}>
+            <Text variant="title" weight="semibold">
+              {t('toothMap.locked.title')}
+            </Text>
+            <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+              {t('toothMap.locked.body')}
+            </Text>
+            <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
+              <Text color="muted">{t('toothMap.locked.pointOne')}</Text>
+              <Text color="muted">{t('toothMap.locked.pointTwo')}</Text>
+              <Text color="muted">{t('toothMap.locked.pointThree')}</Text>
+            </View>
+          </Card>
         ) : (
           <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.lg }}>
-            {!hasFullMapAccess ? (
-              <ProAccessCard
-                body={t('monetization.gates.toothMapFull.body')}
-                featureKeys={['tooth_map_full']}
-                title={t('monetization.gates.toothMapFull.title')}
-              />
-            ) : null}
+            <Card>
+              <Text variant="title" weight="semibold">
+                {t('toothMap.guide.title')}
+              </Text>
+              <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+                {t('toothMap.guide.body')}
+              </Text>
+              <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
+                <Text color="muted">{t('toothMap.guide.pointOne')}</Text>
+                <Text color="muted">{t('toothMap.guide.pointTwo')}</Text>
+                <Text color="muted">{t('toothMap.guide.pointThree')}</Text>
+              </View>
+            </Card>
             <ToothJawSection
-              onSelectTooth={hasFullMapAccess ? map.openTooth : () => undefined}
-              segments={hasFullMapAccess ? UPPER_JAW_SEGMENTS : [UPPER_JAW_SEGMENTS[0]]}
+              isInteractive
+              onSelectTooth={map.openTooth}
+              segments={UPPER_JAW_SEGMENTS}
               subtitle={t('toothMap.jaws.upperSubtitle')}
               teeth={visibleTeeth}
               title={t('toothMap.jaws.upper')}
             />
             <ToothJawSection
-              onSelectTooth={hasFullMapAccess ? map.openTooth : () => undefined}
-              segments={hasFullMapAccess ? LOWER_JAW_SEGMENTS : [LOWER_JAW_SEGMENTS[0]]}
+              isInteractive
+              onSelectTooth={map.openTooth}
+              segments={LOWER_JAW_SEGMENTS}
               subtitle={t('toothMap.jaws.lowerSubtitle')}
               teeth={visibleTeeth}
               title={t('toothMap.jaws.lower')}
@@ -110,6 +127,8 @@ export function MapScreen() {
       </Screen>
 
       <ToothEditSheet
+        busy={map.editorBusy}
+        error={map.editorError}
         history={map.history}
         note={map.draftNote}
         onChangeNote={map.setDraftNote}

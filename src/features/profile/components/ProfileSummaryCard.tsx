@@ -56,17 +56,20 @@ export function ProfileSummaryCard({
             flexDirection: 'row',
             flexWrap: 'wrap',
             gap: theme.spacing.md,
+            justifyContent: 'center',
             marginTop: theme.spacing.lg,
           }}>
           <Button
+            style={{ flexBasis: '47%', maxWidth: 220 }}
             title={t('common.switchTheme')}
-            onPress={() => settingsService.toggleThemeMode()}
+            onPress={() => void settingsService.toggleThemeMode()}
             variant="secondary"
           />
           <Button
+            style={{ flexBasis: '47%', maxWidth: 220 }}
             title={t('common.switchLanguage')}
-            onPress={() => settingsService.applyLanguage(getAlternateLanguage(i18n.language))}
-            variant="ghost"
+            onPress={() => void settingsService.applyLanguage(getAlternateLanguage(i18n.language))}
+            variant="secondary"
           />
         </View>
       ) : null}

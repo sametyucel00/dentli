@@ -16,6 +16,22 @@ function getCellBackgroundColor(
   return colors.surfaceMuted;
 }
 
+function formatCompletionLabel(cell: AnalyticsHeatmapCell) {
+  if (!Number.isFinite(cell.completionRate) || cell.expectedCount <= 0) {
+    return '--';
+  }
+
+  return `${Math.round(cell.completionRate * 100)}%`;
+}
+
+function formatCountLabel(cell: AnalyticsHeatmapCell) {
+  if (cell.expectedCount <= 0) {
+    return '--';
+  }
+
+  return `(${cell.completedCount}/${cell.expectedCount})`;
+}
+
 export function WeeklyHeatmap({
   cells,
 }: {
@@ -26,35 +42,53 @@ export function WeeklyHeatmap({
 
   return (
     <View style={{ marginTop: theme.spacing.lg }}>
-      <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+      <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
         {cells.map((cell) => (
-          <View key={cell.id} style={{ alignItems: 'center', flex: 1, gap: theme.spacing.sm }}>
+          <View
+            key={cell.id}
+            style={{ alignItems: 'center', flex: 1, gap: theme.spacing.xs, minWidth: 0 }}>
             <View
               style={{
                 alignItems: 'center',
                 backgroundColor: getCellBackgroundColor(cell.intensity, theme.colors),
                 borderColor: cell.intensity === 0 ? theme.colors.border : 'transparent',
                 borderRadius: theme.radii.sm,
-                borderWidth: 1,
+                borderWidth: theme.mode === 'dark' && cell.intensity === 0 ? 1 : 0,
                 justifyContent: 'center',
-                minHeight: 56,
-                paddingHorizontal: theme.spacing.xs,
+                aspectRatio: 1,
+                minHeight: 44,
+                paddingHorizontal: theme.spacing.xxs,
                 width: '100%',
               }}>
               <Text
+                numberOfLines={1}
                 style={{
                   color:
                     cell.intensity >= 3
                       ? theme.colors.textInverse
                       : theme.colors.text,
+                  textAlign: 'center',
                 }}
                 variant="caption"
                 weight="semibold">
-                {cell.completedCount}/{cell.expectedCount}
+                {formatCompletionLabel(cell)}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={{
+                  color:
+                    cell.intensity >= 3
+                      ? theme.colors.textInverse
+                      : theme.colors.textMuted,
+                  marginTop: theme.spacing.xxs,
+                  textAlign: 'center',
+                }}
+                variant="caption">
+                {formatCountLabel(cell)}
               </Text>
             </View>
-            <Text variant="caption" color="muted">
-              {cell.dayLabel}
+            <Text numberOfLines={1} variant="caption" color="muted">
+              {cell.dayLabel.slice(0, 2)}
             </Text>
           </View>
         ))}

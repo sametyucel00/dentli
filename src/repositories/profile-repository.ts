@@ -55,6 +55,10 @@ export class ProfileRepository extends BaseRepository {
     );
   }
 
+  async deleteById(id: string) {
+    await this.database.run(`DELETE FROM profiles WHERE id = ?;`, [id]);
+  }
+
   async updatePreferredLanguage(id: string, preferredLanguage: Profile['preferredLanguage']) {
     await this.database.run(
       `UPDATE profiles SET preferred_language = ?, updated_at = datetime('now') WHERE id = ?;`,

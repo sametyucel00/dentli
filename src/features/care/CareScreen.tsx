@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { CareItemCard } from '@/src/features/care/components/CareItemCard';
 import { CareItemForm } from '@/src/features/care/components/CareItemForm';
-import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
+import { useFeatureAccess } from '@/src/features/monetization';
 import { useCareScreen } from '@/src/features/care/useCareScreen';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import {
@@ -40,7 +40,7 @@ export function CareScreen() {
           <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
               onPress={careScreen.openCreateEditor}
-              style={{ alignSelf: 'flex-start' }}
+              style={{ alignSelf: 'center' }}
               title={t('careTracking.summary.add')}
             />
             {!hasFullCareInventoryAccess ? (
@@ -50,14 +50,6 @@ export function CareScreen() {
             ) : null}
           </View>
         </StateMessageCard>
-
-        {!hasFullCareInventoryAccess ? (
-          <ProAccessCard
-            body={t('monetization.gates.careInventory.body')}
-            featureKeys={['care_full_inventory']}
-            title={t('monetization.gates.careInventory.title')}
-          />
-        ) : null}
 
         {careScreen.error ? (
           <StateMessageCard
