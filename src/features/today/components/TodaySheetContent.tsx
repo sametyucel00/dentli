@@ -41,6 +41,7 @@ type TodayViewModel = {
   toothNote: string;
   setToothNote: (value: string) => void;
   submitToothUpdate: () => Promise<void>;
+  addExtraCareEvent: (actionKey: 'floss' | 'mouthwash') => Promise<void>;
   timerActive: boolean;
   toggleTimerRunning: () => void;
   resetTimer: () => void;
@@ -98,6 +99,18 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
             icon="grid-outline"
             label={t('today.sheet.updateTooth')}
             onPress={() => today.openSheet('tooth')}
+          />
+          <TodaySheetAction
+            description={t('today.sheet.addExtraFlossHint')}
+            icon="add-circle-outline"
+            label={t('today.sheet.addExtraFloss')}
+            onPress={() => void today.addExtraCareEvent('floss')}
+          />
+          <TodaySheetAction
+            description={t('today.sheet.addExtraMouthwashHint')}
+            icon="add-circle-outline"
+            label={t('today.sheet.addExtraMouthwash')}
+            onPress={() => void today.addExtraCareEvent('mouthwash')}
           />
         </View>
       </View>

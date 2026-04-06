@@ -222,6 +222,28 @@ export class TodayService {
 
     await hygieneEventsRepository.create(event);
   }
+
+  async addExtraCareEvent(
+    profileId: string,
+    actionKey: Extract<DailyActionKey, 'floss' | 'mouthwash'>,
+  ) {
+    const action = TODAY_ACTIONS.find((item) => item.key === actionKey);
+    if (!action) {
+      return;
+    }
+
+    const event: HygieneEvent = {
+      id: createId('hygiene'),
+      profileId,
+      eventType: action.eventType,
+      actionKey,
+      occurredAt: nowIso(),
+      durationSeconds: null,
+      notes: 'extra_same_day_log',
+    };
+
+    await hygieneEventsRepository.create(event);
+  }
 }
 
 export const todayService = new TodayService();

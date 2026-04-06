@@ -234,6 +234,22 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     closeSheet();
   }
 
+  async function addExtraCareEvent(actionKey: Extract<DailyActionKey, 'floss' | 'mouthwash'>) {
+    if (!profileId) return;
+
+    await runMutation(
+      async () => {
+        await todayService.addExtraCareEvent(profileId, actionKey);
+      },
+      {
+        onSuccess: () => {
+          setActionFeedback({ actionKey, completed: true });
+          closeSheet();
+        },
+      },
+    );
+  }
+
   return {
     loading,
     error,
@@ -279,6 +295,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     openTimer,
     timerCompletionPromptVisible: brushTimer.completionPromptVisible,
     completeBrushTimer,
+    addExtraCareEvent,
     timerProgress: brushTimer.progress,
     activeQuadrantIndex: brushTimer.activeQuadrantIndex,
     timerQuadrants: brushTimer.quadrants,
