@@ -9,12 +9,14 @@ import { EMPTY_PROFILE_ANALYTICS } from '@/src/features/profile/model';
 import { profileService } from '@/src/features/profile/profile-service';
 import { useAppStore } from '@/src/state/useAppStore';
 
+const EMPTY_PROFILES: never[] = [];
+
 export function useProfileScreen() {
   const { t } = useTranslation();
   const isFocused = useIsFocused();
   const locale = useAppLocale();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
-  const profiles = useAppStore((state) => state.cache.profiles?.data ?? []);
+  const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState(EMPTY_PROFILE_ANALYTICS);

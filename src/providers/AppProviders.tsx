@@ -15,11 +15,13 @@ import { createNavigationTheme } from '@/src/theme';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
 
+const EMPTY_PROFILES: { id: string }[] = [];
+
 export function AppProviders({ children }: PropsWithChildren) {
   const language = useAppStore((state) => state.language);
   const bootstrapStatus = useAppStore((state) => state.bootstrapStatus);
   const bootstrapError = useAppStore((state) => state.bootstrapError);
-  const profiles = useAppStore((state) => state.cache.profiles?.data ?? []);
+  const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const { colorScheme, theme } = useAppTheme();
   const splashHiddenRef = useRef(false);
 

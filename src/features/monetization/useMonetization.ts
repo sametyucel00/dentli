@@ -5,9 +5,11 @@ import { hasPremiumFeature } from '@/src/features/monetization/model';
 import { entitlementService } from '@/src/services';
 import { useAppStore } from '@/src/state/useAppStore';
 
+const EMPTY_PROFILES: never[] = [];
+
 export function useMonetization() {
   const entitlements = useAppStore((state) => state.entitlements);
-  const profiles = useAppStore((state) => state.cache.profiles?.data ?? []);
+  const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
