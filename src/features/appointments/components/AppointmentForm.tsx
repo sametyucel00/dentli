@@ -10,6 +10,13 @@ const APPOINTMENT_STATUSES: AppointmentDraft['status'][] = [
   'completed',
   'cancelled',
 ];
+const APPOINTMENT_TYPES: AppointmentDraft['appointmentType'][] = [
+  'checkup',
+  'cleaning',
+  'consultation',
+  'treatment',
+  'other',
+];
 
 export function AppointmentForm({
   draft,
@@ -39,10 +46,21 @@ export function AppointmentForm({
         placeholder={t('appointments.form.title')}
         value={draft.title}
       />
+      <OptionPills
+        labelMap={(value) => t(`appointments.types.${value}`)}
+        onSelect={(value) => onChange({ appointmentType: value })}
+        options={APPOINTMENT_TYPES}
+        selectedValue={draft.appointmentType}
+      />
       <TextField
-        onChangeText={(value) => onChange({ providerName: value })}
-        placeholder={t('appointments.form.provider')}
-        value={draft.providerName}
+        onChangeText={(value) => onChange({ clinicName: value })}
+        placeholder={t('appointments.form.clinic')}
+        value={draft.clinicName}
+      />
+      <TextField
+        onChangeText={(value) => onChange({ doctorName: value })}
+        placeholder={t('appointments.form.doctor')}
+        value={draft.doctorName}
       />
       <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
         <View style={{ flex: 1 }}>
@@ -88,11 +106,6 @@ export function AppointmentForm({
           variant="ghost"
         />
       )}
-      <TextField
-        onChangeText={(value) => onChange({ location: value })}
-        placeholder={t('appointments.form.location')}
-        value={draft.location}
-      />
       <TextField
         onChangeText={(value) => onChange({ notes: value })}
         placeholder={t('appointments.form.notes')}

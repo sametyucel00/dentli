@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
 import {
   TimelineEditorSheet,
   TimelineFilterBar,
@@ -21,6 +22,13 @@ export function TimelineScreen() {
   const insets = useSafeAreaInsets();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const timeline = useTimelineScreen(selectedProfileId, isFocused);
+  const hasFullTimelineAccess = useFeatureAccess('timeline_full');
+  const visibleItems = hasFullTimelineAccess
+    ? timeline.visibleItems
+    : timeline.visibleItems.filter(
+        (item) =>
+          new Date(item.occurredAt).getTime() >= Date.now() - 7 * 24 * 60 * 60 * 1000,
+      );
 
   return (
     <>
@@ -43,6 +51,14 @@ export function TimelineScreen() {
           />
         </View>
 
+        {!hasFullTimelineAccess ? (
+          <ProAccessCard
+            body={t('monetization.gates.timelineFull.body')}
+            featureKeys={['timeline_full']}
+            title={t('monetization.gates.timelineFull.title')}
+          />
+        ) : null}
+
         {timeline.error ? (
           <StateMessageCard
             actionLabel={t('common.retry')}
@@ -52,14 +68,14 @@ export function TimelineScreen() {
           />
         ) : timeline.loading ? (
           <StateMessageCard title={t('timeline.loading')} />
-        ) : timeline.visibleItems.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <StateMessageCard
             body={t('timeline.empty.body')}
             title={t('timeline.empty.title')}
           />
         ) : (
           <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
-            {timeline.visibleItems.map((item) => (
+            {visibleItems.map((item) => (
               <TimelineListItem key={`${item.kind}_${item.id}`} item={item} onPress={() => void timeline.openItem(item)} />
             ))}
           </View>

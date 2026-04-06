@@ -6,6 +6,9 @@ type AppointmentRow = {
   id: string;
   profile_id: string;
   title: string;
+  appointment_type: Appointment['appointmentType'];
+  clinic_name: string | null;
+  doctor_name: string | null;
   provider_name: string | null;
   starts_at: string;
   ends_at: string | null;
@@ -24,10 +27,11 @@ function mapAppointment(row: AppointmentRow): Appointment {
     id: row.id,
     profileId: row.profile_id,
     title: row.title,
-    providerName: row.provider_name,
+    appointmentType: row.appointment_type,
+    clinicName: row.clinic_name ?? row.location,
+    doctorName: row.doctor_name ?? row.provider_name,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
-    location: row.location,
     notes: row.notes,
     status: row.status,
     reminderEnabled: Boolean(row.reminder_enabled),
@@ -72,17 +76,20 @@ export class AppointmentsRepository extends BaseRepository {
   async create(appointment: Appointment) {
     await this.database.run(
       `INSERT INTO appointments (
-        id, profile_id, title, provider_name, starts_at, ends_at, location, notes, status,
+        id, profile_id, title, appointment_type, clinic_name, doctor_name, provider_name, starts_at, ends_at, location, notes, status,
         reminder_enabled, reminder_minutes_before, reminder_notification_id, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         appointment.id,
         appointment.profileId,
         appointment.title,
-        appointment.providerName,
+        appointment.appointmentType,
+        appointment.clinicName,
+        appointment.doctorName,
+        appointment.doctorName,
         appointment.startsAt,
         appointment.endsAt,
-        appointment.location,
+        appointment.clinicName,
         appointment.notes,
         appointment.status,
         appointment.reminderEnabled ? 1 : 0,
@@ -97,14 +104,17 @@ export class AppointmentsRepository extends BaseRepository {
   async update(appointment: Appointment) {
     await this.database.run(
       `UPDATE appointments
-       SET title = ?, provider_name = ?, starts_at = ?, ends_at = ?, location = ?, notes = ?, status = ?, reminder_enabled = ?, reminder_minutes_before = ?, reminder_notification_id = ?, updated_at = ?
+       SET title = ?, appointment_type = ?, clinic_name = ?, doctor_name = ?, provider_name = ?, starts_at = ?, ends_at = ?, location = ?, notes = ?, status = ?, reminder_enabled = ?, reminder_minutes_before = ?, reminder_notification_id = ?, updated_at = ?
        WHERE id = ?;`,
       [
         appointment.title,
-        appointment.providerName,
+        appointment.appointmentType,
+        appointment.clinicName,
+        appointment.doctorName,
+        appointment.doctorName,
         appointment.startsAt,
         appointment.endsAt,
-        appointment.location,
+        appointment.clinicName,
         appointment.notes,
         appointment.status,
         appointment.reminderEnabled ? 1 : 0,

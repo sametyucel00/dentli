@@ -190,4 +190,19 @@ export const migrations: DatabaseMigration[] = [
        VALUES (1, 0, datetime('now'));`,
     ],
   },
+  {
+    version: 9,
+    name: 'appointments_clinical_fields',
+    up: [
+      `ALTER TABLE appointments ADD COLUMN appointment_type TEXT NOT NULL DEFAULT 'checkup';`,
+      `ALTER TABLE appointments ADD COLUMN clinic_name TEXT;`,
+      `ALTER TABLE appointments ADD COLUMN doctor_name TEXT;`,
+      `UPDATE appointments
+       SET clinic_name = location
+       WHERE clinic_name IS NULL AND location IS NOT NULL;`,
+      `UPDATE appointments
+       SET doctor_name = provider_name
+       WHERE doctor_name IS NULL AND provider_name IS NOT NULL;`,
+    ],
+  },
 ];

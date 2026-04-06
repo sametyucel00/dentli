@@ -54,7 +54,9 @@ export type TimelineSymptomDraft = {
 
 export type TimelineAppointmentDraft = {
   title: string;
-  providerName: string;
+  appointmentType: Appointment['appointmentType'];
+  clinicName: string;
+  doctorName: string;
   startsAt: string;
   status: Appointment['status'];
 };
@@ -80,7 +82,9 @@ export const INITIAL_TIMELINE_SYMPTOM_DRAFT: TimelineSymptomDraft = {
 
 export const INITIAL_TIMELINE_APPOINTMENT_DRAFT: TimelineAppointmentDraft = {
   title: '',
-  providerName: '',
+  appointmentType: 'checkup',
+  clinicName: '',
+  doctorName: '',
   startsAt: createTomorrowAtNine(),
   status: 'scheduled',
 };

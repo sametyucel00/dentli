@@ -194,7 +194,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
       await todayService.addAppointment({
         profileId,
         title: appointmentTitle.trim() || defaultTitle,
-        providerName: appointmentProvider.trim() || null,
+        doctorName: appointmentProvider.trim() || null,
         startsAt: appointmentStartsAt,
       });
     }, {

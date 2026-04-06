@@ -31,11 +31,16 @@ export function AppointmentCard({
           <View style={{ flex: 1 }}>
             <Text weight="semibold">{appointment.title}</Text>
             <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-              {appointment.providerName ?? t('appointments.noProvider')}
+              {t(`appointments.types.${appointment.appointmentType}`)}
             </Text>
-            {appointment.location ? (
+            {appointment.clinicName ? (
               <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {appointment.location}
+                {appointment.clinicName}
+              </Text>
+            ) : null}
+            {appointment.doctorName ? (
+              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                {appointment.doctorName}
               </Text>
             ) : null}
           </View>

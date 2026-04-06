@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { CareItemCard } from '@/src/features/care/components/CareItemCard';
 import { CareItemForm } from '@/src/features/care/components/CareItemForm';
+import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
 import { useCareScreen } from '@/src/features/care/useCareScreen';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import {
@@ -18,6 +19,7 @@ export function CareScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const careScreen = useCareScreen();
+  const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
 
   return (
     <>
@@ -35,12 +37,27 @@ export function CareScreen() {
         <StateMessageCard
           body={t('careTracking.summary.body', { count: careScreen.dueSoonCount })}
           title={t('careTracking.summary.title')}>
-          <Button
-            onPress={careScreen.openCreateEditor}
-            style={{ alignSelf: 'flex-start', marginTop: theme.spacing.sm }}
-            title={t('careTracking.summary.add')}
-          />
+          <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+            <Button
+              onPress={careScreen.openCreateEditor}
+              style={{ alignSelf: 'flex-start' }}
+              title={t('careTracking.summary.add')}
+            />
+            {!hasFullCareInventoryAccess ? (
+              <Text color="muted" variant="caption">
+                {t('careTracking.summary.freeHint')}
+              </Text>
+            ) : null}
+          </View>
         </StateMessageCard>
+
+        {!hasFullCareInventoryAccess ? (
+          <ProAccessCard
+            body={t('monetization.gates.careInventory.body')}
+            featureKeys={['care_full_inventory']}
+            title={t('monetization.gates.careInventory.title')}
+          />
+        ) : null}
 
         {careScreen.error ? (
           <StateMessageCard
@@ -79,6 +96,13 @@ export function CareScreen() {
         onClose={careScreen.closeEditor}
         visible={careScreen.isEditorVisible}>
         <CareItemForm
+          allowAdvancedTypes={
+            hasFullCareInventoryAccess ||
+            !!careScreen.editingItem?.itemType &&
+              ['interdental_brush', 'water_flosser', 'other'].includes(
+                careScreen.editingItem.itemType,
+              )
+          }
           draft={careScreen.careItemDraft}
           onChange={careScreen.patchCareItemDraft}
           onDelete={careScreen.editingItem ? () => void careScreen.deleteCareItem() : undefined}

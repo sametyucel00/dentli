@@ -36,6 +36,13 @@ const APPOINTMENT_STATUSES: TimelineAppointmentDraft['status'][] = [
   'completed',
   'cancelled',
 ];
+const APPOINTMENT_TYPES: TimelineAppointmentDraft['appointmentType'][] = [
+  'checkup',
+  'cleaning',
+  'consultation',
+  'treatment',
+  'other',
+];
 
 export function TimelineEditorSheet({
   visible,
@@ -139,10 +146,21 @@ export function TimelineEditorSheet({
               placeholder={t('timeline.editAppointment.titlePlaceholder')}
               value={appointmentDraft.title}
             />
+            <OptionPills
+              labelMap={(value) => t(`appointments.types.${value}`)}
+              onSelect={(value) => onChangeAppointmentDraft({ appointmentType: value })}
+              options={APPOINTMENT_TYPES}
+              selectedValue={appointmentDraft.appointmentType}
+            />
             <TextField
-              onChangeText={(value) => onChangeAppointmentDraft({ providerName: value })}
-              placeholder={t('timeline.editAppointment.providerPlaceholder')}
-              value={appointmentDraft.providerName}
+              onChangeText={(value) => onChangeAppointmentDraft({ clinicName: value })}
+              placeholder={t('timeline.editAppointment.clinicPlaceholder')}
+              value={appointmentDraft.clinicName}
+            />
+            <TextField
+              onChangeText={(value) => onChangeAppointmentDraft({ doctorName: value })}
+              placeholder={t('timeline.editAppointment.doctorPlaceholder')}
+              value={appointmentDraft.doctorName}
             />
             <TextField
               onChangeText={(value) => onChangeAppointmentDraft({ startsAt: value })}

@@ -7,6 +7,7 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
 export function CareItemForm({
+  allowAdvancedTypes = true,
   draft,
   title,
   submitLabel,
@@ -14,6 +15,7 @@ export function CareItemForm({
   onSubmit,
   onDelete,
 }: {
+  allowAdvancedTypes?: boolean;
   draft: CareItemDraft;
   title: string;
   submitLabel: string;
@@ -23,6 +25,11 @@ export function CareItemForm({
 }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const availableTypes = allowAdvancedTypes
+    ? CARE_ITEM_TYPE_OPTIONS
+    : CARE_ITEM_TYPE_OPTIONS.filter((value) =>
+        ['toothbrush', 'toothpaste', 'floss', 'mouthwash'].includes(value),
+      );
 
   return (
     <View style={{ gap: theme.spacing.md }}>
@@ -42,7 +49,7 @@ export function CareItemForm({
             replacementCycleDays: `${DEFAULT_CARE_ITEM_REPLACEMENT_DAYS[value] ?? ''}`,
           })
         }
-        options={CARE_ITEM_TYPE_OPTIONS}
+        options={availableTypes}
         selectedValue={draft.itemType}
       />
       <TextField

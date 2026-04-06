@@ -14,6 +14,9 @@ export const PRO_FEATURE_KEYS: PremiumFeatureKey[] = [
   'pdf_export',
   'analytics_advanced',
   'multi_profile',
+  'timeline_full',
+  'care_full_inventory',
+  'biometric_lock',
 ] as const;
 
 export type PurchaseProduct = {

@@ -3,17 +3,18 @@ import { AppointmentMutationInput } from '@/src/services/appointment-service.typ
 
 export const APPOINTMENT_REMINDER_OPTIONS = [
   { value: null, labelKey: 'appointments.reminders.none' },
-  { value: 15, labelKey: 'appointments.reminders.fifteenMinutes' },
-  { value: 60, labelKey: 'appointments.reminders.oneHour' },
+  { value: 180, labelKey: 'appointments.reminders.threeHours' },
   { value: 1440, labelKey: 'appointments.reminders.oneDay' },
+  { value: 10080, labelKey: 'appointments.reminders.oneWeek' },
 ] as const;
 
 export type AppointmentDraft = {
   title: string;
-  providerName: string;
+  appointmentType: Appointment['appointmentType'];
+  clinicName: string;
+  doctorName: string;
   startsAt: string;
   endsAt: string;
-  location: string;
   notes: string;
   status: Appointment['status'];
   reminderMinutesBefore: number | null;
@@ -41,10 +42,11 @@ export function createDefaultAppointmentDateTime() {
 export function createInitialAppointmentDraft(): AppointmentDraft {
   return {
     title: '',
-    providerName: '',
+    appointmentType: 'checkup',
+    clinicName: '',
+    doctorName: '',
     startsAt: createDefaultAppointmentDateTime(),
     endsAt: '',
-    location: '',
     notes: '',
     status: 'scheduled',
     reminderMinutesBefore: null,
@@ -54,10 +56,11 @@ export function createInitialAppointmentDraft(): AppointmentDraft {
 export function mapAppointmentToDraft(appointment: Appointment): AppointmentDraft {
   return {
     title: appointment.title,
-    providerName: appointment.providerName ?? '',
+    appointmentType: appointment.appointmentType,
+    clinicName: appointment.clinicName ?? '',
+    doctorName: appointment.doctorName ?? '',
     startsAt: appointment.startsAt,
     endsAt: appointment.endsAt ?? '',
-    location: appointment.location ?? '',
     notes: appointment.notes ?? '',
     status: appointment.status,
     reminderMinutesBefore: appointment.reminderEnabled
@@ -73,10 +76,11 @@ export function mapDraftToAppointmentInput(
   return {
     profileId,
     title: draft.title.trim(),
-    providerName: draft.providerName.trim() || null,
+    appointmentType: draft.appointmentType,
+    clinicName: draft.clinicName.trim() || null,
+    doctorName: draft.doctorName.trim() || null,
     startsAt: draft.startsAt,
     endsAt: draft.endsAt.trim() || null,
-    location: draft.location.trim() || null,
     notes: draft.notes.trim() || null,
     status: draft.status,
     reminderEnabled: draft.reminderMinutesBefore !== null,

@@ -102,7 +102,9 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
     if (item.kind === 'appointment') {
       setAppointmentDraft({
         title: item.event.title,
-        providerName: item.event.providerName ?? '',
+        appointmentType: item.event.appointmentType,
+        clinicName: item.event.clinicName ?? '',
+        doctorName: item.event.doctorName ?? '',
         startsAt: item.event.startsAt,
         status: item.event.status,
       });
@@ -163,7 +165,9 @@ export function useTimelineScreen(profileId: string | null, isFocused: boolean) 
         timelineService.updateAppointment({
           ...selectedItem.event,
           title: appointmentDraft.title.trim() || selectedItem.event.title,
-          providerName: appointmentDraft.providerName.trim() || null,
+          appointmentType: appointmentDraft.appointmentType,
+          clinicName: appointmentDraft.clinicName.trim() || null,
+          doctorName: appointmentDraft.doctorName.trim() || null,
           startsAt: appointmentDraft.startsAt,
           status: appointmentDraft.status,
         }),

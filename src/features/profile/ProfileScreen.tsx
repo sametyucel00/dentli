@@ -37,6 +37,7 @@ export function ProfileScreen() {
   const { selectedProfile } = useSelectedProfileSummary();
   const accessibleProfileIds = useAccessibleProfileIds();
   const hasAdvancedAnalyticsAccess = useFeatureAccess('analytics_advanced');
+  const hasBiometricLockAccess = useFeatureAccess('biometric_lock');
 
   return (
     <Screen>
@@ -303,16 +304,22 @@ export function ProfileScreen() {
               variant="secondary"
             />
             <Button
-              disabled={profileScreen.settingsBusyKey === 'biometric'}
+              disabled={
+                profileScreen.settingsBusyKey === 'biometric' || !hasBiometricLockAccess
+              }
               onPress={() =>
-                void profileScreen.updateBiometricLock(
-                  !profileScreen.appPreferences.biometricLockEnabled,
-                )
+                hasBiometricLockAccess
+                  ? void profileScreen.updateBiometricLock(
+                      !profileScreen.appPreferences.biometricLockEnabled,
+                    )
+                  : undefined
               }
               title={
-                profileScreen.appPreferences.biometricLockEnabled
-                  ? t('profile.settings.biometricDisable')
-                  : t('profile.settings.biometricEnable')
+                hasBiometricLockAccess
+                  ? profileScreen.appPreferences.biometricLockEnabled
+                    ? t('profile.settings.biometricDisable')
+                    : t('profile.settings.biometricEnable')
+                  : t('profile.settings.biometricPro')
               }
               variant="secondary"
             />
@@ -324,6 +331,14 @@ export function ProfileScreen() {
             />
           </View>
         </View>
+
+        {!hasBiometricLockAccess ? (
+          <ProAccessCard
+            body={t('monetization.gates.biometricLock.body')}
+            featureKeys={['biometric_lock']}
+            title={t('monetization.gates.biometricLock.title')}
+          />
+        ) : null}
       </Card>
 
       <Card style={{ marginTop: theme.spacing.lg }}>

@@ -160,16 +160,17 @@ export class TodayService {
   async addAppointment(input: {
     profileId: string;
     title: string;
-    providerName: string | null;
+    doctorName: string | null;
     startsAt: string;
   }) {
     await appointmentService.create({
       profileId: input.profileId,
       title: input.title,
-      providerName: input.providerName,
+      appointmentType: 'checkup',
+      clinicName: null,
+      doctorName: input.doctorName,
       startsAt: input.startsAt,
       endsAt: null,
-      location: null,
       notes: null,
       status: 'scheduled',
       reminderEnabled: false,

@@ -467,7 +467,9 @@ class NotificationSchedulerService {
       profileId: appointment.profileId,
       intent: 'appointment_reminder',
       title: appointment.title,
-      body: appointment.providerName ?? i18n.t('notifications.appointment.body'),
+      body:
+        [appointment.clinicName, appointment.doctorName].filter(Boolean).join(' • ') ||
+        i18n.t('notifications.appointment.body'),
       scheduledFor: scheduledFor.toISOString(),
     };
   }

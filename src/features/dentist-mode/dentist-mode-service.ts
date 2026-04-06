@@ -67,7 +67,7 @@ export class DentistModeService {
         type: 'appointment' as const,
         timestamp: event.startsAt,
         title: event.title,
-        detail: event.providerName ?? null,
+        detail: [event.clinicName, event.doctorName].filter(Boolean).join(' • ') || null,
       })),
       ...recentToothUpdates.map((event) => ({
         id: event.id,

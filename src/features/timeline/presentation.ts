@@ -48,9 +48,15 @@ export function getTimelineItemCopy(item: TimelineItem, t: TFunction) {
   }
 
   if (item.kind === 'appointment') {
+    const detailParts = [
+      item.event.clinicName,
+      item.event.doctorName,
+    ].filter(Boolean);
     return {
       title: item.event.title,
-      subtitle: item.event.providerName ?? t('timeline.common.noProvider'),
+      subtitle:
+        detailParts.join(' • ') ||
+        t(`appointments.types.${item.event.appointmentType}`),
     };
   }
 

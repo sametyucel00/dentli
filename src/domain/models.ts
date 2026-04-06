@@ -10,7 +10,10 @@ export type PremiumFeatureKey =
   | 'dentist_mode'
   | 'pdf_export'
   | 'analytics_advanced'
-  | 'multi_profile';
+  | 'multi_profile'
+  | 'timeline_full'
+  | 'care_full_inventory'
+  | 'biometric_lock';
 
 export type Profile = {
   id: EntityId;
@@ -74,15 +77,22 @@ export type SymptomEvent = {
 };
 
 export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled';
+export type AppointmentType =
+  | 'checkup'
+  | 'cleaning'
+  | 'consultation'
+  | 'treatment'
+  | 'other';
 
 export type Appointment = {
   id: EntityId;
   profileId: EntityId;
   title: string;
-  providerName: string | null;
+  appointmentType: AppointmentType;
+  clinicName: string | null;
+  doctorName: string | null;
   startsAt: ISODateString;
   endsAt: ISODateString | null;
-  location: string | null;
   notes: string | null;
   status: AppointmentStatus;
   reminderEnabled: boolean;
