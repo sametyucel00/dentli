@@ -45,7 +45,7 @@ export function TodayActionRow({
         <Text weight="semibold">{label}</Text>
         <Text color="muted" variant="caption" style={{ marginTop: theme.spacing.xxs }}>
           {helperLabel}
-          {action.optional && !completed ? ` · ${optionalLabel}` : ''}
+          {action.optional && !completed ? ` • ${optionalLabel}` : ''}
         </Text>
       </View>
       <View
@@ -57,7 +57,7 @@ export function TodayActionRow({
           },
         ]}>
         {completed ? (
-          <Ionicons name="checkmark" color={theme.colors.textInverse} size={16} />
+          <Ionicons color={theme.colors.textInverse} name="checkmark" size={16} />
         ) : null}
       </View>
     </Pressable>

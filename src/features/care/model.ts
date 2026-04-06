@@ -14,13 +14,19 @@ export type CareCountdown = {
   dueNow: boolean;
 };
 
+export function createDefaultCareDateTime() {
+  const now = new Date();
+  now.setSeconds(0, 0);
+  return now.toISOString();
+}
+
 export function createInitialCareItemDraft(): CareItemDraft {
   return {
     title: '',
     description: '',
     itemType: 'toothbrush',
     replacementCycleDays: '',
-    lastReplacedAt: new Date().toISOString(),
+    lastReplacedAt: createDefaultCareDateTime(),
   };
 }
 
@@ -30,7 +36,7 @@ export function mapCareItemToDraft(item: CareItem): CareItemDraft {
     description: item.description ?? '',
     itemType: item.itemType,
     replacementCycleDays: item.replacementCycleDays?.toString() ?? '',
-    lastReplacedAt: item.lastReplacedAt ?? new Date().toISOString(),
+    lastReplacedAt: item.lastReplacedAt ?? createDefaultCareDateTime(),
   };
 }
 

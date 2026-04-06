@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { CARE_ITEM_TYPE_OPTIONS } from '@/src/domain/care';
 import { CareItemDraft } from '@/src/features/care/model';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, OptionPills, Text, TextField } from '@/src/ui/base';
+import { Button, DateTimeField, OptionPills, Text, TextField } from '@/src/ui/base';
 
 export function CareItemForm({
   draft,
@@ -51,11 +51,24 @@ export function CareItemForm({
         placeholder={t('careTracking.form.replacementDays')}
         value={draft.replacementCycleDays}
       />
-      <TextField
-        onChangeText={(value) => onChange({ lastReplacedAt: value })}
-        placeholder={t('careTracking.form.lastReplacedAt')}
-        value={draft.lastReplacedAt}
-      />
+      <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('careTracking.form.lastReplacedDate')}
+            mode="date"
+            onChange={(value) => onChange({ lastReplacedAt: value })}
+            value={draft.lastReplacedAt}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <DateTimeField
+            label={t('careTracking.form.lastReplacedTime')}
+            mode="time"
+            onChange={(value) => onChange({ lastReplacedAt: value })}
+            value={draft.lastReplacedAt}
+          />
+        </View>
+      </View>
       <Button disabled={!draft.title.trim()} onPress={onSubmit} title={submitLabel} />
       {onDelete ? (
         <Button onPress={onDelete} title={t('careTracking.form.delete')} variant="ghost" />

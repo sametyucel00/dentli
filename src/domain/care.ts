@@ -5,6 +5,8 @@ export const CARE_ITEM_TYPE_OPTIONS: CareItemType[] = [
   'toothpaste',
   'floss',
   'mouthwash',
+  'interdental_brush',
+  'water_flosser',
   'other',
 ];
 

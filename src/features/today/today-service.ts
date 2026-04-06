@@ -114,10 +114,17 @@ export class TodayService {
   async toggleAction(
     profileId: string,
     actionKey: DailyActionKey,
-    existingEventId: string | null,
   ) {
-    if (existingEventId) {
-      await hygieneEventsRepository.deleteById(existingEventId);
+    const { startIso, endIso } = getDayRange();
+    const existingEvent = await hygieneEventsRepository.getByActionKeyInRange(
+      profileId,
+      actionKey,
+      startIso,
+      endIso,
+    );
+
+    if (existingEvent) {
+      await hygieneEventsRepository.deleteById(existingEvent.id);
       return false;
     }
 

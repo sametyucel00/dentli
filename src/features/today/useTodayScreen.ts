@@ -124,13 +124,16 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   async function toggleAction(actionKey: DailyActionKey) {
     if (!profileId) return;
 
-    const completed = await todayService.toggleAction(
-      profileId,
-      actionKey,
-      actionState[actionKey].eventId,
-    );
+    const completed = await todayService.toggleAction(profileId, actionKey);
 
     await Haptics.selectionAsync();
+    setActionState((current) => ({
+      ...current,
+      [actionKey]: {
+        completed,
+        eventId: completed ? current[actionKey].eventId ?? 'pending' : null,
+      },
+    }));
     setActionFeedback({ actionKey, completed });
     await reload();
 
@@ -142,11 +145,7 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   async function undoLastAction() {
     if (!profileId || !actionFeedback) return;
 
-    await todayService.toggleAction(
-      profileId,
-      actionFeedback.actionKey,
-      actionState[actionFeedback.actionKey].eventId,
-    );
+    await todayService.toggleAction(profileId, actionFeedback.actionKey);
     await Haptics.selectionAsync();
     setActionFeedback(null);
     await reload();

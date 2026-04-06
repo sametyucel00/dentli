@@ -95,6 +95,8 @@ export type CareItemType =
   | 'toothpaste'
   | 'floss'
   | 'mouthwash'
+  | 'interdental_brush'
+  | 'water_flosser'
   | 'other';
 
 export type CareItem = {
