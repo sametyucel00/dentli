@@ -12,10 +12,10 @@ const ONBOARDING_LANGUAGES: SupportedLanguage[] = ['en', 'tr'];
 const BRUSHING_FREQUENCY_OPTIONS = [1, 2] as const;
 const FLOSS_FREQUENCY_OPTIONS = [1, 7] as const;
 const MOUTHWASH_FREQUENCY_OPTIONS = [1, 7] as const;
-const TIME_OPTIONS_MORNING = ['07:00', '08:00', '08:30'] as const;
-const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '21:30'] as const;
-const QUIET_START_OPTIONS = ['21:30', '22:00', '22:30'] as const;
-const QUIET_END_OPTIONS = ['07:00', '07:30', '08:00'] as const;
+const TIME_OPTIONS_MORNING = ['07:00', '08:00', '09:00'] as const;
+const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '22:00'] as const;
+const QUIET_START_OPTIONS = ['21:30', '22:00', '23:00'] as const;
+const QUIET_END_OPTIONS = ['07:00', '08:00', '09:00'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
 type OnboardingStep = 0 | 1 | 2 | 3 | 4 | 5;
