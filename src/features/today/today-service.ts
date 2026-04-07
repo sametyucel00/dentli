@@ -239,7 +239,7 @@ export class TodayService {
       actionKey,
       occurredAt: nowIso(),
       durationSeconds: null,
-      notes: 'extra_same_day_log',
+      notes: null,
     };
 
     await hygieneEventsRepository.create(event);
