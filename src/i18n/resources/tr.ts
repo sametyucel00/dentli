@@ -303,6 +303,7 @@ export const tr = {
       privacy: 'Gizlilik',
       terms: 'Koşullar',
       permissions: 'İzinler',
+      support: 'Destek',
     },
     analytics: {
       ...en.profile.analytics,
@@ -476,6 +477,19 @@ export const tr = {
       optionalTitle: 'Tasarımı gereği opsiyonel',
       optionalBody:
         'Mevcut sürümde Dentli hesap oluşturma, kişi rehberi, kamera, mikrofon veya konum izni gerektirmez.',
+    },
+    support: {
+      ...en.legal.support,
+      title: 'Destek',
+      emailTitle: 'Destek e-postası',
+      faqTitle: 'Sık sorulan sorular',
+      faqOne: 'Dentli kişisel ağız bakımı takip uygulamasıdır.',
+      faqTwo: 'Dentli tıbbi tavsiye vermez.',
+      faqThree: 'Verilerin büyük çoğu cihazınızda kalacak şekilde tasarlanmıştır.',
+      faqFour: 'Mevcut sürümde zorunlu hesap yoktur.',
+      faqFive: 'Bildirimler isteğe bağlı yerel hatırlatıcılardır.',
+      faqSix: 'Verileri uygulama içinden, uygulama verisini temizleyerek veya uygulamayı kaldırarak silebilirsiniz.',
+      faqSeven: 'Dentli Pro tek seferlik kilit açma modeli için tasarlanmıştır.',
     },
   },
   toothMap: {

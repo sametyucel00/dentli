@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Alert, View, useWindowDimensions } from 'react-native';
 
@@ -564,6 +564,14 @@ export function ProfileScreen() {
             onPress={() => router.push('/permissions')}
             style={actionButtonStyle}
             title={t('profile.release.permissions')}
+            titleVariant="caption"
+            variant="secondary"
+          />
+          <Button
+            compact
+            onPress={() => router.push('/support' as Href)}
+            style={actionButtonStyle}
+            title={t('profile.release.support')}
             titleVariant="caption"
             variant="secondary"
           />

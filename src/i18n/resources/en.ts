@@ -288,6 +288,7 @@ export const en = {
       privacy: 'Privacy',
       terms: 'Terms',
       permissions: 'Permissions',
+      support: 'Support',
     },
     analytics: {
       weeklyTitle: 'Weekly heatmap',
@@ -406,6 +407,19 @@ export const en = {
       notificationsBody: 'Dentli asks for notification permission so it can send local reminders for routines, appointments, and replacement cycles. Notifications remain optional and can be changed later.',
       optionalTitle: 'Optional by design',
       optionalBody: 'Dentli does not require account creation, contacts, camera, microphone, or location permissions in the current build.',
+    },
+    support: {
+      title: 'Support',
+      emailTitle: 'Support email',
+      email: 'sametyucel52@gmail.com',
+      faqTitle: 'Frequently asked questions',
+      faqOne: 'Dentli is a personal oral care tracking app.',
+      faqTwo: 'Dentli does not provide medical advice.',
+      faqThree: 'Most data is designed to stay on your device.',
+      faqFour: 'A mandatory account is not required in the current build.',
+      faqFive: 'Notifications are optional local reminders.',
+      faqSix: 'You can delete data through the app where supported, by clearing app data, or by uninstalling.',
+      faqSeven: 'Dentli Pro is intended as a one-time unlock.',
     },
   },
   notifications: {
