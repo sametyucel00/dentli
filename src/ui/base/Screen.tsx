@@ -88,7 +88,8 @@ export function Screen({
             ]}
             contentInsetAdjustmentBehavior="automatic"
             keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always"
+            nestedScrollEnabled
             showsVerticalScrollIndicator={false}>
             {children}
           </ScrollView>

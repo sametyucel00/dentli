@@ -42,18 +42,21 @@ function getRecentEventDetail(
   t: ReturnType<typeof useTranslation>['t'],
 ) {
   if (
+    !event.detail ||
     event.detail === 'timer_completion' ||
-    event.detail === 'extra_same_day_log' ||
-    event.detail === event.id
+    event.detail === event.id ||
+    event.detail.includes('extra_same_day_log')
   ) {
     return null;
   }
 
+  const normalizedDetail = event.detail.replaceAll('â€¢', '·').trim();
+
   if (event.type === 'tooth' && event.detail) {
-    return t(`toothMap.status.${event.detail}`);
+    return t(`toothMap.status.${normalizedDetail}`);
   }
 
-  return event.detail;
+  return normalizedDetail;
 }
 
 function StatTile({

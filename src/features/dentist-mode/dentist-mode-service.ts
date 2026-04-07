@@ -25,13 +25,14 @@ export class DentistModeService {
   async load(profileId: string): Promise<DentistModeSummary> {
     const startIso = getRangeStart(30);
 
-    const [appointments, hygieneEvents, routineSettings, symptoms, toothHistory] =
+    const [appointments, hygieneEvents, routineSettings, symptoms, toothHistory, currentStatuses] =
       await Promise.all([
         appointmentsRepository.listByProfileId(profileId),
         hygieneEventsRepository.listByProfileId(profileId, 240),
         routineSettingsRepository.getByProfileId(profileId),
         symptomEventsRepository.listByProfileId(profileId, 120),
         toothStatusRepository.listHistoryByProfileId(profileId),
+        toothStatusRepository.listCurrentByProfileId(profileId),
       ]);
 
     const recentHygiene = hygieneEvents.filter((event) => event.occurredAt >= startIso);
@@ -50,12 +51,17 @@ export class DentistModeService {
     );
 
     const problemTeethMap = new Map<number, { status: ToothStatus; count: number }>();
+    const toothUpdateCounts = new Map<number, number>();
     for (const update of recentToothUpdates) {
       if (update.status === 'healthy') continue;
-      const current = problemTeethMap.get(update.toothNumber);
-      problemTeethMap.set(update.toothNumber, {
-        status: update.status,
-        count: (current?.count ?? 0) + 1,
+      toothUpdateCounts.set(update.toothNumber, (toothUpdateCounts.get(update.toothNumber) ?? 0) + 1);
+    }
+    for (const status of currentStatuses) {
+      if (status.status === 'healthy') continue;
+      const existing = problemTeethMap.get(status.toothNumber);
+      problemTeethMap.set(status.toothNumber, {
+        status: status.status,
+        count: Math.max(existing?.count ?? 0, toothUpdateCounts.get(status.toothNumber) ?? 1),
       });
     }
 

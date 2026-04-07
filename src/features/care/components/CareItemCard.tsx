@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { CareItem } from '@/src/domain/models';
 import { getCareCountdown } from '@/src/features/care/model';
+import { formatDateTime } from '@/src/features/today/formatters';
+import { useAppLocale } from '@/src/i18n/useAppLocale';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Card, Text } from '@/src/ui/base';
 
@@ -15,6 +17,7 @@ export function CareItemCard({
 }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const locale = useAppLocale();
   const countdown = getCareCountdown(item);
 
   return (
@@ -31,25 +34,32 @@ export function CareItemCard({
           height: '100%',
           paddingVertical: theme.spacing.lg,
         }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md }}>
-          <View style={{ flex: 1 }}>
+        <View style={{ gap: theme.spacing.md }}>
+          <View>
             <Text weight="semibold">{item.title}</Text>
             <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
               {t(`careTracking.types.${item.itemType}`)}
             </Text>
-            {item.description ? (
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {item.description}
-              </Text>
-            ) : null}
           </View>
-          <View style={{ alignItems: 'flex-end', minWidth: 92 }}>
+          {item.description ? (
+            <Text color="muted">{item.description}</Text>
+          ) : null}
+          <View style={{ gap: theme.spacing.xs }}>
+            <Text color="muted">
+              {t('careTracking.countdownLabel')}: {countdown.daysLeft === null
+                ? t('careTracking.notTracked')
+                : countdown.dueNow
+                  ? t('careTracking.replaceNow')
+                  : t('careTracking.daysLeft', { count: countdown.daysLeft })}
+            </Text>
+            <Text color="muted">
+              {t('careTracking.form.lastReplacedDate')}: {formatDateTime(item.lastReplacedAt, locale, t('careTracking.notTracked'))}
+            </Text>
             <Text variant="caption" color="muted">
               {t('careTracking.countdownLabel')}
             </Text>
             <Text
               color={countdown.dueNow ? 'primary' : 'default'}
-              style={{ marginTop: theme.spacing.xs }}
               weight="bold">
               {countdown.daysLeft === null
                 ? t('careTracking.notTracked')

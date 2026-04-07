@@ -33,9 +33,13 @@ export function BottomSheetModal({
   const { isCompactPhone, isShortScreen, isTablet, modalMaxWidth } = useResponsiveLayout();
   const horizontalPadding = isCompactPhone ? theme.spacing.lg : theme.spacing.xl;
   const bottomPadding = Math.max(theme.spacing.lg, insets.bottom + theme.spacing.md);
+  const keyboardOffset = Platform.OS === 'android' ? Math.max(0, keyboardHeight - insets.bottom) : 0;
+  const phoneMaxHeight = height - insets.top - theme.spacing.xl;
   const maxSheetHeight = Math.max(
     minHeight,
-    height * (isShortScreen ? 0.9 : isTablet ? 0.82 : 0.84) - keyboardHeight * 0.6,
+    isTablet
+      ? height * (isShortScreen ? 0.9 : 0.82) - keyboardHeight * 0.35
+      : phoneMaxHeight,
   );
   const sheetWidth = isTablet ? Math.min(width - theme.spacing.xxxxl * 2, modalMaxWidth ?? 680) : width;
   const modalJustifyContent = isTablet ? 'center' : 'flex-end';
@@ -83,6 +87,7 @@ export function BottomSheetModal({
               borderRadius: isTablet ? theme.radii.xl : 0,
               borderTopLeftRadius: isTablet ? theme.radii.xl : theme.radii.lg,
               borderTopRightRadius: isTablet ? theme.radii.xl : theme.radii.lg,
+              marginBottom: isTablet ? 0 : keyboardOffset,
               minHeight,
               maxHeight: maxSheetHeight,
               paddingHorizontal: horizontalPadding,
@@ -108,11 +113,13 @@ export function BottomSheetModal({
               automaticallyAdjustKeyboardInsets
               bounces={false}
               contentContainerStyle={{
+                flexGrow: 1,
                 paddingBottom: bottomPadding + theme.spacing.xl + keyboardHeight,
               }}
               contentInsetAdjustmentBehavior="automatic"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               keyboardShouldPersistTaps="handled"
+              nestedScrollEnabled
               showsVerticalScrollIndicator={false}>
               {children}
             </ScrollView>

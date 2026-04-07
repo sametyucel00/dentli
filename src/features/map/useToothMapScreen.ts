@@ -63,6 +63,10 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     () => teeth.filter((tooth) => tooth.isProblemZone).length,
     [teeth],
   );
+  const trackedTeethCount = useMemo(
+    () => teeth.filter((tooth) => tooth.recordedAt !== null).length,
+    [teeth],
+  );
 
   async function openTooth(toothNumber: number) {
     if (!profileId) return;
@@ -121,6 +125,7 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     teeth,
     reload,
     problemZoneCount,
+    trackedTeethCount,
     selectedTooth,
     selectedToothNumber,
     history,

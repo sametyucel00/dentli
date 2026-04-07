@@ -4,7 +4,6 @@ import { View } from 'react-native';
 
 import {
   LOWER_JAW_SEGMENTS,
-  TOTAL_TEETH_COUNT,
   UPPER_JAW_SEGMENTS,
 } from '@/src/domain/teeth';
 import { useFeatureAccess } from '@/src/features/monetization';
@@ -67,7 +66,7 @@ export function MapScreen() {
                   {t('toothMap.summary.totalTeeth')}
                 </Text>
                 <Text style={{ marginTop: theme.spacing.xs }} variant="title" weight="bold">
-                  {TOTAL_TEETH_COUNT}
+                  {hasFullMapAccess ? map.trackedTeethCount : '-'}
                 </Text>
               </View>
             </View>

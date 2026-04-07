@@ -17,6 +17,16 @@ export function AppointmentCard({
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const locale = useAppLocale();
+  const reminderLabel =
+    appointment.reminderEnabled && appointment.reminderMinutesBefore !== null
+      ? appointment.reminderMinutesBefore === 180
+        ? t('appointments.reminders.threeHours')
+        : appointment.reminderMinutesBefore === 1440
+          ? t('appointments.reminders.oneDay')
+          : appointment.reminderMinutesBefore === 10080
+            ? t('appointments.reminders.oneWeek')
+            : t('appointments.reminderSet', { count: appointment.reminderMinutesBefore })
+      : null;
 
   return (
     <Pressable
@@ -27,35 +37,29 @@ export function AppointmentCard({
         transform: [{ scale: pressed ? 0.995 : 1 }],
       })}>
       <Card style={{ height: '100%', paddingVertical: theme.spacing.lg }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md }}>
-          <View style={{ flex: 1 }}>
+        <View style={{ gap: theme.spacing.md }}>
+          <View>
             <Text weight="semibold">{appointment.title}</Text>
             <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-              {t('appointments.labels.type')}: {t(`appointments.types.${appointment.appointmentType}`)}
-            </Text>
-            {appointment.clinicName ? (
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {t('appointments.labels.clinic')}: {appointment.clinicName}
-              </Text>
-            ) : null}
-            {appointment.doctorName ? (
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {t('appointments.labels.doctor')}: {appointment.doctorName}
-              </Text>
-            ) : null}
-          </View>
-          <View style={{ alignItems: 'flex-end', maxWidth: 120 }}>
-            <Text variant="caption" color="muted" style={{ textAlign: 'right' }}>
               {formatDateTime(appointment.startsAt, locale, '')}
             </Text>
-            <Text style={{ marginTop: theme.spacing.xs }} variant="caption" weight="semibold">
+          </View>
+          <View style={{ gap: theme.spacing.xs }}>
+            <Text color="muted">
+              {t('appointments.labels.type')}: {t(`appointments.types.${appointment.appointmentType}`)}
+            </Text>
+            <Text color="muted">
+              {t('appointments.labels.clinic')}: {appointment.clinicName ?? t('appointments.noProvider')}
+            </Text>
+            <Text color="muted">
+              {t('appointments.labels.doctor')}: {appointment.doctorName ?? t('appointments.noProvider')}
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md }}>
+            <Text variant="caption" color="muted">
               {t(`appointments.status.${appointment.status}`)}
             </Text>
-            {appointment.reminderEnabled && appointment.reminderMinutesBefore !== null ? (
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }} variant="caption">
-                {t('appointments.reminderSet', { count: appointment.reminderMinutesBefore })}
-              </Text>
-            ) : null}
+            {reminderLabel ? <Text color="muted" variant="caption">{reminderLabel}</Text> : null}
           </View>
         </View>
       </Card>
