@@ -459,6 +459,13 @@ export const tr = {
       pointTwo: 'Ek dikkat gerektiren dişleri problem bölgesi olarak işaretleyebilirsin.',
       pointThree: 'Geçmiş her dişe ayrı bağlı kalır; sonraki değişimleri takip etmek kolaylaşır.',
     },
+    locked: {
+      title: "Tam diÅŸ haritasÄ± Dentli Pro'nun parÃ§asÄ±",
+      body: "EtkileÅŸimli 32 diÅŸ haritasÄ±, Ã¼cretsiz deneyimin sade ve odaklÄ± kalmasÄ± iÃ§in Pro'ya ayrÄ±ldÄ±.",
+      pointOne: '32 diÅŸin tamamÄ± iÃ§in ayrÄ±ntÄ±lÄ± durum takibi tut.',
+      pointTwo: 'Sorunlu bÃ¶lgeleri iÅŸaretle ve her diÅŸ iÃ§in tarihÃ§e sakla.',
+      pointThree: 'Tam haritayÄ± DiÅŸ Hekimi Modu ve dÄ±ÅŸa aktarmalarda kullan.',
+    },
     common: {
       notRecorded: 'Henüz kayıt yok',
     },
