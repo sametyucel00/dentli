@@ -82,9 +82,17 @@ export function AppointmentsScreen() {
               flexWrap: 'wrap',
               gap: theme.spacing.md,
               marginTop: theme.spacing.lg,
+              width: '100%',
             }}>
             {appointmentsScreen.appointments.map((appointment) => (
-              <View key={appointment.id} style={{ flexBasis: isTablet ? '48.5%' : '100%' }}>
+              <View
+                key={appointment.id}
+                style={{
+                  flexGrow: isTablet ? 1 : 0,
+                  maxWidth: isTablet ? '48.6%' : '100%',
+                  minWidth: 0,
+                  width: isTablet ? undefined : '100%',
+                }}>
                 <AppointmentCard
                   appointment={appointment}
                   onPress={() => router.push(`/appointments/${appointment.id}`)}
