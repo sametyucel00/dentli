@@ -39,7 +39,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         ? 'tr'
         : 'en';
   const launchSlogan =
-    launchLanguage === 'tr' ? 'Kişisel ağız bakım sistemi' : 'Personal oral care system';
+    launchLanguage === 'tr' ? 'Ki\u015fisel a\u011f\u0131z bak\u0131m sistemi' : 'Personal oral care system';
 
   const authenticate = useCallback(async () => {
     if (
