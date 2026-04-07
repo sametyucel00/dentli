@@ -30,42 +30,59 @@ export function YearlyOverviewCard({
           <View
             key={month.id}
             style={{
-              alignItems: 'flex-start',
+              alignItems: 'center',
               backgroundColor: theme.colors.surfaceMuted,
               borderRadius: theme.radii.md,
               flexBasis: isTablet ? '23.5%' : isCompactWidth ? '23%' : '23.5%',
               gap: theme.spacing.xs,
               minWidth: 0,
-              paddingHorizontal: theme.spacing.sm,
+              paddingHorizontal: theme.spacing.xs,
               paddingVertical: theme.spacing.sm,
             }}>
-            <Text numberOfLines={1} variant="caption" color="muted">
+            <Text numberOfLines={1} style={{ textAlign: 'center' }} variant="caption" color="muted">
               {month.monthLabel}
             </Text>
             <View
               style={{
-                backgroundColor: theme.colors.background,
-                borderRadius: theme.radii.pill,
-                height: 36,
-                justifyContent: 'flex-end',
-                overflow: 'hidden',
-                width: '100%',
+                alignItems: 'center',
+                borderColor: month.completionRate === null ? theme.colors.border : theme.colors.primary,
+                borderRadius: 999,
+                borderWidth: 2,
+                height: isCompactWidth ? 42 : 48,
+                justifyContent: 'center',
+                width: isCompactWidth ? 42 : 48,
               }}>
-              <View
-                style={{
-                  backgroundColor:
-                    month.completionRate === null ? theme.colors.border : theme.colors.primary,
-                  borderRadius: theme.radii.pill,
-                  height: `${Math.max((month.completionRate ?? 0) * 100, 8)}%`,
-                  minHeight: 8,
-                  width: '100%',
-                }}
-              />
+              {month.completionRate === null ? (
+                <View
+                  style={{
+                    backgroundColor: theme.colors.border,
+                    borderRadius: 999,
+                    height: 12,
+                    opacity: 0.45,
+                    width: 12,
+                  }}
+                />
+              ) : (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: 999,
+                    height: '76%',
+                    justifyContent: 'center',
+                    width: '76%',
+                  }}>
+                  <Text
+                    style={{ color: theme.colors.textInverse, textAlign: 'center' }}
+                    variant="caption"
+                    weight="semibold">
+                    {Math.round(month.completionRate * 100)}
+                  </Text>
+                </View>
+              )}
             </View>
-            <Text variant="caption" weight="semibold">
-              {month.completionRate === null
-                ? '--'
-                : `${Math.round(month.completionRate * 100)}%`}
+            <Text numberOfLines={1} style={{ textAlign: 'center' }} variant="caption" weight="semibold">
+              {month.completionRate === null ? '--' : `${Math.round(month.completionRate * 100)}%`}
             </Text>
           </View>
         ))}

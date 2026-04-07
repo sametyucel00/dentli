@@ -56,7 +56,7 @@ export function getTimelineItemCopy(item: TimelineItem, t: TFunction) {
     const detailParts = [item.event.clinicName, item.event.doctorName].filter(Boolean);
     return {
       title: item.event.title,
-      subtitle: detailParts.join(' • ') || t(`appointments.types.${item.event.appointmentType}`),
+      subtitle: detailParts.join(' · ') || t(`appointments.types.${item.event.appointmentType}`),
     };
   }
 

@@ -41,6 +41,14 @@ function getRecentEventDetail(
   event: DentistModeSummary['recentEvents'][number],
   t: ReturnType<typeof useTranslation>['t'],
 ) {
+  if (
+    event.detail === 'timer_completion' ||
+    event.detail === 'extra_same_day_log' ||
+    event.detail === event.id
+  ) {
+    return null;
+  }
+
   if (event.type === 'tooth' && event.detail) {
     return t(`toothMap.status.${event.detail}`);
   }

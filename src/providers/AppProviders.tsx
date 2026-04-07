@@ -114,7 +114,7 @@ export function AppProviders({ children }: PropsWithChildren) {
           splashHiddenRef.current = true;
         })
         .catch(() => undefined);
-    }, 2200);
+    }, 3000);
 
     return () => clearTimeout(timeoutId);
   }, []);

@@ -51,6 +51,7 @@ export function Screen({
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
         style={styles.safeArea}>
         {scroll ? (
           <ScrollView

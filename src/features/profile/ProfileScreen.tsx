@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View, useWindowDimensions } from 'react-native';
+import { Alert, View, useWindowDimensions } from 'react-native';
 
 import { ProAccessCard, useFeatureAccess } from '@/src/features/monetization';
 import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
@@ -55,6 +55,24 @@ export function ProfileScreen() {
     flexGrow: 1,
     minWidth: 0,
   } as const;
+
+  function confirmClearAllData() {
+    Alert.alert(
+      t('profile.settings.clearDataConfirmTitle'),
+      t('profile.settings.clearDataConfirmBody'),
+      [
+        {
+          style: 'cancel',
+          text: t('profile.settings.clearDataConfirmCancel'),
+        },
+        {
+          style: 'destructive',
+          text: t('profile.settings.clearDataConfirmConfirm'),
+          onPress: () => void profileScreen.clearAllData(),
+        },
+      ],
+    );
+  }
 
   return (
     <Screen
@@ -464,7 +482,7 @@ export function ProfileScreen() {
             <Button
               compact
               disabled={profileScreen.settingsBusyKey === 'clearData'}
-              onPress={() => void profileScreen.clearAllData()}
+              onPress={confirmClearAllData}
               style={profileButtonStyle}
               title={t('profile.settings.clearData')}
               titleVariant="caption"

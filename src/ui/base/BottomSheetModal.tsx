@@ -51,7 +51,7 @@ export function BottomSheetModal({
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
-          style={{ justifyContent: modalJustifyContent }}>
+          style={{ flex: 1, justifyContent: modalJustifyContent }}>
           <Pressable
             accessibilityViewIsModal
             onPress={() => undefined}
