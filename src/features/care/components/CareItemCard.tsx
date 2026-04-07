@@ -55,18 +55,6 @@ export function CareItemCard({
             <Text color="muted">
               {t('careTracking.form.lastReplacedDate')}: {formatDateTime(item.lastReplacedAt, locale, t('careTracking.notTracked'))}
             </Text>
-            <Text variant="caption" color="muted">
-              {t('careTracking.countdownLabel')}
-            </Text>
-            <Text
-              color={countdown.dueNow ? 'primary' : 'default'}
-              weight="bold">
-              {countdown.daysLeft === null
-                ? t('careTracking.notTracked')
-                : countdown.dueNow
-                  ? t('careTracking.replaceNow')
-                  : t('careTracking.daysLeft', { count: countdown.daysLeft })}
-            </Text>
           </View>
         </View>
       </Card>

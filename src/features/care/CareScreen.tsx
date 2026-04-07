@@ -19,7 +19,7 @@ import {
 export function CareScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
+  const { isTablet, isExpanded, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
   const careScreen = useCareScreen();
   const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
 
@@ -76,9 +76,17 @@ export function CareScreen() {
               flexWrap: 'wrap',
               gap: theme.spacing.md,
               marginTop: theme.spacing.lg,
+              width: '100%',
             }}>
             {careScreen.careItems.map((item) => (
-              <View key={item.id} style={{ flexBasis: isTablet ? '48.5%' : '100%' }}>
+              <View
+                key={item.id}
+                style={{
+                  flexGrow: isTablet ? 1 : 0,
+                  maxWidth: isTablet ? (isExpanded ? '32%' : '48.6%') : '100%',
+                  minWidth: 0,
+                  width: isTablet ? undefined : '100%',
+                }}>
                 <CareItemCard
                   item={item}
                   onPress={() => careScreen.openEditEditor(item)}
