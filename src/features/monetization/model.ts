@@ -6,7 +6,7 @@ import {
   PremiumFeatureKey,
 } from '@/src/domain/models';
 
-export const DENTLI_PRO_PRODUCT_ID: MonetizationProductId = 'dentli_pro_lifetime';
+export const DENTLI_PRO_PRODUCT_ID: MonetizationProductId = 'com.dentli.app.pro.lifetime';
 
 export const PRO_FEATURE_KEYS: PremiumFeatureKey[] = [
   'tooth_map_full',
@@ -27,6 +27,7 @@ export type PurchaseProduct = {
   titleKey: string;
   descriptionKey: string;
   priceLabelKey: string;
+  storePriceLabel?: string | null;
 };
 
 export const MONETIZATION_PRODUCTS: PurchaseProduct[] = [

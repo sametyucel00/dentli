@@ -43,7 +43,7 @@ export function ProAccessCard({
             {t(product.descriptionKey)}
           </Text>
           <Text color="primary" style={{ marginTop: theme.spacing.sm }} weight="semibold">
-            {t(product.priceLabelKey)}
+            {product.storePriceLabel ?? t(product.priceLabelKey)}
           </Text>
           <Text color="muted" style={{ marginTop: theme.spacing.sm }} variant="caption">
             {t('monetization.paywall.trustLine')}

@@ -63,7 +63,8 @@
           "color": "#0F7B6C"
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "react-native-iap"
     ],
     "experiments": {
       "typedRoutes": true

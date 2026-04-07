@@ -4,7 +4,7 @@ export type SupportedLanguage = 'en' | 'tr';
 export type ThemeMode = 'system' | 'light' | 'dark';
 export type AppPlan = 'free' | 'pro';
 export type AppBootstrapStatus = 'idle' | 'loading' | 'ready' | 'error';
-export type MonetizationProductId = 'dentli_pro_lifetime';
+export type MonetizationProductId = 'com.dentli.app.pro.lifetime';
 export type PremiumFeatureKey =
   | 'tooth_map_full'
   | 'dentist_mode'
