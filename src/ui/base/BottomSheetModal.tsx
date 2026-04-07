@@ -1,5 +1,6 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -28,12 +29,33 @@ export function BottomSheetModal({
   const { theme } = useAppTheme();
   const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { isCompactPhone, isShortScreen, isTablet, modalMaxWidth } = useResponsiveLayout();
   const horizontalPadding = isCompactPhone ? theme.spacing.lg : theme.spacing.xl;
   const bottomPadding = Math.max(theme.spacing.lg, insets.bottom + theme.spacing.md);
-  const maxSheetHeight = height * (isShortScreen ? 0.9 : isTablet ? 0.82 : 0.84);
+  const maxSheetHeight = Math.max(
+    minHeight,
+    height * (isShortScreen ? 0.9 : isTablet ? 0.82 : 0.84) - keyboardHeight * 0.6,
+  );
   const sheetWidth = isTablet ? Math.min(width - theme.spacing.xxxxl * 2, modalMaxWidth ?? 680) : width;
   const modalJustifyContent = isTablet ? 'center' : 'flex-end';
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <Modal animationType="slide" statusBarTranslucent transparent visible={visible}>
@@ -85,7 +107,9 @@ export function BottomSheetModal({
             <ScrollView
               automaticallyAdjustKeyboardInsets
               bounces={false}
-              contentContainerStyle={{ paddingBottom: bottomPadding + theme.spacing.xl }}
+              contentContainerStyle={{
+                paddingBottom: bottomPadding + theme.spacing.xl + keyboardHeight,
+              }}
               contentInsetAdjustmentBehavior="automatic"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               keyboardShouldPersistTaps="handled"

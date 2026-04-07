@@ -1,5 +1,6 @@
-import { PropsWithChildren, useEffect, useRef } from 'react';
+import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -29,6 +30,7 @@ export function Screen({
   const { theme } = useAppTheme();
   const isFocused = useIsFocused();
   const scrollRef = useRef<ScrollView | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { isCompactPhone, contentMaxWidth: responsiveContentMaxWidth } = useResponsiveLayout();
 
   const sharedStyle: ViewStyle = {
@@ -47,6 +49,23 @@ export function Screen({
     }
   }, [isFocused, scroll]);
 
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
@@ -56,7 +75,17 @@ export function Screen({
         {scroll ? (
           <ScrollView
             ref={scrollRef}
-            contentContainerStyle={[sharedStyle, contentContainerStyle]}
+            automaticallyAdjustKeyboardInsets
+            contentContainerStyle={[
+              sharedStyle,
+              {
+                paddingBottom:
+                  (isCompactPhone ? theme.spacing.xl : theme.spacing.xxl) +
+                  keyboardHeight +
+                  theme.spacing.lg,
+              },
+              contentContainerStyle,
+            ]}
             contentInsetAdjustmentBehavior="automatic"
             keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
             keyboardShouldPersistTaps="handled"
