@@ -21,72 +21,83 @@ export function MonthlyCompletionCard({
 }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const { isExpanded } = useResponsiveLayout();
+  const { isTablet } = useResponsiveLayout();
+
+  const rows = isTablet
+    ? [
+        metrics.slice(0, 2),
+        metrics.slice(2, 4),
+      ]
+    : metrics.map((metric) => [metric]);
 
   return (
     <View
       style={{
-        flexDirection: isExpanded ? 'row' : 'column',
-        flexWrap: 'wrap',
         gap: theme.spacing.md,
         marginTop: theme.spacing.lg,
         width: '100%',
       }}>
-      {metrics.map((metric) => (
+      {rows.map((row, rowIndex) => (
         <View
-          key={metric.id}
+          key={`row-${rowIndex}`}
           style={{
-            backgroundColor: theme.colors.surfaceMuted,
-            borderRadius: theme.radii.md,
-            flexBasis: isExpanded ? '48.5%' : '100%',
-            gap: theme.spacing.xs,
-            padding: theme.spacing.md,
-            width: isExpanded ? undefined : '100%',
+            flexDirection: isTablet ? 'row' : 'column',
+            gap: theme.spacing.md,
+            width: '100%',
           }}>
-          {(() => {
+          {row.map((metric) => {
             const isTracked = metric.expectedCount > 0 && Number.isFinite(metric.completionRate);
             const percent = formatPercent(metric.completionRate);
 
             return (
-              <>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text weight={metric.id === 'overall' ? 'semibold' : 'medium'}>
-              {t(`profile.analytics.metrics.${metric.id}`)}
-            </Text>
-            <Text color="muted">
-              {isTracked ? `${percent}%` : t('profile.analytics.notTracked')}
-            </Text>
-          </View>
-          <View
-            style={{
-              backgroundColor: theme.colors.surfaceMuted,
-              borderRadius: theme.radii.pill,
-              height: 8,
-              overflow: 'hidden',
-            }}>
-            <View
-              style={{
-                backgroundColor:
-                  metric.id === 'overall'
-                    ? theme.colors.primary
-                    : theme.colors.accent,
-                borderRadius: theme.radii.pill,
-                height: '100%',
-                width: isTracked ? `${percent}%` : '0%',
-              }}
-            />
-          </View>
-          <Text color="muted" variant="caption">
-            {isTracked
-              ? t('profile.analytics.metricDetail', {
-                  completed: metric.completedCount,
-                  expected: metric.expectedCount,
-                })
-              : t('profile.analytics.notTracked')}
-          </Text>
-              </>
+              <View
+                key={metric.id}
+                style={{
+                  backgroundColor: theme.colors.surfaceMuted,
+                  borderRadius: theme.radii.md,
+                  flex: isTablet ? 1 : undefined,
+                  gap: theme.spacing.xs,
+                  padding: theme.spacing.md,
+                  width: isTablet ? undefined : '100%',
+                }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text weight={metric.id === 'overall' ? 'semibold' : 'medium'}>
+                    {t(`profile.analytics.metrics.${metric.id}`)}
+                  </Text>
+                  <Text color="muted">
+                    {isTracked ? `${percent}%` : t('profile.analytics.notTracked')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    backgroundColor: theme.colors.backgroundElevated,
+                    borderRadius: theme.radii.pill,
+                    height: 8,
+                    overflow: 'hidden',
+                  }}>
+                  <View
+                    style={{
+                      backgroundColor:
+                        metric.id === 'overall'
+                          ? theme.colors.primary
+                          : theme.colors.accent,
+                      borderRadius: theme.radii.pill,
+                      height: '100%',
+                      width: isTracked ? `${percent}%` : '0%',
+                    }}
+                  />
+                </View>
+                <Text color="muted" variant="caption">
+                  {isTracked
+                    ? t('profile.analytics.metricDetail', {
+                        completed: metric.completedCount,
+                        expected: metric.expectedCount,
+                      })
+                    : t('profile.analytics.notTracked')}
+                </Text>
+              </View>
             );
-          })()}
+          })}
         </View>
       ))}
     </View>
