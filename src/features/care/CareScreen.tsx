@@ -82,6 +82,7 @@ export function CareScreen() {
               <View
                 key={item.id}
                 style={{
+                  alignSelf: 'stretch',
                   flexGrow: isTablet ? 1 : 0,
                   maxWidth: isTablet ? (isExpanded ? '32%' : '48.6%') : '100%',
                   minWidth: 0,

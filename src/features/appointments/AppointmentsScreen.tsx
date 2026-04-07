@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { AppointmentCard } from '@/src/features/appointments/components/AppointmentCard';
 import { AppointmentForm } from '@/src/features/appointments/components/AppointmentForm';
@@ -20,6 +20,9 @@ export function AppointmentsScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
+  const { width } = useWindowDimensions();
+  const useTwoColumnMobile = width >= 360 && !isTablet;
+  const useTwoColumnLayout = isTablet || useTwoColumnMobile;
   const appointmentsScreen = useAppointmentsScreen();
 
   return (
@@ -78,7 +81,7 @@ export function AppointmentsScreen() {
         ) : (
           <View
             style={{
-              flexDirection: isTablet ? 'row' : 'column',
+              flexDirection: useTwoColumnLayout ? 'row' : 'column',
               flexWrap: 'wrap',
               gap: theme.spacing.md,
               marginTop: theme.spacing.lg,
@@ -88,10 +91,11 @@ export function AppointmentsScreen() {
               <View
                 key={appointment.id}
                 style={{
-                  flexGrow: isTablet ? 1 : 0,
-                  maxWidth: isTablet ? '48.6%' : '100%',
+                  alignSelf: 'stretch',
+                  flexGrow: useTwoColumnLayout ? 1 : 0,
+                  maxWidth: useTwoColumnLayout ? '48.6%' : '100%',
                   minWidth: 0,
-                  width: isTablet ? undefined : '100%',
+                  width: useTwoColumnLayout ? undefined : '100%',
                 }}>
                 <AppointmentCard
                   appointment={appointment}
