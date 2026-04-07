@@ -16,8 +16,10 @@ export const TOOTH_STATUS_OPTIONS: ToothStatus[] = [
 
 export const TOOTH_PROBLEM_ZONE_STATUSES: ToothStatus[] = [
   'cavity',
+  'root_canal',
   'cracked',
   'sensitivity',
+  'missing',
 ];
 
 export const UPPER_JAW_SEGMENTS = [

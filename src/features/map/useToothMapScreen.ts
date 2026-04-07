@@ -4,6 +4,7 @@ import { ToothCurrentStatus, ToothStatus, ToothStatusHistory } from '@/src/domai
 import { useFocusedAsyncEffect } from '@/src/hooks/useFocusedAsyncEffect';
 import { toothMapService } from '@/src/features/map/map-service';
 import { createToothMapItems, ToothMapItem } from '@/src/features/map/map-model';
+import { symptomService } from '@/src/services';
 import { useAppStore } from '@/src/state/useAppStore';
 
 const INITIAL_HISTORY: ToothStatusHistory[] = [];
@@ -26,6 +27,7 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
   const [draftNote, setDraftNote] = useState('');
   const [editorBusy, setEditorBusy] = useState(false);
   const [editorError, setEditorError] = useState<string | null>(null);
+  const [symptomToothNumbers, setSymptomToothNumbers] = useState<number[]>([]);
 
   const reload = useCallback(async () => {
     if (!profileId) {
@@ -41,6 +43,16 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
     try {
       const data = await toothMapService.load(profileId);
       setTeeth(data.teeth);
+      const symptoms = await symptomService.listByProfileId(profileId, 200);
+      setSymptomToothNumbers(
+        Array.from(
+          new Set(
+            symptoms
+              .map((symptom) => symptom.toothNumber)
+              .filter((value): value is number => typeof value === 'number'),
+          ),
+        ),
+      );
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unable to load tooth map.');
     } finally {
@@ -60,12 +72,20 @@ export function useToothMapScreen(profileId: string | null, isFocused: boolean) 
       : teeth.find((tooth) => tooth.toothNumber === selectedToothNumber) ?? null;
 
   const problemZoneCount = useMemo(
-    () => teeth.filter((tooth) => tooth.isProblemZone).length,
-    [teeth],
+    () =>
+      new Set([
+        ...teeth.filter((tooth) => tooth.isProblemZone).map((tooth) => tooth.toothNumber),
+        ...symptomToothNumbers,
+      ]).size,
+    [symptomToothNumbers, teeth],
   );
   const trackedTeethCount = useMemo(
-    () => teeth.filter((tooth) => tooth.recordedAt !== null).length,
-    [teeth],
+    () =>
+      new Set([
+        ...teeth.filter((tooth) => tooth.recordedAt !== null).map((tooth) => tooth.toothNumber),
+        ...symptomToothNumbers,
+      ]).size,
+    [symptomToothNumbers, teeth],
   );
 
   async function openTooth(toothNumber: number) {
