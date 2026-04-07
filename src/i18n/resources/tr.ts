@@ -334,6 +334,51 @@ export const tr = {
   },
   monetization: {
     ...en.monetization,
+    features: {
+      ...en.monetization.features,
+      tooth_map_full: 'Tam 32 diş haritası erişimi',
+      dentist_mode: 'Diş Hekimi Modu özeti',
+      pdf_export: 'PDF dışa aktarma',
+      analytics_advanced: 'Gelişmiş analitikler',
+      multi_profile: 'Çoklu profil geçişi',
+      timeline_full: 'Sınırsız zaman akışı',
+      care_full_inventory: 'Tam bakım envanteri',
+      biometric_lock: 'Biyometrik kilit',
+    },
+    paywall: {
+      ...en.monetization.paywall,
+      title: 'Dentli Pro kilidini aç',
+      body: 'Tek seferlik bir satın alım, daha kapsamlı bir ağız bakım sistemi isteyenler için Dentli’nin derin özelliklerini açar.',
+      includesTitle: 'Dentli Pro şunları içerir',
+      trustLine: 'Tek seferlik açılım. Reklam yok. Abonelik yok.',
+    },
+    gates: {
+      ...en.monetization.gates,
+      toothMapFull: {
+        title: 'Tam diş haritası Pro’nun parçasıdır',
+        body: 'Ücretsiz sürümde küçük bir önizleme vardır. Pro, tam 32 diş haritasını ve tüm dişlerde düzenlemeyi açar.',
+      },
+      dentistMode: {
+        title: 'Diş Hekimi Modu Pro’nun parçasıdır',
+        body: 'Pro, profesyonel özet görünümünü ve diş hekimine hazır dışa aktarma akışını açar.',
+      },
+      pdfExport: {
+        title: 'PDF dışa aktarma Pro’nun parçasıdır',
+        body: 'Klinik özetin PDF olarak dışa aktarılması Dentli Pro ile kullanılabilir.',
+      },
+      analyticsAdvanced: {
+        title: 'Gelişmiş analitikler Pro’nun parçasıdır',
+        body: 'Aylık tamamlanma, yıllık görünüm ve daha derin analizler Dentli Pro ile açılır.',
+      },
+      careInventory: {
+        title: 'Tam bakım envanteri Pro’nun parçasıdır',
+        body: 'Arayüz fırçası, ağız duşu ve tam bakım envanteri takibi Dentli Pro ile açılır.',
+      },
+      biometricLock: {
+        title: 'Biyometrik kilit Pro’nun parçasıdır',
+        body: 'Biyometrik gizlilik koruması tek seferlik Dentli Pro kilidiyle kullanılabilir.',
+      },
+    },
     actions: {
       unlock: 'Pro kilidini aç',
       restore: 'Satın alımları geri yükle',
@@ -460,11 +505,11 @@ export const tr = {
       pointThree: 'Geçmiş her dişe ayrı bağlı kalır; sonraki değişimleri takip etmek kolaylaşır.',
     },
     locked: {
-      title: "Tam diÅŸ haritasÄ± Dentli Pro'nun parÃ§asÄ±",
-      body: "EtkileÅŸimli 32 diÅŸ haritasÄ±, Ã¼cretsiz deneyimin sade ve odaklÄ± kalmasÄ± iÃ§in Pro'ya ayrÄ±ldÄ±.",
-      pointOne: '32 diÅŸin tamamÄ± iÃ§in ayrÄ±ntÄ±lÄ± durum takibi tut.',
-      pointTwo: 'Sorunlu bÃ¶lgeleri iÅŸaretle ve her diÅŸ iÃ§in tarihÃ§e sakla.',
-      pointThree: 'Tam haritayÄ± DiÅŸ Hekimi Modu ve dÄ±ÅŸa aktarmalarda kullan.',
+      title: 'Tam diş haritası Dentli Pro’nun parçası',
+      body: 'Etkileşimli 32 diş haritası, ücretsiz deneyimin sade ve odaklı kalması için Pro’ya ayrıldı.',
+      pointOne: '32 dişin tamamı için ayrıntılı durum takibi tut.',
+      pointTwo: 'Sorunlu bölgeleri işaretle ve her diş için tarihçe sakla.',
+      pointThree: 'Tam haritayı Diş Hekimi Modu ve dışa aktarmalarda kullan.',
     },
     common: {
       notRecorded: 'Henüz kayıt yok',
