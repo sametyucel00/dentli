@@ -18,6 +18,7 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
 
 const EMPTY_PROFILES: { id: string }[] = [];
+const MIN_LAUNCH_SCREEN_MS = 2200;
 
 export function AppProviders({ children }: PropsWithChildren) {
   const language = useAppStore((state) => state.language);
@@ -27,9 +28,9 @@ export function AppProviders({ children }: PropsWithChildren) {
   const profiles = useAppStore((state) => state.cache.profiles?.data ?? EMPTY_PROFILES);
   const { colorScheme, theme } = useAppTheme();
   const splashHiddenRef = useRef(false);
-  const launchReadyRef = useRef(false);
   const [isLocked, setIsLocked] = useState(false);
   const [lockError, setLockError] = useState<string | null>(null);
+  const [minimumLaunchElapsed, setMinimumLaunchElapsed] = useState(false);
   const [launchScreenReady, setLaunchScreenReady] = useState(false);
   const authInFlightRef = useRef(false);
   const launchLanguage =
@@ -102,22 +103,30 @@ export function AppProviders({ children }: PropsWithChildren) {
   }, [colorScheme]);
 
   useEffect(() => {
-    if (launchReadyRef.current) {
-      return;
-    }
-
     const timeoutId = setTimeout(() => {
-      launchReadyRef.current = true;
-      setLaunchScreenReady(true);
-      void SplashScreen.hideAsync()
-        .then(() => {
-          splashHiddenRef.current = true;
-        })
-        .catch(() => undefined);
-    }, 3000);
+      setMinimumLaunchElapsed(true);
+    }, MIN_LAUNCH_SCREEN_MS);
 
     return () => clearTimeout(timeoutId);
   }, []);
+
+  useEffect(() => {
+    if (!minimumLaunchElapsed || bootstrapStatus === 'loading') {
+      return;
+    }
+
+    setLaunchScreenReady(true);
+
+    if (splashHiddenRef.current) {
+      return;
+    }
+
+    void SplashScreen.hideAsync()
+      .then(() => {
+        splashHiddenRef.current = true;
+      })
+      .catch(() => undefined);
+  }, [bootstrapStatus, minimumLaunchElapsed]);
 
   useEffect(() => {
     if (bootstrapStatus !== 'ready' || !appPreferences.biometricLockEnabled) {
@@ -149,7 +158,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     bootstrapStatus === 'ready' &&
     profiles.length === 0 &&
     !appPreferences.onboardingCompleted;
-  const shouldShowLaunchScreen = bootstrapStatus !== 'ready' || !launchScreenReady;
+  const shouldShowLaunchScreen = bootstrapStatus === 'loading' || !launchScreenReady;
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -201,7 +210,7 @@ export function AppProviders({ children }: PropsWithChildren) {
             <View
               style={{
                 alignItems: 'center',
-                backgroundColor: theme.colors.background,
+                backgroundColor: '#081824',
                 flex: 1,
                 justifyContent: 'center',
                 paddingHorizontal: theme.spacing.xl,
@@ -215,8 +224,11 @@ export function AppProviders({ children }: PropsWithChildren) {
                   Dentli
                 </Text>
                 <Text
-                  color="muted"
-                  style={{ marginTop: theme.spacing.sm, textAlign: 'center' }}>
+                  style={{
+                    color: '#D7F1EC',
+                    marginTop: theme.spacing.sm,
+                    textAlign: 'center',
+                  }}>
                   {launchSlogan}
                 </Text>
               </View>

@@ -3,6 +3,7 @@ import { profileRepository } from '@/src/repositories';
 import { appPreferencesRepository } from '@/src/repositories/app-preferences-repository';
 import { databaseService } from '@/src/services/database-service';
 import { entitlementService } from '@/src/services/entitlement-service';
+import { notificationSchedulerService } from '@/src/services/notification-scheduler-service';
 import { notificationService } from '@/src/services/notification-service';
 import { profileContextService } from '@/src/services/profile-context-service';
 import { useAppStore } from '@/src/state/useAppStore';
@@ -22,34 +23,57 @@ class AppBootstrapService {
   }
 
   async hydrateStore() {
-    const profiles = await profileRepository.list();
-    const entitlements = await entitlementService.loadSnapshot();
-    const appPreferences = (await appPreferencesRepository.get()) ?? {
+    const [profiles, entitlements, storedPreferences] = await Promise.all([
+      profileRepository.list(),
+      entitlementService.loadSnapshot(),
+      appPreferencesRepository.get(),
+    ]);
+    const appPreferences = storedPreferences ?? {
       biometricLockEnabled: false,
       themeMode: 'dark',
       onboardingCompleted: false,
       updatedAt: new Date().toISOString(),
     };
-    const preferredSelectedProfileId = useAppStore.getState().selectedProfileId ?? profiles[0]?.id ?? null;
+    const preferredSelectedProfileId =
+      useAppStore.getState().selectedProfileId ?? profiles[0]?.id ?? null;
+    const profileIds = profiles.map((profile) => profile.id);
+    const resolvedProfileId = entitlementService.canAccessProfile(
+      preferredSelectedProfileId,
+      profileIds,
+    )
+      ? preferredSelectedProfileId
+      : entitlementService.getFallbackProfileId(profileIds);
+    const profileContext = resolvedProfileId
+      ? await profileContextService.loadProfileContext(resolvedProfileId)
+      : null;
 
     useAppStore.getState().hydrate({
       profiles,
-      selectedProfileId: preferredSelectedProfileId,
-      routineSettings: null,
-      appointments: [],
-      careItems: [],
-      toothCurrentStatuses: [],
+      selectedProfileId: resolvedProfileId,
+      routineSettings: profileContext?.routineSettings ?? null,
+      appointments: profileContext?.appointments ?? [],
+      careItems: profileContext?.careItems ?? [],
+      toothCurrentStatuses: profileContext?.toothCurrentStatuses ?? [],
       entitlements,
       appPreferences,
     });
 
-    const didSelectProfile = await profileContextService.selectProfile(preferredSelectedProfileId);
-
-    if (!didSelectProfile) {
-      const fallbackProfileId = profiles[0]?.id ?? null;
-      useAppStore.getState().selectProfile(fallbackProfileId);
-      await profileContextService.selectProfile(fallbackProfileId);
+    if (profileContext?.profile) {
+      void notificationSchedulerService.syncForProfile(profileContext.profile.id).catch(() => undefined);
+      return;
     }
+
+    if (resolvedProfileId) {
+      const didSelectProfile = await profileContextService.selectProfile(resolvedProfileId, {
+        deferNotificationSync: true,
+      });
+
+      if (didSelectProfile) {
+        return;
+      }
+    }
+
+    useAppStore.getState().selectProfile(null);
   }
 
   resetInitialization() {

@@ -39,8 +39,15 @@ class ProfileContextService {
     };
   }
 
-  async selectProfile(profileId: string | null) {
-    const profiles = await profileRepository.list();
+  async selectProfile(
+    profileId: string | null,
+    options?: {
+      deferNotificationSync?: boolean;
+    },
+  ) {
+    const cachedProfiles = useAppStore.getState().cache.profiles?.data ?? [];
+    const profiles =
+      cachedProfiles.length > 0 ? cachedProfiles : await profileRepository.list();
     useAppStore.getState().cacheProfiles(profiles);
     const profileIds = profiles.map((profile) => profile.id);
 
@@ -76,7 +83,12 @@ class ProfileContextService {
       language: profile?.preferredLanguage,
     });
 
-    await notificationSchedulerService.syncForProfile(profileId);
+    if (options?.deferNotificationSync) {
+      void notificationSchedulerService.syncForProfile(profileId).catch(() => undefined);
+    } else {
+      await notificationSchedulerService.syncForProfile(profileId);
+    }
+
     return true;
   }
 }
