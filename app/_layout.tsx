@@ -9,6 +9,10 @@ import { AppProviders } from '@/src/providers/AppProviders';
 export { ErrorBoundary } from 'expo-router';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+SplashScreen.setOptions({
+  duration: 300,
+  fade: true,
+});
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
