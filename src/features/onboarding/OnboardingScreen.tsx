@@ -2,29 +2,22 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { SupportedLanguage } from '@/src/domain/models';
 import { onboardingService } from '@/src/services/onboarding-service';
-import { useAppStore } from '@/src/state/useAppStore';
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Button, Card, OptionPills, Screen, Text, TextField } from '@/src/ui/base';
 
-const ONBOARDING_LANGUAGES: SupportedLanguage[] = ['en', 'tr'];
 const BRUSHING_FREQUENCY_OPTIONS = [1, 2] as const;
 const FLOSS_FREQUENCY_OPTIONS = [1, 7] as const;
 const MOUTHWASH_FREQUENCY_OPTIONS = [1, 7] as const;
 const TIME_OPTIONS_MORNING = ['07:00', '08:00', '09:00'] as const;
 const TIME_OPTIONS_NIGHT = ['20:30', '21:00', '22:00'] as const;
-const QUIET_START_OPTIONS = ['21:30', '22:00', '23:00'] as const;
-const QUIET_END_OPTIONS = ['07:00', '08:00', '09:00'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
-type OnboardingStep = 0 | 1 | 2 | 3 | 4 | 5;
+type OnboardingStep = 0 | 1 | 2 | 3 | 4;
 
 export function OnboardingScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const appLanguage = useAppStore((state) => state.language);
-  const setLanguage = useAppStore((state) => state.setLanguage);
   const [step, setStep] = useState<OnboardingStep>(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -37,12 +30,12 @@ export function OnboardingScreen() {
   const [requestNotificationPermission, setRequestNotificationPermission] = useState(true);
   const [morningReminderTime, setMorningReminderTime] = useState<string>('08:00');
   const [nightReminderTime, setNightReminderTime] = useState<string>('21:00');
-  const [quietHoursStart, setQuietHoursStart] = useState<string>('22:30');
-  const [quietHoursEnd, setQuietHoursEnd] = useState<string>('08:00');
+  const [quietHoursStart] = useState<string>('22:30');
+  const [quietHoursEnd] = useState<string>('08:00');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const totalSteps = 6;
+  const totalSteps = 5;
   const canContinue = useMemo(() => {
     if (step === 0) {
       return firstName.trim().length > 0;
@@ -63,7 +56,7 @@ export function OnboardingScreen() {
       await onboardingService.createInitialProfile({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        preferredLanguage: appLanguage,
+        preferredLanguage: 'en',
         brushingFrequencyPerDay,
         flossingEnabled,
         flossSessionsPerWeek,
@@ -74,7 +67,7 @@ export function OnboardingScreen() {
         nightReminderTime,
         quietHoursStart,
         quietHoursEnd,
-        requestNotificationPermission,
+        requestNotificationPermission: remindersEnabled && requestNotificationPermission,
       });
     } catch (nextError) {
       setError(
@@ -112,31 +105,12 @@ export function OnboardingScreen() {
               placeholder={t('onboarding.lastName')}
               value={lastName}
             />
-            <Card style={{ padding: theme.spacing.lg }}>
-              <Text weight="semibold">{t('onboarding.localFirst.title')}</Text>
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {t('onboarding.localFirst.body')}
-              </Text>
-            </Card>
+            <Text color="muted" variant="caption">
+              {t('onboarding.localFirst.body')}
+            </Text>
           </View>
         );
       case 1:
-        return (
-          <View style={{ gap: theme.spacing.lg }}>
-            <Text variant="title" weight="semibold">
-              {t('onboarding.steps.language.title')}
-            </Text>
-            <Text color="muted">{t('onboarding.steps.language.body')}</Text>
-            <OptionPills
-              containerStyle={CENTERED_PILL_STYLE}
-              labelMap={(value) => t(`onboarding.languages.${value}`)}
-              onSelect={(value) => setLanguage(value)}
-              options={ONBOARDING_LANGUAGES}
-              selectedValue={appLanguage}
-            />
-          </View>
-        );
-      case 2:
         return (
           <View style={{ gap: theme.spacing.lg }}>
             <Text variant="title" weight="semibold">
@@ -152,7 +126,7 @@ export function OnboardingScreen() {
             />
           </View>
         );
-      case 3:
+      case 2:
         return (
           <View style={{ gap: theme.spacing.lg }}>
             <Text variant="title" weight="semibold">
@@ -223,7 +197,7 @@ export function OnboardingScreen() {
             ) : null}
           </View>
         );
-      case 4:
+      case 3:
         return (
           <View style={{ gap: theme.spacing.lg }}>
             <Text variant="title" weight="semibold">
@@ -254,33 +228,9 @@ export function OnboardingScreen() {
                 selectedValue={nightReminderTime}
               />
             </View>
-            <View style={{ gap: theme.spacing.sm }}>
-              <Text variant="caption" color="muted" weight="semibold">
-                {t('onboarding.quietStart')}
-              </Text>
-              <OptionPills
-                containerStyle={CENTERED_PILL_STYLE}
-                labelMap={(value) => value}
-                onSelect={setQuietHoursStart}
-                options={QUIET_START_OPTIONS}
-                selectedValue={quietHoursStart}
-              />
-            </View>
-            <View style={{ gap: theme.spacing.sm }}>
-              <Text variant="caption" color="muted" weight="semibold">
-                {t('onboarding.quietEnd')}
-              </Text>
-              <OptionPills
-                containerStyle={CENTERED_PILL_STYLE}
-                labelMap={(value) => value}
-                onSelect={setQuietHoursEnd}
-                options={QUIET_END_OPTIONS}
-                selectedValue={quietHoursEnd}
-              />
-            </View>
           </View>
         );
-      case 5:
+      case 4:
       default:
         return (
           <View style={{ gap: theme.spacing.lg }}>
@@ -288,36 +238,16 @@ export function OnboardingScreen() {
               {t('onboarding.steps.notifications.title')}
             </Text>
             <Text color="muted">{t('onboarding.steps.notifications.body')}</Text>
-            <Card style={{ padding: theme.spacing.lg }}>
-              <Text weight="semibold">{t('onboarding.permissionCard.title')}</Text>
-              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                {t('onboarding.permissionCard.body')}
-              </Text>
-            </Card>
-            <View style={{ gap: theme.spacing.sm }}>
-              <Text variant="caption" color="muted" weight="semibold">
-                {t('onboarding.remindersLabel')}
-              </Text>
-              <OptionPills
-                containerStyle={CENTERED_PILL_STYLE}
-                labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
-                onSelect={setRemindersEnabled}
-                options={[true, false]}
-                selectedValue={remindersEnabled}
-              />
-            </View>
-            <View style={{ gap: theme.spacing.sm }}>
-              <Text variant="caption" color="muted" weight="semibold">
-                {t('onboarding.notificationPermissionLabel')}
-              </Text>
-              <OptionPills
-                containerStyle={CENTERED_PILL_STYLE}
-                labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
-                onSelect={setRequestNotificationPermission}
-                options={[true, false]}
-                selectedValue={requestNotificationPermission}
-              />
-            </View>
+            <OptionPills
+              containerStyle={CENTERED_PILL_STYLE}
+              labelMap={(value) => t(value ? 'common.enabled' : 'common.disabled')}
+              onSelect={(value) => {
+                setRemindersEnabled(value);
+                setRequestNotificationPermission(value);
+              }}
+              options={[true, false]}
+              selectedValue={remindersEnabled}
+            />
           </View>
         );
     }
@@ -377,17 +307,17 @@ export function OnboardingScreen() {
           {step > 0 ? (
             <Button
               onPress={goBack}
-              style={{ flexBasis: '48%', minWidth: 0 }}
+              style={{ flex: 1, minWidth: 0 }}
               title={t('onboarding.back')}
               variant="secondary"
             />
           ) : (
-            <View style={{ flexBasis: '48%', minWidth: 0 }} />
+            <View style={{ flex: 1, minWidth: 0 }} />
           )}
           <Button
             disabled={submitting || !canContinue}
             onPress={() => void (step === totalSteps - 1 ? handleFinish() : goNext())}
-            style={{ flexBasis: '48%', minWidth: 0 }}
+            style={{ flex: 1, minWidth: 0 }}
             title={
               step === totalSteps - 1
                 ? submitting

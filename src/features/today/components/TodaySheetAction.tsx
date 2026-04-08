@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable } from 'react-native';
+import { Pressable, useWindowDimensions } from 'react-native';
 
 import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
@@ -16,6 +16,8 @@ export function TodaySheetAction({
   onPress: () => void;
 }) {
   const { theme } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isCompactWidth = width < 390;
 
   return (
     <Pressable
@@ -28,9 +30,9 @@ export function TodaySheetAction({
         flexBasis: '48%',
         gap: theme.spacing.sm,
         justifyContent: 'center',
-        minHeight: 112,
+        minHeight: isCompactWidth ? 92 : 108,
         opacity: pressed ? 0.82 : 1,
-        padding: theme.spacing.lg,
+        padding: isCompactWidth ? theme.spacing.md : theme.spacing.lg,
         transform: [{ scale: pressed ? 0.99 : 1 }],
       })}>
       <Ionicons color={theme.colors.primary} name={icon} size={20} />
@@ -40,7 +42,7 @@ export function TodaySheetAction({
       {description ? (
         <Text
           color="muted"
-          numberOfLines={2}
+          numberOfLines={1}
           style={{ textAlign: 'center' }}
           variant="caption">
           {description}

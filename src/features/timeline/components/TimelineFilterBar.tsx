@@ -12,6 +12,7 @@ export function TimelineFilterBar({
 }) {
   return (
     <OptionPills
+      columns={3}
       containerStyle={{ justifyContent: 'center' }}
       labelMap={labelMap}
       onSelect={onChange}

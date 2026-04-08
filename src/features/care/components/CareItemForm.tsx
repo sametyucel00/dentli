@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, useWindowDimensions } from 'react-native';
 
@@ -30,11 +31,20 @@ export function CareItemForm({
   const isWideLayout = width >= 700;
   const splitButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '48%', minWidth: 0 } as const;
   const singleButtonStyle = { flexBasis: isVeryNarrow ? '100%' : '72%', maxWidth: 340, minWidth: 0 } as const;
+  const [detailsOpen, setDetailsOpen] = useState(
+    Boolean(draft.description || draft.replacementCycleDays),
+  );
   const availableTypes = allowAdvancedTypes
     ? CARE_ITEM_TYPE_OPTIONS
     : CARE_ITEM_TYPE_OPTIONS.filter((value) =>
         ['toothbrush', 'toothpaste', 'floss', 'mouthwash'].includes(value),
       );
+
+  useEffect(() => {
+    if (draft.description || draft.replacementCycleDays) {
+      setDetailsOpen(true);
+    }
+  }, [draft.description, draft.replacementCycleDays]);
 
   return (
     <View style={{ gap: theme.spacing.md }}>
@@ -46,31 +56,17 @@ export function CareItemForm({
         placeholder={t('careTracking.form.title')}
         value={draft.title}
       />
+      <Text variant="caption" color="muted" weight="semibold">
+        {t('careTracking.form.typeLabel')}
+      </Text>
       <OptionPills
+        columns={2}
         containerStyle={{ justifyContent: 'center' }}
         labelMap={(value) => t(`careTracking.types.${value}`)}
         onSelect={(value) => onChange({ itemType: value })}
         options={availableTypes}
         selectedValue={draft.itemType}
       />
-      <TextField
-        multiline
-        numberOfLines={4}
-        onChangeText={(value) => onChange({ description: value })}
-        placeholder={t('careTracking.form.description')}
-        value={draft.description}
-      />
-      <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
-        <View style={{ flex: 1 }}>
-          <TextField
-            keyboardType="number-pad"
-            onChangeText={(value) => onChange({ replacementCycleDays: value })}
-            placeholder={t('careTracking.form.replacementDaysPlaceholder')}
-            value={draft.replacementCycleDays}
-          />
-        </View>
-        {isWideLayout ? <View style={{ flex: 1 }} /> : null}
-      </View>
       <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
         <View style={{ flex: 1 }}>
           <DateTimeField
@@ -89,6 +85,33 @@ export function CareItemForm({
           />
         </View>
       </View>
+      <Button
+        onPress={() => setDetailsOpen((current) => !current)}
+        title={t(detailsOpen ? 'common.hideOptionalDetails' : 'common.optionalDetails')}
+        variant="ghost"
+      />
+      {detailsOpen ? (
+        <View style={{ gap: theme.spacing.md }}>
+          <TextField
+            multiline
+            numberOfLines={4}
+            onChangeText={(value) => onChange({ description: value })}
+            placeholder={t('careTracking.form.description')}
+            value={draft.description}
+          />
+          <View style={{ flexDirection: isWideLayout ? 'row' : 'column', gap: theme.spacing.md }}>
+            <View style={{ flex: 1 }}>
+              <TextField
+                keyboardType="number-pad"
+                onChangeText={(value) => onChange({ replacementCycleDays: value })}
+                placeholder={t('careTracking.form.replacementDaysPlaceholder')}
+                value={draft.replacementCycleDays}
+              />
+            </View>
+            {isWideLayout ? <View style={{ flex: 1 }} /> : null}
+          </View>
+        </View>
+      ) : null}
       <View
         style={{
           flexDirection: 'row',

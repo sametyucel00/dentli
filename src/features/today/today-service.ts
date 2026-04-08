@@ -153,6 +153,7 @@ export class TodayService {
     severity: number | null;
     toothNumber: number | null;
     notes: string | null;
+    occurredAt: string;
   }) {
     await symptomService.create(input);
   }
@@ -160,21 +161,25 @@ export class TodayService {
   async addAppointment(input: {
     profileId: string;
     title: string;
+    appointmentType: Appointment['appointmentType'];
+    clinicName: string | null;
     doctorName: string | null;
     startsAt: string;
+    notes: string | null;
+    reminderMinutesBefore: number | null;
   }) {
     await appointmentService.create({
       profileId: input.profileId,
       title: input.title,
-      appointmentType: 'checkup',
-      clinicName: null,
+      appointmentType: input.appointmentType,
+      clinicName: input.clinicName,
       doctorName: input.doctorName,
       startsAt: input.startsAt,
       endsAt: null,
-      notes: null,
+      notes: input.notes,
       status: 'scheduled',
-      reminderEnabled: false,
-      reminderMinutesBefore: null,
+      reminderEnabled: input.reminderMinutesBefore !== null,
+      reminderMinutesBefore: input.reminderMinutesBefore,
     });
   }
 
@@ -183,12 +188,14 @@ export class TodayService {
     toothNumber: number;
     status: ToothStatus;
     note: string | null;
+    recordedAt?: string | null;
   }) {
     await toothStatusService.upsertStatus({
       profileId: input.profileId,
       toothNumber: input.toothNumber,
       status: input.status,
       note: input.note,
+      recordedAt: input.recordedAt ?? null,
       source: 'today_sheet',
     });
   }

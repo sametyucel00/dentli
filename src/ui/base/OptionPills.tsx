@@ -9,12 +9,14 @@ export function OptionPills<T extends string | number | boolean | null>({
   onSelect,
   labelMap,
   containerStyle,
+  columns,
 }: {
   options: readonly T[];
   selectedValue: T;
   onSelect: (value: T) => void;
   labelMap: (value: T) => string;
   containerStyle?: StyleProp<ViewStyle>;
+  columns?: number;
 }) {
   const { colorScheme, theme } = useAppTheme();
   const { width } = useWindowDimensions();
@@ -35,6 +37,12 @@ export function OptionPills<T extends string | number | boolean | null>({
       ]}>
       {options.map((option) => {
         const selected = option === selectedValue;
+        const basis: ViewStyle['flexBasis'] =
+          columns && columns > 0
+            ? isNarrowWidth
+              ? '100%'
+              : `${Math.max(100 / columns - 2, 22)}%`
+            : undefined;
         return (
           <Pressable
             accessibilityRole="button"
@@ -47,11 +55,12 @@ export function OptionPills<T extends string | number | boolean | null>({
               borderColor: selected ? theme.colors.primary : theme.colors.border,
               borderRadius: theme.radii.pill,
               borderWidth: colorScheme === 'dark' ? 1 : 0,
+              flexBasis: basis,
               flexShrink: 1,
               justifyContent: 'center',
               maxWidth: isNarrowWidth ? '100%' : undefined,
               minHeight: 40,
-              minWidth: isCompactWidth ? 78 : 92,
+              minWidth: columns ? 0 : isCompactWidth ? 78 : 92,
               paddingHorizontal: theme.spacing.md,
               paddingVertical: isCompactWidth ? theme.spacing.xs + 1 : theme.spacing.sm,
             }}>

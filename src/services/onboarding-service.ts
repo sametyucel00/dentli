@@ -32,7 +32,7 @@ class OnboardingService {
       id: profileId,
       firstName: input.firstName,
       lastName: input.lastName,
-      preferredLanguage: input.preferredLanguage,
+      preferredLanguage: 'en',
       createdAt: timestamp,
       updatedAt: timestamp,
     };
@@ -68,7 +68,7 @@ class OnboardingService {
       });
     });
 
-    await settingsService.applyLanguage(input.preferredLanguage);
+    await settingsService.applyLanguage('en');
     await profileContextService.selectProfile(profileId);
 
     if (input.requestNotificationPermission && input.remindersEnabled) {

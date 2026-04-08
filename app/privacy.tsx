@@ -45,13 +45,6 @@ export default function PrivacyScreen() {
           {t('legal.privacy.purchaseBody')}
         </Text>
       </Card>
-
-      <Card style={{ marginTop: theme.spacing.lg }}>
-        <Text weight="semibold">{t('legal.productionNoticeTitle')}</Text>
-        <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-          {t('legal.productionNoticeBody')}
-        </Text>
-      </Card>
     </Screen>
   );
 }

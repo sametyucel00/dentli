@@ -11,9 +11,9 @@ function getCellBackgroundColor(
   colors: ReturnType<typeof useAppTheme>['theme']['colors'],
 ) {
   if (intensity === 4) return colors.primary;
-  if (intensity === 3) return colors.accent;
-  if (intensity === 2) return colors.primarySoft;
-  if (intensity === 1) return colors.surfaceAccent;
+  if (intensity === 3) return colors.primarySoft;
+  if (intensity === 2) return colors.surfaceAccent;
+  if (intensity === 1) return colors.surfaceMuted;
   return colors.surfaceMuted;
 }
 

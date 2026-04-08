@@ -3,7 +3,6 @@ import { AppointmentMutationInput } from '@/src/services/appointment-service.typ
 
 export const APPOINTMENT_REMINDER_OPTIONS = [
   { value: null, labelKey: 'appointments.reminders.none' },
-  { value: 180, labelKey: 'appointments.reminders.threeHours' },
   { value: 1440, labelKey: 'appointments.reminders.oneDay' },
   { value: 10080, labelKey: 'appointments.reminders.oneWeek' },
 ] as const;

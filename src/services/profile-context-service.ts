@@ -80,7 +80,7 @@ class ProfileContextService {
       appointments,
       careItems,
       toothCurrentStatuses,
-      language: profile?.preferredLanguage,
+      language: 'en',
     });
 
     if (options?.deferNotificationSync) {

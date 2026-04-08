@@ -23,7 +23,6 @@ export function useProfileScreen() {
       : null,
   );
   const appPreferences = useAppStore((state) => state.appPreferences);
-  const language = useAppStore((state) => state.language);
   const themeMode = useAppStore((state) => state.themeMode);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,16 +83,6 @@ export function useProfileScreen() {
     if (!didSwitch) {
       setError(t('profile.profiles.switchError'));
     }
-  }
-
-  async function updateLanguage(nextLanguage: 'en' | 'tr') {
-    await runSettingsAction(
-      'language',
-      async () => {
-        await settingsService.applyLanguage(nextLanguage);
-      },
-      t('profile.settings.saved'),
-    );
   }
 
   async function updateThemeMode(nextThemeMode: 'system' | 'light' | 'dark') {
@@ -170,7 +159,7 @@ export function useProfileScreen() {
         await profileManagementService.createProfile({
           firstName,
           lastName: newProfileLastName.trim(),
-          preferredLanguage: language,
+          preferredLanguage: 'en',
         });
         setNewProfileFirstName('');
         setNewProfileLastName('');
@@ -203,7 +192,6 @@ export function useProfileScreen() {
     switchProfile,
     routineSettings,
     appPreferences,
-    language,
     themeMode,
     settingsError,
     settingsNotice,
@@ -212,7 +200,6 @@ export function useProfileScreen() {
     setNewProfileFirstName,
     newProfileLastName,
     setNewProfileLastName,
-    updateLanguage,
     updateThemeMode,
     updateRoutineSettings,
     requestNotificationPermission,

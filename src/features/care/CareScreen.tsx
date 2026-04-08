@@ -44,7 +44,7 @@ export function CareScreen() {
           <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
               onPress={careScreen.openCreateEditor}
-              style={{ alignSelf: 'center' }}
+              style={{ alignSelf: 'center', width: isTablet ? undefined : '72%' }}
               title={t('careTracking.summary.add')}
             />
             {!hasFullCareInventoryAccess ? (

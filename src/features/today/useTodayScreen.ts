@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DailyActionKey, SymptomType, ToothStatus } from '@/src/domain/models';
+import { AppointmentDraft, createInitialAppointmentDraft } from '@/src/features/appointments/model';
 import { useFocusedAsyncEffect } from '@/src/hooks/useFocusedAsyncEffect';
 import {
   TODAY_INITIAL_ACTION_STATE,
@@ -11,7 +12,6 @@ import {
   TodayQuickStatus,
   TodaySheetMode,
 } from '@/src/features/today/model';
-import { createDefaultAppointmentDateTime } from '@/src/features/appointments/model';
 import { useBrushTimer } from '@/src/features/today/hooks/useBrushTimer';
 import { todayService } from '@/src/features/today/today-service';
 
@@ -51,12 +51,14 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
   const [symptomSeverity, setSymptomSeverity] = useState<number | null>(null);
   const [symptomTooth, setSymptomTooth] = useState('');
   const [symptomNote, setSymptomNote] = useState('');
-  const [appointmentTitle, setAppointmentTitle] = useState('');
-  const [appointmentProvider, setAppointmentProvider] = useState('');
-  const [appointmentStartsAt, setAppointmentStartsAt] = useState(createDefaultAppointmentDateTime());
+  const [symptomOccurredAt, setSymptomOccurredAt] = useState(new Date().toISOString());
+  const [appointmentDraft, setAppointmentDraft] = useState<AppointmentDraft>(
+    createInitialAppointmentDraft(),
+  );
   const [toothNumber, setToothNumber] = useState('');
   const [toothStatus, setToothStatus] = useState<ToothStatus>('healthy');
   const [toothNote, setToothNote] = useState('');
+  const [toothRecordedAt, setToothRecordedAt] = useState(new Date().toISOString());
   const [actionFeedback, setActionFeedback] = useState<{
     actionKey: DailyActionKey;
     completed: boolean;
@@ -179,15 +181,21 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
         severity: symptomSeverity,
         toothNumber: symptomTooth ? Number(symptomTooth) : null,
         notes: symptomNote || null,
+        occurredAt: symptomOccurredAt,
       });
     }, {
       onSuccess: () => {
         setSymptomNote('');
         setSymptomTooth('');
         setSymptomSeverity(null);
+        setSymptomOccurredAt(new Date().toISOString());
         closeSheet();
       },
     });
+  }
+
+  function patchAppointmentDraft(patch: Partial<AppointmentDraft>) {
+    setAppointmentDraft((current) => ({ ...current, ...patch }));
   }
 
   async function submitAppointment(defaultTitle: string) {
@@ -196,15 +204,17 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     await runMutation(async () => {
       await todayService.addAppointment({
         profileId,
-        title: appointmentTitle.trim() || defaultTitle,
-        doctorName: appointmentProvider.trim() || null,
-        startsAt: appointmentStartsAt,
+        title: appointmentDraft.title.trim() || defaultTitle,
+        appointmentType: appointmentDraft.appointmentType,
+        clinicName: appointmentDraft.clinicName.trim() || null,
+        doctorName: appointmentDraft.doctorName.trim() || null,
+        startsAt: appointmentDraft.startsAt,
+        notes: appointmentDraft.notes.trim() || null,
+        reminderMinutesBefore: appointmentDraft.reminderMinutesBefore,
       });
     }, {
       onSuccess: () => {
-        setAppointmentTitle('');
-        setAppointmentProvider('');
-        setAppointmentStartsAt(createDefaultAppointmentDateTime());
+        setAppointmentDraft(createInitialAppointmentDraft());
         closeSheet();
       },
     });
@@ -219,11 +229,13 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
         toothNumber: Number(toothNumber),
         status: toothStatus,
         note: toothNote || null,
+        recordedAt: toothRecordedAt,
       });
     }, {
       onSuccess: () => {
         setToothNumber('');
         setToothNote('');
+        setToothRecordedAt(new Date().toISOString());
         closeSheet();
       },
     });
@@ -273,18 +285,18 @@ export function useTodayScreen(profileId: string | null, isFocused: boolean) {
     setSymptomTooth,
     symptomNote,
     setSymptomNote,
-    appointmentTitle,
-    setAppointmentTitle,
-    appointmentProvider,
-    setAppointmentProvider,
-    appointmentStartsAt,
-    setAppointmentStartsAt,
+    symptomOccurredAt,
+    setSymptomOccurredAt,
+    appointmentDraft,
+    patchAppointmentDraft,
     toothNumber,
     setToothNumber,
     toothStatus,
     setToothStatus,
     toothNote,
     setToothNote,
+    toothRecordedAt,
+    setToothRecordedAt,
     submitSymptom,
     submitAppointment,
     submitToothUpdate,

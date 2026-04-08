@@ -40,27 +40,28 @@ const DEFAULT_PREFERENCES: AppPreferences = {
 
 class SettingsService {
   async applyLanguage(language: SupportedLanguage) {
+    const nextLanguage: SupportedLanguage = 'en';
     const state = useAppStore.getState();
     const previousLanguage = state.language;
     const cachedProfiles = state.cache.profiles?.data ?? [];
-    state.setLanguage(language);
+    state.setLanguage(nextLanguage);
 
     const selectedProfileId = state.selectedProfileId;
     if (selectedProfileId && cachedProfiles.length > 0) {
       state.cacheProfiles(
         cachedProfiles.map((profile) =>
           profile.id === selectedProfileId
-            ? { ...profile, preferredLanguage: language }
+            ? { ...profile, preferredLanguage: nextLanguage }
             : profile,
         ),
       );
     }
 
     try {
-      await i18n.changeLanguage(language);
+      await i18n.changeLanguage(nextLanguage);
 
       if (selectedProfileId) {
-        await profileRepository.updatePreferredLanguage(selectedProfileId, language);
+        await profileRepository.updatePreferredLanguage(selectedProfileId, nextLanguage);
       }
     } catch (error) {
       state.setLanguage(previousLanguage);

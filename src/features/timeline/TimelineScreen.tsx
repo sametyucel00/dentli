@@ -57,11 +57,8 @@ export function TimelineScreen() {
               alignSelf: 'flex-start',
               flex: isExpanded ? 0.38 : undefined,
             }}>
-            <Text variant="title" weight="semibold">
-              {t('timeline.header.title')}
-            </Text>
-            <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-              {t('timeline.header.description')}
+            <Text variant="caption" color="muted" weight="semibold">
+              {t('timeline.filtersTitle')}
             </Text>
             <View style={{ marginTop: theme.spacing.lg }}>
               <TimelineFilterBar

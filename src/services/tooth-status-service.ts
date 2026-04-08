@@ -10,6 +10,7 @@ type UpsertToothStatusInput = {
   status: ToothStatus;
   note: string | null;
   source: string;
+  recordedAt?: string | null;
 };
 
 class ToothStatusService {
@@ -24,7 +25,7 @@ class ToothStatusService {
   }
 
   async upsertStatus(input: UpsertToothStatusInput) {
-    const timestamp = nowIso();
+    const timestamp = input.recordedAt ?? nowIso();
 
     await databaseService.withTransaction(async () => {
       await toothStatusRepository.upsertCurrentStatus({

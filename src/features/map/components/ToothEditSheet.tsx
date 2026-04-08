@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -42,6 +43,8 @@ export function ToothEditSheet({
   const { theme } = useAppTheme();
   const { isExpanded } = useResponsiveLayout();
   const locale = useAppLocale();
+  const [notesOpen, setNotesOpen] = useState(Boolean(note));
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   return (
     <BottomSheetModal minHeight={420} onClose={onClose} visible={visible}>
@@ -65,6 +68,7 @@ export function ToothEditSheet({
           }}>
           <View style={{ flex: isExpanded ? 1 : undefined, gap: theme.spacing.md }}>
             <OptionPills
+              columns={3}
               containerStyle={{ justifyContent: 'center' }}
               labelMap={(value) => t(`toothMap.status.${value}`)}
               onSelect={(value) => onChangeStatus(value)}
@@ -72,13 +76,21 @@ export function ToothEditSheet({
               selectedValue={status}
             />
 
-            <TextField
-              multiline
-              numberOfLines={4}
-              onChangeText={onChangeNote}
-              placeholder={t('toothMap.editor.notePlaceholder')}
-              value={note}
+            <Button
+              onPress={() => setNotesOpen((current) => !current)}
+              title={t(notesOpen ? 'common.hideNotes' : 'common.showNotes')}
+              variant="ghost"
             />
+
+            {notesOpen ? (
+              <TextField
+                multiline
+                numberOfLines={4}
+                onChangeText={onChangeNote}
+                placeholder={t('toothMap.editor.notePlaceholder')}
+                value={note}
+              />
+            ) : null}
 
             <Button
               disabled={busy}
@@ -89,29 +101,37 @@ export function ToothEditSheet({
           </View>
 
           <View style={{ flex: isExpanded ? 1 : undefined, gap: theme.spacing.sm }}>
-            <Text weight="semibold">{t('toothMap.editor.historyTitle')}</Text>
-            {history.length === 0 ? (
-              <Text color="muted">{t('toothMap.editor.emptyHistory')}</Text>
-            ) : (
-              history.map((entry) => (
-                <View
-                  key={entry.id}
-                  style={{
-                    borderBottomColor: theme.colors.border,
-                    borderBottomWidth: 1,
-                    paddingBottom: theme.spacing.sm,
-                  }}>
-                  <Text weight="semibold">{t(`toothMap.status.${entry.status}`)}</Text>
-                  <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                    {formatDateTime(entry.recordedAt, locale, t('toothMap.common.notRecorded'))}
-                  </Text>
-                  {entry.note ? (
+            <Button
+              onPress={() => setHistoryOpen((current) => !current)}
+              title={t(historyOpen ? 'common.hideHistory' : 'common.showHistory')}
+              variant="ghost"
+            />
+            {historyOpen ? (
+              history.length === 0 ? (
+                <Text color="muted">{t('toothMap.editor.emptyHistory')}</Text>
+              ) : (
+                history.map((entry) => (
+                  <View
+                    key={entry.id}
+                    style={{
+                      borderBottomColor: theme.colors.border,
+                      borderBottomWidth: 1,
+                      paddingBottom: theme.spacing.sm,
+                    }}>
+                    <Text weight="semibold">{t(`toothMap.status.${entry.status}`)}</Text>
                     <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                      {entry.note}
+                      {formatDateTime(entry.recordedAt, locale, t('toothMap.common.notRecorded'))}
                     </Text>
-                  ) : null}
-                </View>
-              ))
+                    {entry.note ? (
+                      <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                        {entry.note}
+                      </Text>
+                    ) : null}
+                  </View>
+                ))
+              )
+            ) : (
+              <Text color="muted">{t('toothMap.editor.historyTitle')}</Text>
             )}
           </View>
         </View>

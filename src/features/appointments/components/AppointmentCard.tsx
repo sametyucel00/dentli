@@ -19,9 +19,7 @@ export function AppointmentCard({
   const locale = useAppLocale();
   const reminderLabel =
     appointment.reminderEnabled && appointment.reminderMinutesBefore !== null
-      ? appointment.reminderMinutesBefore === 180
-        ? t('appointments.reminders.threeHours')
-        : appointment.reminderMinutesBefore === 1440
+      ? appointment.reminderMinutesBefore === 1440
           ? t('appointments.reminders.oneDay')
           : appointment.reminderMinutesBefore === 10080
             ? t('appointments.reminders.oneWeek')

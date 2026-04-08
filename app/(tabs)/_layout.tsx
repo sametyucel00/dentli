@@ -19,7 +19,10 @@ export default function TabsLayout() {
     <Tabs
       initialRouteName="today"
       screenOptions={({ route }) => ({
+        animation: 'fade',
+        freezeOnBlur: true,
         headerShown: false,
+        lazy: false,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.tabIconDefault,
         tabBarStyle: {

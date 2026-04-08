@@ -85,8 +85,8 @@ class AppBootstrapService {
 
     try {
       await databaseService.initialize();
-      await seedDevelopmentData();
       await this.hydrateStore();
+      void seedDevelopmentData().catch(() => undefined);
       void notificationService.initialize().catch(() => undefined);
     } catch (error) {
       useAppStore.getState().setBootstrapState({

@@ -1,12 +1,11 @@
 import { ThemeProvider } from '@react-navigation/native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as Localization from 'expo-localization';
 import * as NavigationBar from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { AppState, Platform, Pressable, View } from 'react-native';
+import { AppState, Image, Platform, Pressable, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { OnboardingScreen } from '@/src/features/onboarding/OnboardingScreen';
@@ -18,10 +17,9 @@ import { useAppTheme } from '@/src/theme/useAppTheme';
 import { Text } from '@/src/ui/base';
 
 const EMPTY_PROFILES: { id: string }[] = [];
-const MIN_LAUNCH_SCREEN_MS = 2200;
+const MIN_LAUNCH_SCREEN_MS = 2800;
 
 export function AppProviders({ children }: PropsWithChildren) {
-  const language = useAppStore((state) => state.language);
   const bootstrapStatus = useAppStore((state) => state.bootstrapStatus);
   const bootstrapError = useAppStore((state) => state.bootstrapError);
   const appPreferences = useAppStore((state) => state.appPreferences);
@@ -33,14 +31,7 @@ export function AppProviders({ children }: PropsWithChildren) {
   const [minimumLaunchElapsed, setMinimumLaunchElapsed] = useState(false);
   const [launchScreenReady, setLaunchScreenReady] = useState(false);
   const authInFlightRef = useRef(false);
-  const launchLanguage =
-    bootstrapStatus === 'ready'
-      ? language
-      : Localization.getLocales()[0]?.languageCode === 'tr'
-        ? 'tr'
-        : 'en';
-  const launchSlogan =
-    launchLanguage === 'tr' ? 'Ki\u015fisel a\u011f\u0131z bak\u0131m sistemi' : 'Personal oral care system';
+  const launchSlogan = 'Personal oral care system';
 
   const authenticate = useCallback(async () => {
     if (
@@ -80,8 +71,8 @@ export function AppProviders({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    void i18n.changeLanguage(language);
-  }, [language]);
+    void i18n.changeLanguage('en');
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== 'android') {
@@ -220,6 +211,14 @@ export function AppProviders({ children }: PropsWithChildren) {
                   alignItems: 'center',
                   marginBottom: theme.spacing.xxxl,
                 }}>
+                <Image
+                  source={require('../../assets/images/splash-icon.png')}
+                  style={{
+                    height: 88,
+                    marginBottom: theme.spacing.lg,
+                    width: 88,
+                  }}
+                />
                 <Text variant="display" weight="bold">
                   Dentli
                 </Text>

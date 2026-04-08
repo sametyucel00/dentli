@@ -13,19 +13,103 @@ type ToothCellProps = {
 };
 
 function getStatusColors(status: ToothStatus, isProblemZone: boolean, colors: any) {
+  if (status === 'healthy') {
+    return {
+      backgroundColor: colors.surface,
+      borderColor: colors.success,
+      textColor: colors.text,
+      badgeColor: colors.success,
+      badgeLabel: 'OK',
+    };
+  }
+
+  if (status === 'cavity') {
+    return {
+      backgroundColor: colors.surfaceAccent,
+      borderColor: colors.danger,
+      textColor: colors.text,
+      badgeColor: colors.danger,
+      badgeLabel: 'CV',
+    };
+  }
+
+  if (status === 'missing') {
+    return {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.danger,
+      textColor: colors.text,
+      badgeColor: colors.danger,
+      badgeLabel: 'MS',
+    };
+  }
+
+  if (status === 'root_canal') {
+    return {
+      backgroundColor: colors.surfaceAccent,
+      borderColor: colors.warning,
+      textColor: colors.text,
+      badgeColor: colors.warning,
+      badgeLabel: 'RC',
+    };
+  }
+
+  if (status === 'filling') {
+    return {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.primary,
+      textColor: colors.text,
+      badgeColor: colors.primary,
+      badgeLabel: 'FL',
+    };
+  }
+
+  if (status === 'implant') {
+    return {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.accent,
+      textColor: colors.text,
+      badgeColor: colors.accent,
+      badgeLabel: 'IM',
+    };
+  }
+
+  if (status === 'crown') {
+    return {
+      backgroundColor: colors.surfaceAccent,
+      borderColor: colors.borderStrong,
+      textColor: colors.text,
+      badgeColor: colors.borderStrong,
+      badgeLabel: 'CR',
+    };
+  }
+
+  if (status === 'cracked') {
+    return {
+      backgroundColor: colors.surfaceAccent,
+      borderColor: colors.warning,
+      textColor: colors.text,
+      badgeColor: colors.warning,
+      badgeLabel: 'CK',
+    };
+  }
+
+  if (status === 'sensitivity') {
+    return {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.accent,
+      textColor: colors.text,
+      badgeColor: colors.accent,
+      badgeLabel: 'SN',
+    };
+  }
+
   if (isProblemZone) {
     return {
       backgroundColor: colors.surfaceAccent,
       borderColor: colors.warning,
       textColor: colors.text,
-    };
-  }
-
-  if (status === 'healthy') {
-    return {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      textColor: colors.text,
+      badgeColor: colors.warning,
+      badgeLabel: '!',
     };
   }
 
@@ -33,6 +117,8 @@ function getStatusColors(status: ToothStatus, isProblemZone: boolean, colors: an
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.borderStrong,
     textColor: colors.text,
+    badgeColor: colors.borderStrong,
+    badgeLabel: null,
   };
 }
 
@@ -69,18 +155,23 @@ export function ToothCell({
           width: '100%',
         },
       ]}>
-      {isProblemZone ? (
+      {colors.badgeLabel ? (
         <View
           style={{
-            backgroundColor: theme.colors.warning,
+            alignItems: 'center',
+            backgroundColor: colors.badgeColor,
             borderRadius: theme.radii.pill,
-            height: 8,
+            height: 18,
+            justifyContent: 'center',
             position: 'absolute',
-            right: theme.spacing.xs,
-            top: theme.spacing.xs,
-            width: 8,
-          }}
-        />
+            right: -4,
+            top: -6,
+            width: 22,
+          }}>
+          <Text style={{ color: theme.colors.textInverse, fontSize: 8, lineHeight: 9 }} weight="bold">
+            {colors.badgeLabel}
+          </Text>
+        </View>
       ) : null}
       <Text style={{ color: colors.textColor }} variant="caption" weight="semibold">
         {toothNumber}

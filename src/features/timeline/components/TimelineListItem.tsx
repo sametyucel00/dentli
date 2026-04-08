@@ -46,19 +46,19 @@ export function TimelineListItem({
           </View>
           <View style={{ flex: 1 }}>
             <Text weight="semibold">{copy.title}</Text>
-            <Text color="muted" numberOfLines={2} style={{ marginTop: theme.spacing.xs }}>
+            <Text color="muted" numberOfLines={1} style={{ marginTop: theme.spacing.xs }}>
               {copy.subtitle}
-            </Text>
-          </View>
-          <View style={{ alignItems: 'flex-end', maxWidth: isExpanded ? 148 : 96 }}>
-            <Text color="muted" variant="caption" style={{ textAlign: 'right' }}>
-              {formatDateTime(item.occurredAt, locale, '')}
             </Text>
             {item.kind === 'symptom' && item.event.severity !== null ? (
               <Text color="muted" variant="caption" style={{ marginTop: theme.spacing.xs }}>
                 {t('timeline.severityLabel', { value: item.event.severity })}
               </Text>
             ) : null}
+          </View>
+          <View style={{ alignItems: 'flex-end', maxWidth: isExpanded ? 148 : 96 }}>
+            <Text color="muted" variant="caption" style={{ textAlign: 'right' }}>
+              {formatDateTime(item.occurredAt, locale, '')}
+            </Text>
           </View>
         </View>
       </Card>

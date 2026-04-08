@@ -1,7 +1,11 @@
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { AppointmentDraft } from '@/src/features/appointments/model';
+import { AppointmentForm } from '@/src/features/appointments/components/AppointmentForm';
 import { SymptomType, ToothStatus } from '@/src/domain/models';
+import { SYMPTOM_SEVERITY_OPTIONS } from '@/src/domain/symptoms';
 import { TOOTH_STATUS_OPTIONS } from '@/src/domain/teeth';
 import {
   BrushCompletionChoice,
@@ -26,13 +30,11 @@ type TodayViewModel = {
   setSymptomTooth: (value: string) => void;
   symptomNote: string;
   setSymptomNote: (value: string) => void;
+  symptomOccurredAt: string;
+  setSymptomOccurredAt: (value: string) => void;
   submitSymptom: () => Promise<void>;
-  appointmentTitle: string;
-  setAppointmentTitle: (value: string) => void;
-  appointmentProvider: string;
-  setAppointmentProvider: (value: string) => void;
-  appointmentStartsAt: string;
-  setAppointmentStartsAt: (value: string) => void;
+  appointmentDraft: AppointmentDraft;
+  patchAppointmentDraft: (patch: Partial<AppointmentDraft>) => void;
   submitAppointment: (defaultTitle: string) => Promise<void>;
   toothNumber: string;
   setToothNumber: (value: string) => void;
@@ -40,6 +42,8 @@ type TodayViewModel = {
   setToothStatus: (value: ToothStatus) => void;
   toothNote: string;
   setToothNote: (value: string) => void;
+  toothRecordedAt: string;
+  setToothRecordedAt: (value: string) => void;
   submitToothUpdate: () => Promise<void>;
   addExtraCareEvent: (actionKey: 'floss' | 'mouthwash') => Promise<void>;
   timerActive: boolean;
@@ -57,6 +61,15 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { isTablet } = useResponsiveLayout();
+  const [extraActionsOpen, setExtraActionsOpen] = useState(false);
+  const [symptomNotesOpen, setSymptomNotesOpen] = useState(false);
+  const [toothNotesOpen, setToothNotesOpen] = useState(false);
+
+  useEffect(() => {
+    setExtraActionsOpen(false);
+    setSymptomNotesOpen(Boolean(today.symptomNote));
+    setToothNotesOpen(Boolean(today.toothNote));
+  }, [today.sheetMode, today.symptomNote, today.toothNote]);
 
   const localizedTimerQuadrants = today.timerQuadrants.map((quadrant) => ({
     id: quadrant.id,
@@ -100,19 +113,34 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
             label={t('today.sheet.updateTooth')}
             onPress={() => today.openSheet('tooth')}
           />
-          <TodaySheetAction
-            description={t('today.sheet.addExtraFlossHint')}
-            icon="add-circle-outline"
-            label={t('today.sheet.addExtraFloss')}
-            onPress={() => void today.addExtraCareEvent('floss')}
-          />
-          <TodaySheetAction
-            description={t('today.sheet.addExtraMouthwashHint')}
-            icon="add-circle-outline"
-            label={t('today.sheet.addExtraMouthwash')}
-            onPress={() => void today.addExtraCareEvent('mouthwash')}
-          />
         </View>
+        <Button
+          onPress={() => setExtraActionsOpen((current) => !current)}
+          title={t(extraActionsOpen ? 'common.hideOptionalDetails' : 'common.optionalDetails')}
+          variant="ghost"
+        />
+        {extraActionsOpen ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.sm,
+              justifyContent: 'center',
+            }}>
+            <TodaySheetAction
+              description={t('today.sheet.addExtraFlossHint')}
+              icon="add-circle-outline"
+              label={t('today.sheet.addExtraFloss')}
+              onPress={() => void today.addExtraCareEvent('floss')}
+            />
+            <TodaySheetAction
+              description={t('today.sheet.addExtraMouthwashHint')}
+              icon="add-circle-outline"
+              label={t('today.sheet.addExtraMouthwash')}
+              onPress={() => void today.addExtraCareEvent('mouthwash')}
+            />
+          </View>
+        ) : null}
       </View>
     );
   }
@@ -123,19 +151,29 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
         <Text variant="title" weight="semibold">
           {t('today.sheet.addSymptom')}
         </Text>
+        <Text variant="caption" color="muted" weight="semibold">
+          {t('today.sheet.symptomCategory')}
+        </Text>
         <OptionPills
+          columns={2}
           containerStyle={{ justifyContent: 'center' }}
           options={SYMPTOM_TYPE_OPTIONS}
           selectedValue={today.symptomType}
           onSelect={(value) => today.setSymptomType(value)}
           labelMap={(value) => t(`today.symptoms.${value}`)}
         />
+        <Text variant="caption" color="muted" weight="semibold">
+          {t('today.sheet.symptomSeverity')}
+        </Text>
         <OptionPills
+          columns={2}
           containerStyle={{ justifyContent: 'center' }}
-          options={[null, 1, 2, 3, 4, 5]}
+          options={SYMPTOM_SEVERITY_OPTIONS}
           selectedValue={today.symptomSeverity}
           onSelect={(value) => today.setSymptomSeverity(value)}
-          labelMap={(value) => (value === null ? t('today.sheet.noSeverity') : `${value}`)}
+          labelMap={(value) =>
+            value === null ? t('today.sheet.noSeverity') : t(`today.sheet.severity.${value}`)
+          }
         />
         <TextField
           value={today.symptomTooth}
@@ -143,15 +181,39 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           placeholder={t('today.sheet.toothNumber')}
           keyboardType="number-pad"
         />
-        <TextField
-          multiline
-          numberOfLines={4}
-          value={today.symptomNote}
-          onChangeText={today.setSymptomNote}
-          placeholder={t('today.sheet.note')}
-        />
+        <View style={{ flexDirection: isTablet ? 'row' : 'column', gap: theme.spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('timeline.common.date')}
+              mode="date"
+              onChange={today.setSymptomOccurredAt}
+              value={today.symptomOccurredAt}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DateTimeField
+              label={t('timeline.common.time')}
+              mode="time"
+              onChange={today.setSymptomOccurredAt}
+              value={today.symptomOccurredAt}
+            />
+          </View>
+        </View>
         <Button
-          disabled={!today.symptomNote.trim() && !today.symptomTooth.trim()}
+          onPress={() => setSymptomNotesOpen((current) => !current)}
+          title={t(symptomNotesOpen ? 'common.hideNotes' : 'common.showNotes')}
+          variant="ghost"
+        />
+        {symptomNotesOpen ? (
+          <TextField
+            multiline
+            numberOfLines={4}
+            value={today.symptomNote}
+            onChangeText={today.setSymptomNote}
+            placeholder={t('today.sheet.note')}
+          />
+        ) : null}
+        <Button
           style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
           title={t('today.sheet.save')}
           onPress={() => void today.submitSymptom()}
@@ -163,42 +225,12 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
   if (today.sheetMode === 'appointment') {
     return (
       <View style={{ gap: theme.spacing.md }}>
-        <Text variant="title" weight="semibold">
-          {t('today.sheet.addAppointment')}
-        </Text>
-        <TextField
-          value={today.appointmentTitle}
-          onChangeText={today.setAppointmentTitle}
-          placeholder={t('today.sheet.appointmentTitle')}
-        />
-        <TextField
-          value={today.appointmentProvider}
-          onChangeText={today.setAppointmentProvider}
-          placeholder={t('today.sheet.providerName')}
-        />
-        <View style={{ flexDirection: isTablet ? 'row' : 'column', gap: theme.spacing.md }}>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('today.sheet.startDate')}
-              mode="date"
-              onChange={today.setAppointmentStartsAt}
-              value={today.appointmentStartsAt}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <DateTimeField
-              label={t('today.sheet.startTime')}
-              mode="time"
-              onChange={today.setAppointmentStartsAt}
-              value={today.appointmentStartsAt}
-            />
-          </View>
-        </View>
-        <Button
-          disabled={!today.appointmentStartsAt.trim()}
-          style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
-          title={t('today.sheet.save')}
-          onPress={() => void today.submitAppointment(t('today.sheet.defaultAppointmentTitle'))}
+        <AppointmentForm
+          draft={today.appointmentDraft}
+          onChange={today.patchAppointmentDraft}
+          onSubmit={() => void today.submitAppointment(t('today.sheet.defaultAppointmentTitle'))}
+          submitLabel={t('today.sheet.save')}
+          title={t('today.sheet.addAppointment')}
         />
       </View>
     );
@@ -217,19 +249,36 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
           keyboardType="number-pad"
         />
         <OptionPills
+          columns={3}
           containerStyle={{ justifyContent: 'center' }}
           options={TOOTH_STATUS_OPTIONS}
           selectedValue={today.toothStatus}
           onSelect={(value) => today.setToothStatus(value)}
           labelMap={(value) => t(`today.toothStatus.${value}`)}
         />
-        <TextField
-          multiline
-          numberOfLines={4}
-          value={today.toothNote}
-          onChangeText={today.setToothNote}
-          placeholder={t('today.sheet.note')}
+        <Text variant="caption" color="muted" weight="semibold">
+          {t('today.sheet.recordDate')}
+        </Text>
+        <DateTimeField
+          label={t('timeline.common.date')}
+          mode="date"
+          onChange={today.setToothRecordedAt}
+          value={today.toothRecordedAt}
         />
+        <Button
+          onPress={() => setToothNotesOpen((current) => !current)}
+          title={t(toothNotesOpen ? 'common.hideNotes' : 'common.showNotes')}
+          variant="ghost"
+        />
+        {toothNotesOpen ? (
+          <TextField
+            multiline
+            numberOfLines={4}
+            value={today.toothNote}
+            onChangeText={today.setToothNote}
+            placeholder={t('today.sheet.note')}
+          />
+        ) : null}
         <Button
           disabled={!today.toothNumber.trim()}
           style={{ alignSelf: 'center', minWidth: 220, width: '72%' }}
@@ -277,7 +326,13 @@ export function TodaySheetContent({ today }: { today: TodayViewModel }) {
         ) : (
           <>
             <Button
-              title={today.timerActive ? t('today.sheet.pauseTimer') : t('today.sheet.startTimer')}
+              title={
+                today.timerActive
+                  ? t('today.sheet.pauseTimer')
+                  : today.secondsLeft < 120
+                    ? t('today.sheet.resumeTimer')
+                    : t('today.sheet.startTimer')
+              }
               onPress={today.toggleTimerRunning}
             />
             <Button

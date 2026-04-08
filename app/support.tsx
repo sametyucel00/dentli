@@ -45,13 +45,6 @@ export default function SupportScreen() {
           ))}
         </View>
       </Card>
-
-      <Card style={{ marginTop: theme.spacing.lg }}>
-        <Text weight="semibold">{t('legal.productionNoticeTitle')}</Text>
-        <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-          {t('legal.productionNoticeBody')}
-        </Text>
-      </Card>
     </Screen>
   );
 }

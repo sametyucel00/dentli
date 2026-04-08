@@ -1,4 +1,5 @@
 import { router, type Href } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, View, useWindowDimensions } from 'react-native';
 
@@ -24,12 +25,9 @@ const BRUSHING_OPTIONS = [1, 2] as const;
 const FLOSS_FREQUENCY_OPTIONS = [1, 7] as const;
 const MOUTHWASH_FREQUENCY_OPTIONS = [1, 7] as const;
 const BOOLEAN_OPTIONS = [true, false] as const;
-const LANGUAGE_OPTIONS = ['en', 'tr'] as const;
 const THEME_OPTIONS = ['system', 'light', 'dark'] as const;
 const MORNING_TIME_OPTIONS = ['07:00', '08:00', '09:00'] as const;
 const NIGHT_TIME_OPTIONS = ['20:30', '21:00', '22:00'] as const;
-const QUIET_START_OPTIONS = ['21:30', '22:00', '23:00'] as const;
-const QUIET_END_OPTIONS = ['07:00', '08:00', '09:00'] as const;
 const CENTERED_PILL_STYLE = { justifyContent: 'center' } as const;
 
 export function ProfileScreen() {
@@ -45,6 +43,7 @@ export function ProfileScreen() {
   const accessibleProfileIds = useAccessibleProfileIds();
   const hasAdvancedAnalyticsAccess = useFeatureAccess('analytics_advanced');
   const hasBiometricLockAccess = useFeatureAccess('biometric_lock');
+  const [moreSettingsOpen, setMoreSettingsOpen] = useState(false);
   const actionButtonStyle = {
     flexBasis: isCompactWidth ? '48%' : '31%',
     flexGrow: 1,
@@ -264,19 +263,6 @@ export function ProfileScreen() {
         <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.lg }}>
           <View style={{ gap: theme.spacing.sm }}>
             <Text variant="caption" color="muted" weight="semibold">
-              {t('profile.settings.language')}
-            </Text>
-            <OptionPills
-              containerStyle={CENTERED_PILL_STYLE}
-              labelMap={(value) => t(`onboarding.languages.${value}`)}
-              onSelect={(value) => void profileScreen.updateLanguage(value)}
-              options={LANGUAGE_OPTIONS}
-              selectedValue={profileScreen.language}
-            />
-          </View>
-
-          <View style={{ gap: theme.spacing.sm }}>
-            <Text variant="caption" color="muted" weight="semibold">
               {t('profile.settings.theme')}
             </Text>
             <OptionPills
@@ -290,7 +276,21 @@ export function ProfileScreen() {
 
           {profileScreen.routineSettings ? (
             <Card style={{ padding: theme.spacing.lg }}>
-              <View style={{ gap: theme.spacing.lg }}>
+              <Text weight="semibold">{t('profile.settings.routineTitle')}</Text>
+              <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                {t('profile.settings.routineBody')}
+              </Text>
+              <View style={{ marginTop: theme.spacing.md }}>
+                <Button
+                  compact
+                  onPress={() => setMoreSettingsOpen((current) => !current)}
+                  title={t(moreSettingsOpen ? 'common.hideMoreSettings' : 'common.showMoreSettings')}
+                  titleVariant="caption"
+                  variant="ghost"
+                />
+              </View>
+              {moreSettingsOpen ? (
+                <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.lg }}>
               <View style={{ gap: theme.spacing.sm }}>
                 <Text variant="caption" color="muted" weight="semibold">
                   {t('profile.settings.brushingGoal')}
@@ -430,36 +430,8 @@ export function ProfileScreen() {
                 />
               </View>
 
-              <View style={{ gap: theme.spacing.sm }}>
-                <Text variant="caption" color="muted" weight="semibold">
-                  {t('profile.settings.quietStart')}
-                </Text>
-                <OptionPills
-                  containerStyle={CENTERED_PILL_STYLE}
-                  labelMap={(value) => value}
-                  onSelect={(value) =>
-                    void profileScreen.updateRoutineSettings({ quietHoursStart: value }, 'quietStart')
-                  }
-                  options={QUIET_START_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.quietHoursStart ?? '22:30'}
-                />
               </View>
-
-              <View style={{ gap: theme.spacing.sm }}>
-                <Text variant="caption" color="muted" weight="semibold">
-                  {t('profile.settings.quietEnd')}
-                </Text>
-                <OptionPills
-                  containerStyle={CENTERED_PILL_STYLE}
-                  labelMap={(value) => value}
-                  onSelect={(value) =>
-                    void profileScreen.updateRoutineSettings({ quietHoursEnd: value }, 'quietEnd')
-                  }
-                  options={QUIET_END_OPTIONS}
-                  selectedValue={profileScreen.routineSettings.quietHoursEnd ?? '08:00'}
-                />
-              </View>
-              </View>
+              ) : null}
             </Card>
           ) : null}
 

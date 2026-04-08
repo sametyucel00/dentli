@@ -137,14 +137,12 @@ function countExpectedCadenceOccurrences(
     return 0;
   }
 
-  let expectedCount = 0;
-  for (let cursor = getStartOfDay(startDate); cursor < endDate; cursor = addDays(cursor, 1)) {
-    if (isCadenceScheduledForDate(cursor, sessionsPerWeek)) {
-      expectedCount += 1;
-    }
-  }
+  const totalDays = Math.max(
+    1,
+    Math.ceil((getStartOfDay(endDate).getTime() - getStartOfDay(startDate).getTime()) / (24 * 60 * 60 * 1000)),
+  );
 
-  return expectedCount;
+  return Math.max(1, Math.round((totalDays * sessionsPerWeek) / 7));
 }
 
 export function getDailyCompletionStats(

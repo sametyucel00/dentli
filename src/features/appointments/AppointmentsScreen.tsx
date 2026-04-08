@@ -46,21 +46,21 @@ export function AppointmentsScreen() {
           <View
             style={{
               alignItems: 'center',
-              flexDirection: 'row',
+              flexDirection: isTablet ? 'row' : 'column',
               gap: theme.spacing.sm,
               justifyContent: 'center',
               marginTop: theme.spacing.sm,
             }}>
             <Button
-              onPress={() => router.push('/dentist-mode')}
-              style={{ minWidth: 0 }}
-              title={t('appointments.summary.dentistMode')}
-              variant="secondary"
+              onPress={appointmentsScreen.openCreateSheet}
+              style={{ minWidth: 0, width: isTablet ? undefined : '72%' }}
+              title={t('appointments.summary.add')}
             />
             <Button
-              onPress={appointmentsScreen.openCreateSheet}
-              style={{ minWidth: 0 }}
-              title={t('appointments.summary.add')}
+              onPress={() => router.push('/dentist-mode')}
+              style={{ minWidth: 0, width: isTablet ? undefined : '72%' }}
+              title={t('appointments.summary.dentistMode')}
+              variant="ghost"
             />
           </View>
         </StateMessageCard>

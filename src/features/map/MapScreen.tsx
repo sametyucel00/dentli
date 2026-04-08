@@ -73,23 +73,14 @@ export function MapScreen() {
             <Text color="muted" style={{ marginTop: theme.spacing.lg }}>
               {t('toothMap.summary.helper')}
             </Text>
-          </Card>
-
-          {hasFullMapAccess ? (
-            <Card style={{ flex: isExpanded ? 1 : undefined }}>
-              <Text variant="title" weight="semibold">
-                {t('toothMap.guide.title')}
-              </Text>
-              <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-                {t('toothMap.guide.body')}
-              </Text>
+            {hasFullMapAccess ? (
               <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
                 <Text color="muted">{t('toothMap.guide.pointOne')}</Text>
                 <Text color="muted">{t('toothMap.guide.pointTwo')}</Text>
                 <Text color="muted">{t('toothMap.guide.pointThree')}</Text>
               </View>
-            </Card>
-          ) : null}
+            ) : null}
+          </Card>
         </View>
 
         {map.error ? (
@@ -101,21 +92,7 @@ export function MapScreen() {
           />
         ) : map.loading ? (
           <StateMessageCard title={t('toothMap.loading')} />
-        ) : !hasFullMapAccess ? (
-          <Card style={{ marginTop: theme.spacing.lg }}>
-            <Text variant="title" weight="semibold">
-              {t('toothMap.locked.title')}
-            </Text>
-            <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
-              {t('toothMap.locked.body')}
-            </Text>
-            <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
-              <Text color="muted">{t('toothMap.locked.pointOne')}</Text>
-              <Text color="muted">{t('toothMap.locked.pointTwo')}</Text>
-              <Text color="muted">{t('toothMap.locked.pointThree')}</Text>
-            </View>
-          </Card>
-        ) : (
+        ) : !hasFullMapAccess ? null : (
           <View
             style={{
               flexDirection: isTablet ? 'row' : 'column',

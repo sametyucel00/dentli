@@ -1,4 +1,3 @@
-import * as Localization from 'expo-localization';
 import { create } from 'zustand';
 
 import {
@@ -74,8 +73,7 @@ const INITIAL_APP_PREFERENCES: AppPreferences = {
   updatedAt: new Date(0).toISOString(),
 };
 
-const INITIAL_LANGUAGE: SupportedLanguage =
-  Localization.getLocales()[0]?.languageCode === 'tr' ? 'tr' : 'en';
+const INITIAL_LANGUAGE: SupportedLanguage = 'en';
 
 export const useAppStore = create<AppStoreState>((set) => ({
   language: INITIAL_LANGUAGE,
@@ -119,9 +117,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
       isHydrated: true,
       bootstrapStatus: 'ready',
       bootstrapError: null,
-      language:
-        profiles.find((profile) => profile.id === selectedProfileId)?.preferredLanguage ??
-        state.language,
+      language: 'en',
       selectedProfileId,
       entitlements,
       appPreferences,
@@ -149,7 +145,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
     language,
   }) =>
     set((state) => ({
-      language: language ?? state.language,
+      language: 'en',
       selectedProfileId,
       cache: mergeSelectedProfileCache(state.cache, {
         selectedProfileId,

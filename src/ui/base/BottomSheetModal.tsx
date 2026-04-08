@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Text as RNText,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -99,6 +100,7 @@ export function BottomSheetModal({
               style={{
                 alignItems: 'center',
                 marginBottom: theme.spacing.md,
+                minHeight: 24,
               }}>
               <View
                 style={{
@@ -108,6 +110,26 @@ export function BottomSheetModal({
                   width: 42,
                 }}
               />
+              <Pressable
+                accessibilityLabel="Close"
+                accessibilityRole="button"
+                onPress={onClose}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: -theme.spacing.xs,
+                }}>
+                <RNText
+                  style={{
+                    color: theme.colors.textMuted,
+                    fontSize: 14,
+                    fontWeight: '600',
+                    paddingHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.xs,
+                  }}>
+                  Close
+                </RNText>
+              </Pressable>
             </View>
             <ScrollView
               automaticallyAdjustKeyboardInsets

@@ -18,7 +18,6 @@ export function ProAccessCard({
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const monetization = useMonetization();
-  const product = monetization.productList[0] ?? null;
 
   return (
     <Card style={{ marginTop: theme.spacing.lg }}>
@@ -34,21 +33,6 @@ export function ProAccessCard({
       ) : null}
       {monetization.notice ? (
         <StateMessageCard title={t(`monetization.status.${monetization.notice}`)} />
-      ) : null}
-
-      {product ? (
-        <View style={{ marginTop: theme.spacing.lg }}>
-          <Text weight="semibold">{t(product.titleKey)}</Text>
-          <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-            {t(product.descriptionKey)}
-          </Text>
-          <Text color="primary" style={{ marginTop: theme.spacing.sm }} weight="semibold">
-            {product.storePriceLabel ?? t(product.priceLabelKey)}
-          </Text>
-          <Text color="muted" style={{ marginTop: theme.spacing.sm }} variant="caption">
-            {t('monetization.paywall.trustLine')}
-          </Text>
-        </View>
       ) : null}
 
       {featureKeys && featureKeys.length > 0 ? (

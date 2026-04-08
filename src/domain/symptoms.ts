@@ -8,4 +8,4 @@ export const SYMPTOM_TYPE_OPTIONS: SymptomType[] = [
   'bad_breath',
 ];
 
-export const SYMPTOM_SEVERITY_OPTIONS = [null, 1, 2, 3, 4, 5] as const;
+export const SYMPTOM_SEVERITY_OPTIONS = [null, 2, 3, 5] as const;

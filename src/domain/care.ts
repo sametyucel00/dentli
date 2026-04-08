@@ -7,7 +7,6 @@ export const CARE_ITEM_TYPE_OPTIONS: CareItemType[] = [
   'mouthwash',
   'interdental_brush',
   'water_flosser',
-  'other',
 ];
 
 export const DEFAULT_TOOTHBRUSH_REPLACEMENT_DAYS = 90;

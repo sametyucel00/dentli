@@ -1,13 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 
-import { settingsService } from '@/src/services/settings-service';
-import {
-  getAlternateLanguage,
-  useSelectedProfileSummary,
-} from '@/src/state/selectors';
+import { useSelectedProfileSummary } from '@/src/state/selectors';
 import { useAppTheme } from '@/src/theme/useAppTheme';
-import { Button, Card, Text } from '@/src/ui/base';
+import { Card, Text } from '@/src/ui/base';
 
 export function ProfileSummaryCard({
   title,
@@ -18,11 +14,8 @@ export function ProfileSummaryCard({
   emptyBody?: string;
   showPreferences?: boolean;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const { width } = useWindowDimensions();
-  const isCompactWidth = width < 390;
-  const isVeryNarrow = width < 350;
   const { selectedProfile, appointmentsCount, careItemsCount } =
     useSelectedProfileSummary();
 
@@ -53,33 +46,6 @@ export function ProfileSummaryCard({
         </Text>
       ) : null}
 
-      {showPreferences ? (
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: theme.spacing.md,
-            justifyContent: 'center',
-            marginTop: theme.spacing.lg,
-          }}>
-          <Button
-            compact
-            style={{ flexBasis: isVeryNarrow ? '100%' : '47%', maxWidth: 220 }}
-            title={isCompactWidth ? t('common.switchTheme').replace(' ', '\n') : t('common.switchTheme')}
-            onPress={() => void settingsService.toggleThemeMode()}
-            titleVariant="caption"
-            variant="secondary"
-          />
-          <Button
-            compact
-            style={{ flexBasis: isVeryNarrow ? '100%' : '47%', maxWidth: 220 }}
-            title={isCompactWidth ? t('common.switchLanguage').replace(' ', '\n') : t('common.switchLanguage')}
-            onPress={() => void settingsService.applyLanguage(getAlternateLanguage(i18n.language))}
-            titleVariant="caption"
-            variant="secondary"
-          />
-        </View>
-      ) : null}
     </Card>
   );
 }

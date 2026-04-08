@@ -54,7 +54,7 @@ class ProfileManagementService {
       id: profileId,
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
-      preferredLanguage: input.preferredLanguage,
+      preferredLanguage: 'en',
       createdAt: timestamp,
       updatedAt: timestamp,
     };

@@ -161,23 +161,27 @@ export function TodayScreen() {
                 title={t('common.errorTitle')}
               />
             ) : today.insights.length > 0 ? (
-              <View style={{ gap: theme.spacing.md }}>
-                {today.insights.map((insight) => (
-                  <Card
-                    key={insight.id}
-                    style={{
-                      backgroundColor:
-                        insight.tone === 'warning'
-                          ? theme.colors.surfaceAccent
-                          : theme.colors.surface,
-                    }}>
-                    <Text weight="semibold">{t(insight.titleKey)}</Text>
-                    <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
-                      {t(insight.bodyKey, insight.bodyValues)}
-                    </Text>
-                  </Card>
-                ))}
-              </View>
+              <Card
+                style={{
+                  backgroundColor:
+                    today.insights.some((insight) => insight.tone === 'warning')
+                      ? theme.colors.surfaceAccent
+                      : theme.colors.surface,
+                }}>
+                <Text variant="title" weight="semibold">
+                  {t('profile.insights.title')}
+                </Text>
+                <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+                  {today.insights.map((insight) => (
+                    <View key={insight.id}>
+                      <Text weight="semibold">{t(insight.titleKey)}</Text>
+                      <Text color="muted" style={{ marginTop: theme.spacing.xs }}>
+                        {t(insight.bodyKey, insight.bodyValues)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </Card>
             ) : !isTablet ? null : (
               <Card>
                 <Text variant="title" weight="semibold">
