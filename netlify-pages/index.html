@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dentli Legal & Support</title>
+    <meta
+      name="description"
+      content="Dentli privacy, terms, permissions, and support information in Turkish and English." />
+    <style>
+      :root {
+        --bg: #081824;
+        --surface: #112538;
+        --surface-soft: #163149;
+        --text: #f4fbfa;
+        --muted: #b6cad5;
+        --line: rgba(215, 241, 236, 0.12);
+        --primary: #36c2a7;
+        --max: 900px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #07141f 0%, var(--bg) 100%);
+        color: var(--text);
+        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .shell {
+        width: min(calc(100% - 32px), var(--max));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+
+      .hero,
+      .section {
+        background: rgba(17, 37, 56, 0.92);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+      }
+
+      .hero {
+        padding: 28px;
+      }
+
+      .eyebrow {
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 10px;
+        font-size: clamp(32px, 5vw, 44px);
+        line-height: 1.08;
+      }
+
+      .subtitle {
+        margin-top: 12px;
+        color: var(--muted);
+        max-width: 60ch;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .nav a {
+        display: block;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        color: var(--text);
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .section {
+        margin-top: 18px;
+        padding: 24px;
+      }
+
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .section-head p {
+        color: var(--muted);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: rgba(22, 49, 73, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+      }
+
+      .card h3 {
+        font-size: 17px;
+        margin-bottom: 8px;
+      }
+
+      .lang-block + .lang-block {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+
+      .lang-label {
+        display: inline-block;
+        margin-bottom: 6px;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card p,
+      .section p,
+      .section li {
+        color: var(--muted);
+      }
+
+      ul {
+        padding-left: 18px;
+        margin: 12px 0 0;
+      }
+
+      .support-email {
+        display: inline-block;
+        margin-top: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .foot {
+        margin-top: 20px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(calc(100% - 20px), var(--max));
+          padding-top: 20px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 20px;
+          padding: 20px;
+        }
+
+        .nav {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Dentli</p>
+        <h1>Legal & Support</h1>
+        <p class="subtitle">
+          Apple review ve mağaza bağlantıları için gizlilik, koşullar, izinler ve
+          destek bilgilerinin Türkçe ve İngilizce sürümleri tek sayfada.
+        </p>
+
+        <nav class="nav" aria-label="Section links">
+          <a href="#privacy">#privacy</a>
+          <a href="#terms">#terms</a>
+          <a href="#permissions">#permissions</a>
+          <a href="#support">#support</a>
+        </nav>
+      </section>
+
+      <section class="section" id="privacy">
+        <div class="section-head">
+          <h2>Gizlilik</h2>
+          <p>Privacy</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Özet</h3>
+              <p>
+                Dentli, kişisel ağız bakımı takibini sade ve özel tutmak için
+                tasarlandı. Mevcut sürüm rutin ve profil verilerini cihazda yerel olarak
+                saklar.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Summary</h3>
+              <p>
+                Dentli is designed to keep personal oral care tracking simple and
+                private. The current build stores routine and profile data locally on
+                the device.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Yerel veri</h3>
+              <p>
+                Profiller, rutin ayarları, bakım geçmişi, diş güncellemeleri ve
+                analitikler cihazdaki yerel uygulama veritabanında tutulur.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Local data</h3>
+              <p>
+                Profiles, routine settings, care history, tooth updates, and analytics
+                are stored in the local app database on the device.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Bildirimler</h3>
+              <p>
+                Bildirim izinleri sadece senin etkinleştirdiğin fırçalama, diş ipi,
+                randevu ve bakım değişim hatırlatıcıları için kullanılır.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Notifications</h3>
+              <p>
+                Notification permission is used only for reminders you choose to enable,
+                such as brushing, flossing, appointments, and care replacement reminders.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Satın alımlar</h3>
+              <p>
+                Dentli Pro tek seferlik uygulama içi satın alımdır. Satın alma geri
+                yükleme akışı uygulama içinde sunulur.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Purchases</h3>
+              <p>
+                Dentli Pro is a one-time in-app purchase. A restore purchases flow is
+                available inside the app.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="terms">
+        <div class="section-head">
+          <h2>Koşullar</h2>
+          <p>Terms</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Uygulama kullanımı</h3>
+              <p>
+                Dentli, kişisel ağız bakımı takibi ve alışkanlık farkındalığını
+                desteklemek için tasarlanmıştır. Profesyonel teşhis veya tedavinin yerine
+                kullanılmamalıdır.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>App use</h3>
+              <p>
+                Dentli is intended to support personal oral care tracking and habit
+                awareness. It should not be used as a substitute for professional
+                diagnosis or treatment.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Sağlık uyarısı</h3>
+              <p>
+                Uygulamadaki bilgiler senin girdilerine dayanır. Acil semptomlar, ağrı,
+                şişlik veya dental acil durum şüphesinde nitelikli bir uzmana başvur.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Health disclaimer</h3>
+              <p>
+                Information shown in the app is based on your entries. For urgent
+                symptoms, pain, swelling, or suspected dental emergencies, contact a
+                qualified clinician.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Satın alma ve erişim</h3>
+              <p>
+                Dentli Pro tek seferlik bir kilit açmadır. Restore purchases özelliği,
+                ücretli erişim sunulan her yerde kullanılabilir kalmalıdır.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Purchases and access</h3>
+              <p>
+                Dentli Pro is a one-time unlock. Restore purchases should remain
+                available anywhere paywalled access is offered.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="permissions">
+        <div class="section-head">
+          <h2>İzinler</h2>
+          <p>Permissions</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Bildirim izni</h3>
+              <p>
+                Dentli, rutinler, randevular ve değişim döngüleri için yerel
+                hatırlatıcılar gönderebilmek amacıyla bildirim izni ister.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Notification permission</h3>
+              <p>
+                Dentli asks for notification permission so it can send local reminders
+                for routines, appointments, and replacement cycles.
+              </p>
+            </div>
+          </article>
+          <article class="card">
+            <div class="lang-block">
+              <span class="lang-label">TR</span>
+              <h3>Opsiyonel</h3>
+              <p>
+                Mevcut sürümde Dentli hesap oluşturma, kişi rehberi, kamera, mikrofon
+                veya konum izni gerektirmez.
+              </p>
+            </div>
+            <div class="lang-block">
+              <span class="lang-label">EN</span>
+              <h3>Optional by design</h3>
+              <p>
+                Dentli does not require account creation, contacts, camera, microphone,
+                or location permission in the current build.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="support">
+        <div class="section-head">
+          <h2>Destek</h2>
+          <p>Support</p>
+        </div>
+        <article class="card">
+          <div class="lang-block">
+            <span class="lang-label">TR</span>
+            <h3>Destek e-postası</h3>
+            <a class="support-email" href="mailto:sametyucel52@gmail.com">
+              sametyucel52@gmail.com
+            </a>
+          </div>
+          <div class="lang-block">
+            <span class="lang-label">EN</span>
+            <h3>Support email</h3>
+            <a class="support-email" href="mailto:sametyucel52@gmail.com">
+              sametyucel52@gmail.com
+            </a>
+          </div>
+        </article>
+        <article class="card" style="margin-top: 14px">
+          <div class="lang-block">
+            <span class="lang-label">TR</span>
+            <h3>Sık sorulan sorular</h3>
+            <ul>
+              <li>Dentli kişisel ağız bakımı takip uygulamasıdır.</li>
+              <li>Dentli tıbbi tavsiye vermez.</li>
+              <li>Verilerin büyük çoğu cihazınızda kalacak şekilde tasarlanmıştır.</li>
+              <li>Mevcut sürümde zorunlu hesap yoktur.</li>
+              <li>Bildirimler isteğe bağlı yerel hatırlatıcılardır.</li>
+              <li>
+                Verileri uygulama içinden, uygulama verisini temizleyerek veya
+                uygulamayı kaldırarak silebilirsiniz.
+              </li>
+              <li>Dentli Pro tek seferlik kilit açma modeli için tasarlanmıştır.</li>
+            </ul>
+          </div>
+          <div class="lang-block">
+            <span class="lang-label">EN</span>
+            <h3>Frequently asked questions</h3>
+            <ul>
+              <li>Dentli is a personal oral care tracking app.</li>
+              <li>Dentli does not provide medical advice.</li>
+              <li>Most data is designed to stay on your device.</li>
+              <li>A mandatory account is not required in the current build.</li>
+              <li>Notifications are optional local reminders.</li>
+              <li>
+                You can delete data through the app where supported, by clearing app
+                data, or by uninstalling.
+              </li>
+              <li>Dentli Pro is intended as a one-time unlock.</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <p class="foot">
+        Dentli review links:
+        <strong>#privacy</strong>,
+        <strong>#terms</strong>,
+        <strong>#permissions</strong>,
+        <strong>#support</strong>
+      </p>
+    </main>
+  </body>
+</html>
