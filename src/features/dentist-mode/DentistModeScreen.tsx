@@ -74,11 +74,12 @@ function StatTile({
         alignItems: 'center',
         backgroundColor: theme.colors.surfaceMuted,
         borderRadius: theme.radii.md,
-        flexBasis: '48%',
-        flexGrow: 1,
-        maxWidth: '48%',
+        flexBasis: '48.5%',
+        flexGrow: 0,
+        maxWidth: '48.5%',
         minWidth: 0,
         padding: theme.spacing.lg,
+        width: '48.5%',
       }}>
       <Text color="muted" style={{ minHeight: 32, textAlign: 'center' }} variant="caption">
         {label}
@@ -222,6 +223,7 @@ export function DentistModeScreen() {
                 gap: theme.spacing.md,
                 justifyContent: 'space-between',
                 marginTop: theme.spacing.lg,
+                width: '100%',
               }}>
               <StatTile
                 label={t('dentistMode.totalHygieneShort')}

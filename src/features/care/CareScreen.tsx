@@ -23,7 +23,7 @@ export function CareScreen() {
   const { width } = useWindowDimensions();
   const careScreen = useCareScreen();
   const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
-  const useTwoColumnMobile = width >= 360 && !isTablet;
+  const useTwoColumnMobile = width >= 320 && !isTablet;
   const useTwoColumnLayout = isTablet || useTwoColumnMobile;
 
   return (
@@ -78,6 +78,7 @@ export function CareScreen() {
               flexDirection: useTwoColumnLayout ? 'row' : 'column',
               flexWrap: 'wrap',
               gap: theme.spacing.md,
+              justifyContent: useTwoColumnLayout ? 'space-between' : 'flex-start',
               marginTop: theme.spacing.lg,
               width: '100%',
             }}>
@@ -86,9 +87,9 @@ export function CareScreen() {
                 key={item.id}
                 style={{
                   alignSelf: 'stretch',
-                  flexBasis: useTwoColumnLayout ? '48.2%' : '100%',
+                  flexBasis: useTwoColumnLayout ? '48.5%' : '100%',
                   flexGrow: 0,
-                  maxWidth: useTwoColumnLayout ? '48.2%' : '100%',
+                  maxWidth: useTwoColumnLayout ? '48.5%' : '100%',
                   minWidth: 0,
                   width: useTwoColumnLayout ? undefined : '100%',
                 }}>

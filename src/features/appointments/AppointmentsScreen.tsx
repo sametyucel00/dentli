@@ -21,7 +21,7 @@ export function AppointmentsScreen() {
   const { theme } = useAppTheme();
   const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
   const { width } = useWindowDimensions();
-  const useTwoColumnMobile = width >= 360 && !isTablet;
+  const useTwoColumnMobile = width >= 320 && !isTablet;
   const useTwoColumnLayout = isTablet || useTwoColumnMobile;
   const appointmentsScreen = useAppointmentsScreen();
 
@@ -84,6 +84,7 @@ export function AppointmentsScreen() {
               flexDirection: useTwoColumnLayout ? 'row' : 'column',
               flexWrap: 'wrap',
               gap: theme.spacing.md,
+              justifyContent: useTwoColumnLayout ? 'space-between' : 'flex-start',
               marginTop: theme.spacing.lg,
               width: '100%',
             }}>
@@ -92,9 +93,9 @@ export function AppointmentsScreen() {
                 key={appointment.id}
                 style={{
                   alignSelf: 'stretch',
-                  flexBasis: useTwoColumnLayout ? '48.2%' : '100%',
+                  flexBasis: useTwoColumnLayout ? '48.5%' : '100%',
                   flexGrow: 0,
-                  maxWidth: useTwoColumnLayout ? '48.2%' : '100%',
+                  maxWidth: useTwoColumnLayout ? '48.5%' : '100%',
                   minWidth: 0,
                   width: useTwoColumnLayout ? undefined : '100%',
                 }}>
