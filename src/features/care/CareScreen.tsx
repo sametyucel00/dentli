@@ -25,6 +25,8 @@ export function CareScreen() {
   const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
   const useTwoColumnMobile = width >= 320 && !isTablet;
   const useTwoColumnLayout = isTablet || useTwoColumnMobile;
+  const horizontalPadding = width < 390 ? theme.spacing.lg : theme.spacing.xl;
+  const twoColumnCardWidth = (width - horizontalPadding * 2 - theme.spacing.md) / 2;
 
   return (
     <>
@@ -43,6 +45,7 @@ export function CareScreen() {
 
         <StateMessageCard
           body={t('careTracking.summary.body', { count: careScreen.dueSoonCount })}
+          bodyNumberOfLines={2}
           title={t('careTracking.summary.title')}>
           <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
@@ -87,11 +90,11 @@ export function CareScreen() {
                 key={item.id}
                 style={{
                   alignSelf: 'stretch',
-                  flexBasis: useTwoColumnLayout ? '48.5%' : '100%',
+                  flexBasis: useTwoColumnMobile ? twoColumnCardWidth : useTwoColumnLayout ? '48.5%' : '100%',
                   flexGrow: 0,
-                  maxWidth: useTwoColumnLayout ? '48.5%' : '100%',
+                  maxWidth: useTwoColumnMobile ? twoColumnCardWidth : useTwoColumnLayout ? '48.5%' : '100%',
                   minWidth: 0,
-                  width: useTwoColumnLayout ? undefined : '100%',
+                  width: useTwoColumnMobile ? twoColumnCardWidth : useTwoColumnLayout ? undefined : '100%',
                 }}>
                 <CareItemCard
                   item={item}

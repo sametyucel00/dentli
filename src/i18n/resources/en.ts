@@ -491,7 +491,7 @@ export const en = {
       title: 'Overview',
       problemZones: 'Problem zones',
       totalTeeth: 'Tracked teeth',
-      helper: 'Flags highlight teeth that may need attention first.',
+      helper: 'Flags show teeth that may need attention soon.',
     },
     jaws: {
       upper: 'Upper teeth',
@@ -630,7 +630,7 @@ export const en = {
     },
     summary: {
       title: 'Overview',
-      body: '{{count}} scheduled appointments coming up.',
+      body: '{{count}} upcoming visits are scheduled.',
       dentistMode: 'Dentist mode',
       add: 'Add appointment',
     },
@@ -725,7 +725,7 @@ export const en = {
     },
     summary: {
       title: 'Replacement view',
-      body: '{{count}} items are approaching their replacement window in the next 7 days.',
+      body: '{{count}} items are due within the next 7 days.',
       add: 'Add item',
       freeHint: 'Core items stay free. Advanced care inventory unlocks with Pro.',
     },

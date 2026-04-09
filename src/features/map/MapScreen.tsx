@@ -70,7 +70,7 @@ export function MapScreen() {
                 </Text>
               </View>
             </View>
-            <Text color="muted" style={{ marginTop: theme.spacing.lg }}>
+            <Text color="muted" numberOfLines={2} style={{ marginTop: theme.spacing.lg }}>
               {t('toothMap.summary.helper')}
             </Text>
             {hasFullMapAccess ? (

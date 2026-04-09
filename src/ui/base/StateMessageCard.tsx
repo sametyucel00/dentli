@@ -9,6 +9,7 @@ import { Text } from '@/src/ui/base/Text';
 type StateMessageCardProps = {
   title: string;
   body?: string;
+  bodyNumberOfLines?: number;
   actionLabel?: string;
   onActionPress?: () => void;
   children?: ReactNode;
@@ -17,6 +18,7 @@ type StateMessageCardProps = {
 export function StateMessageCard({
   title,
   body,
+  bodyNumberOfLines,
   actionLabel,
   onActionPress,
   children,
@@ -31,7 +33,10 @@ export function StateMessageCard({
         {title}
       </Text>
       {body ? (
-        <Text color="muted" style={{ marginTop: theme.spacing.sm, textAlign: 'center' }}>
+        <Text
+          color="muted"
+          numberOfLines={bodyNumberOfLines}
+          style={{ marginTop: theme.spacing.sm, textAlign: 'center' }}>
           {body}
         </Text>
       ) : null}

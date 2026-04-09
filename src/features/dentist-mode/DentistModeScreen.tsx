@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, ViewStyle, useWindowDimensions } from 'react-native';
 
 import { DentistModeSummary } from '@/src/features/dentist-mode/model';
 import { dentistModeService } from '@/src/features/dentist-mode/dentist-mode-service';
@@ -62,9 +62,11 @@ function getRecentEventDetail(
 function StatTile({
   label,
   value,
+  width,
 }: {
   label: string;
   value: string | number;
+  width?: ViewStyle['width'];
 }) {
   const { theme } = useAppTheme();
 
@@ -74,12 +76,12 @@ function StatTile({
         alignItems: 'center',
         backgroundColor: theme.colors.surfaceMuted,
         borderRadius: theme.radii.md,
-        flexBasis: '48.5%',
+        flexBasis: width ?? '48.5%',
         flexGrow: 0,
-        maxWidth: '48.5%',
+        maxWidth: width ?? '48.5%',
         minWidth: 0,
         padding: theme.spacing.lg,
-        width: '48.5%',
+        width: width ?? '48.5%',
       }}>
       <Text color="muted" style={{ minHeight: 32, textAlign: 'center' }} variant="caption">
         {label}
@@ -131,6 +133,7 @@ export function DentistModeScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const { isTablet, isExpanded, contentMaxWidth } = useResponsiveLayout();
+  const { width } = useWindowDimensions();
   const locale = useAppLocale();
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
   const [summary, setSummary] = useState<DentistModeSummary | null>(null);
@@ -176,6 +179,10 @@ export function DentistModeScreen() {
       minute: '2-digit',
     }).format(new Date(summary.generatedAt));
   }, [locale, summary]);
+
+  const horizontalPadding = width < 390 ? theme.spacing.lg : theme.spacing.xl;
+  const summaryTileWidth =
+    (width - horizontalPadding * 2 - theme.spacing.lg * 2 - theme.spacing.md) / 2;
 
   return (
     <Screen contentMaxWidth={contentMaxWidth}>
@@ -228,18 +235,22 @@ export function DentistModeScreen() {
               <StatTile
                 label={t('dentistMode.totalHygieneShort')}
                 value={summary.stats.totalHygieneEvents}
+                width={!isExpanded && !isTablet ? summaryTileWidth : undefined}
               />
               <StatTile
                 label={t('dentistMode.totalSymptomsShort')}
                 value={summary.stats.totalSymptoms}
+                width={!isExpanded && !isTablet ? summaryTileWidth : undefined}
               />
               <StatTile
                 label={t('dentistMode.totalAppointmentsShort')}
                 value={summary.stats.totalAppointments}
+                width={!isExpanded && !isTablet ? summaryTileWidth : undefined}
               />
               <StatTile
                 label={t('dentistMode.totalToothUpdatesShort')}
                 value={summary.stats.totalToothUpdates}
+                width={!isExpanded && !isTablet ? summaryTileWidth : undefined}
               />
             </View>
           </Card>
