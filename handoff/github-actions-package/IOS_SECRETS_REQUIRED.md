@@ -34,6 +34,22 @@ Bu dosya, GitHub Actions uzerinden iOS archive / IPA build almak icin gereken mi
 
 - Bilgi/diagnostic amacli
 
+## App Store Connect upload icin ek secret'lar
+
+Asagidaki secret'lar eklenirse workflow sadece IPA uretmekle kalmaz, build'i App Store Connect'e de yukler.
+
+### `APP_STORE_CONNECT_API_KEY_ID`
+
+- App Store Connect API key ID
+
+### `APP_STORE_CONNECT_ISSUER_ID`
+
+- App Store Connect issuer ID
+
+### `APP_STORE_CONNECT_API_KEY_BASE64`
+
+- App Store Connect `.p8` API key dosyasinin base64 hali
+
 ## Not
 
 iOS tarafinda CI ile imzali build almak Android'den daha hassastir.
@@ -44,3 +60,8 @@ Bu secret'lar olmadan:
 - IPA export
 
 alinamaz.
+
+App Store Connect upload secret'lari olmadan ise:
+
+- IPA build alinabilir
+- ama build Apple tarafina otomatik gonderilmez
