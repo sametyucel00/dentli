@@ -25,13 +25,13 @@ export function CareItemCard({
       accessibilityRole="button"
       onPress={onPress}
       style={({ pressed }) => ({
+        alignSelf: 'stretch',
         opacity: pressed ? 0.84 : 1,
         transform: [{ scale: pressed ? 0.995 : 1 }],
       })}>
       <Card
         style={{
           backgroundColor: countdown.dueNow ? theme.colors.surfaceAccent : theme.colors.surface,
-          height: '100%',
           paddingVertical: theme.spacing.lg,
         }}>
         <View style={{ gap: theme.spacing.md }}>

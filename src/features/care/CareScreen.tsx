@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { CareItemCard } from '@/src/features/care/components/CareItemCard';
 import { CareItemForm } from '@/src/features/care/components/CareItemForm';
@@ -19,9 +19,12 @@ import {
 export function CareScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const { isTablet, isExpanded, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
+  const { isTablet, formMaxWidth, contentMaxWidth } = useResponsiveLayout();
+  const { width } = useWindowDimensions();
   const careScreen = useCareScreen();
   const hasFullCareInventoryAccess = useFeatureAccess('care_full_inventory');
+  const useTwoColumnMobile = width >= 360 && !isTablet;
+  const useTwoColumnLayout = isTablet || useTwoColumnMobile;
 
   return (
     <>
@@ -72,7 +75,7 @@ export function CareScreen() {
         ) : (
           <View
             style={{
-              flexDirection: isTablet ? 'row' : 'column',
+              flexDirection: useTwoColumnLayout ? 'row' : 'column',
               flexWrap: 'wrap',
               gap: theme.spacing.md,
               marginTop: theme.spacing.lg,
@@ -83,10 +86,11 @@ export function CareScreen() {
                 key={item.id}
                 style={{
                   alignSelf: 'stretch',
-                  flexGrow: isTablet ? 1 : 0,
-                  maxWidth: isTablet ? (isExpanded ? '32%' : '48.6%') : '100%',
+                  flexBasis: useTwoColumnLayout ? '48.2%' : '100%',
+                  flexGrow: 0,
+                  maxWidth: useTwoColumnLayout ? '48.2%' : '100%',
                   minWidth: 0,
-                  width: isTablet ? undefined : '100%',
+                  width: useTwoColumnLayout ? undefined : '100%',
                 }}>
                 <CareItemCard
                   item={item}
@@ -112,7 +116,7 @@ export function CareScreen() {
             allowAdvancedTypes={
               hasFullCareInventoryAccess ||
               !!careScreen.editingItem?.itemType &&
-                ['interdental_brush', 'water_flosser', 'other'].includes(
+                ['interdental_brush', 'water_flosser'].includes(
                   careScreen.editingItem.itemType,
                 )
             }

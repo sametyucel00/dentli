@@ -76,6 +76,7 @@ function StatTile({
         borderRadius: theme.radii.md,
         flexBasis: '48%',
         flexGrow: 1,
+        maxWidth: '48%',
         minWidth: 0,
         padding: theme.spacing.lg,
       }}>

@@ -92,8 +92,9 @@ export function AppointmentsScreen() {
                 key={appointment.id}
                 style={{
                   alignSelf: 'stretch',
-                  flexGrow: useTwoColumnLayout ? 1 : 0,
-                  maxWidth: useTwoColumnLayout ? '48.6%' : '100%',
+                  flexBasis: useTwoColumnLayout ? '48.2%' : '100%',
+                  flexGrow: 0,
+                  maxWidth: useTwoColumnLayout ? '48.2%' : '100%',
                   minWidth: 0,
                   width: useTwoColumnLayout ? undefined : '100%',
                 }}>

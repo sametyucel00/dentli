@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { AppState, Image, Platform, Pressable, View } from 'react-native';
+import { AppState, Platform, Pressable, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { OnboardingScreen } from '@/src/features/onboarding/OnboardingScreen';
@@ -29,9 +29,7 @@ export function AppProviders({ children }: PropsWithChildren) {
   const [isLocked, setIsLocked] = useState(false);
   const [lockError, setLockError] = useState<string | null>(null);
   const [minimumLaunchElapsed, setMinimumLaunchElapsed] = useState(false);
-  const [launchScreenReady, setLaunchScreenReady] = useState(false);
   const authInFlightRef = useRef(false);
-  const launchSlogan = 'Personal oral care system';
 
   const authenticate = useCallback(async () => {
     if (
@@ -106,8 +104,6 @@ export function AppProviders({ children }: PropsWithChildren) {
       return;
     }
 
-    setLaunchScreenReady(true);
-
     if (splashHiddenRef.current) {
       return;
     }
@@ -149,116 +145,88 @@ export function AppProviders({ children }: PropsWithChildren) {
     bootstrapStatus === 'ready' &&
     profiles.length === 0 &&
     !appPreferences.onboardingCompleted;
-  const shouldShowLaunchScreen = bootstrapStatus === 'loading' || !launchScreenReady;
-
   return (
     <I18nextProvider i18n={i18n}>
       <SafeAreaProvider>
         <ThemeProvider value={createNavigationTheme(theme)}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          {!shouldShowLaunchScreen ? (
-            <>
-              {shouldShowOnboarding ? <OnboardingScreen /> : children}
-              {isLocked ? (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    backgroundColor: theme.colors.background,
-                    bottom: 0,
-                    justifyContent: 'center',
-                    left: 0,
-                    paddingHorizontal: theme.spacing.xl,
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                  }}>
-                  <Text variant="title" weight="semibold">
-                    {i18n.t('profile.settings.biometricPrompt')}
-                  </Text>
-                  <Text
-                    color="muted"
-                    style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
-                    {lockError ?? i18n.t('profile.settings.biometricBody')}
-                  </Text>
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => void authenticate()}
-                    style={{
-                      backgroundColor: theme.colors.primary,
-                      borderRadius: theme.radii.pill,
-                      marginTop: theme.spacing.xl,
-                      paddingHorizontal: theme.spacing.xl,
-                      paddingVertical: theme.spacing.md,
-                    }}>
-                    <Text style={{ color: theme.colors.textInverse }} weight="semibold">
-                      {i18n.t('common.retry')}
-                    </Text>
-                  </Pressable>
-                </View>
-              ) : null}
-            </>
-          ) : (
-            <View
-              style={{
-                alignItems: 'center',
-                backgroundColor: '#081824',
-                flex: 1,
-                justifyContent: 'center',
-                paddingHorizontal: theme.spacing.xl,
-              }}>
+          <>
+            {shouldShowOnboarding ? <OnboardingScreen /> : children}
+            {bootstrapStatus === 'error' ? (
               <View
                 style={{
                   alignItems: 'center',
-                  marginBottom: theme.spacing.xxxl,
+                  backgroundColor: theme.colors.background,
+                  bottom: 0,
+                  justifyContent: 'center',
+                  left: 0,
+                  paddingHorizontal: theme.spacing.xl,
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
                 }}>
-                <Image
-                  source={require('../../assets/images/splash-icon.png')}
-                  style={{
-                    height: 88,
-                    marginBottom: theme.spacing.lg,
-                    width: 88,
-                  }}
-                />
-                <Text variant="display" weight="bold">
-                  Dentli
+                <Text variant="title" weight="semibold">
+                  {i18n.t('bootstrap.errorTitle')}
                 </Text>
                 <Text
-                  style={{
-                    color: '#D7F1EC',
-                    marginTop: theme.spacing.sm,
-                    textAlign: 'center',
-                  }}>
-                  {launchSlogan}
+                  color="muted"
+                  style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
+                  {bootstrapError ?? i18n.t('bootstrap.errorBody')}
                 </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void appBootstrapService.initialize()}
+                  style={{
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: theme.radii.pill,
+                    marginTop: theme.spacing.xl,
+                    paddingHorizontal: theme.spacing.xl,
+                    paddingVertical: theme.spacing.md,
+                  }}>
+                  <Text style={{ color: theme.colors.textInverse }} weight="semibold">
+                    {i18n.t('common.retry')}
+                  </Text>
+                </Pressable>
               </View>
-              {bootstrapStatus === 'error' ? (
-                <>
-                  <Text variant="title" weight="semibold">
-                    {i18n.t('bootstrap.errorTitle')}
+            ) : null}
+            {isLocked ? (
+              <View
+                style={{
+                  alignItems: 'center',
+                  backgroundColor: theme.colors.background,
+                  bottom: 0,
+                  justifyContent: 'center',
+                  left: 0,
+                  paddingHorizontal: theme.spacing.xl,
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                }}>
+                <Text variant="title" weight="semibold">
+                  {i18n.t('profile.settings.biometricPrompt')}
+                </Text>
+                <Text
+                  color="muted"
+                  style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
+                  {lockError ?? i18n.t('profile.settings.biometricBody')}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void authenticate()}
+                  style={{
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: theme.radii.pill,
+                    marginTop: theme.spacing.xl,
+                    paddingHorizontal: theme.spacing.xl,
+                    paddingVertical: theme.spacing.md,
+                  }}>
+                  <Text style={{ color: theme.colors.textInverse }} weight="semibold">
+                    {i18n.t('common.retry')}
                   </Text>
-                  <Text
-                    color="muted"
-                    style={{ marginTop: theme.spacing.md, textAlign: 'center' }}>
-                    {bootstrapError ?? i18n.t('bootstrap.errorBody')}
-                  </Text>
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => void appBootstrapService.initialize()}
-                    style={{
-                      backgroundColor: theme.colors.primary,
-                      borderRadius: theme.radii.pill,
-                      marginTop: theme.spacing.xl,
-                      paddingHorizontal: theme.spacing.xl,
-                      paddingVertical: theme.spacing.md,
-                    }}>
-                    <Text style={{ color: theme.colors.textInverse }} weight="semibold">
-                      {i18n.t('common.retry')}
-                    </Text>
-                  </Pressable>
-                </>
-              ) : null}
-            </View>
-          )}
+                </Pressable>
+              </View>
+            ) : null}
+          </>
         </ThemeProvider>
       </SafeAreaProvider>
     </I18nextProvider>

@@ -301,6 +301,10 @@ export const en = {
       savedTitle: 'Saved',
       saved: 'Your changes were saved.',
       dataCleared: 'All local Dentli data was removed.',
+      clearDataConfirmTitle: 'Delete all local data?',
+      clearDataConfirmBody: 'This removes profiles, routines, appointments, care items, tooth notes, and local history from this device.',
+      clearDataConfirmCancel: 'Cancel',
+      clearDataConfirmConfirm: 'Delete',
     },
     release: {
       title: 'Privacy & release',
